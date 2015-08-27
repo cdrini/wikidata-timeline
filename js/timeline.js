@@ -1,3 +1,12 @@
+/******************************************
+ ****** Helpers
+ ******************************************/
+
+/**
+ * @private
+ * Helper function which will assign principal[key] to secondary[key] if
+ * defined, otherwise to defaultValue.
+ */
 function setParam(principal, secondary, key, defaultValue) {
 	if(typeof(secondary[key]) == 'undefined') {
 		principal[key] = defaultValue;
@@ -6,19 +15,46 @@ function setParam(principal, secondary, key, defaultValue) {
 	}
 }
 
+/**
+ * @private
+ * Helper function which converts ms to years
+ * @param {Integer} ms
+ * @return {Integer} years
+ */
 function msToYears(ms) {
   return ms / 3.15569e10;
 }
 
-function sprintf() {
-  var str = arguments[0];
+/**
+ * @private
+ * Helper function which takes a string with '%%' as placeholders. Replaces
+ * ith placeholder with (i+1)th param (first being the string)
+ * @param {String} str with '%%' placeholders
+ * @param {...*} [items] items to replace placeholders with
+ * @return {String}
+ */
+function sprintf(str) {
   var args = arguments;
   var i = 1;
   return str.replace(/%%/g, function() { return args[i++];});
 }
 
+/******************************************
+ ****** Main
+ ******************************************/
+
 /**
- *
+ * @class
+ * @param {Array<Object>} items items to plot on timeline. Objects must have name, and
+ * start, defined. 'end' is optional; if undefined, assumed the present.
+ * @param {Object} opts config object
+ *   @config {Integer}   [widthOfYear]
+ *   @config {Integer}   [itemHeight]
+ *   @config {Integer}   [itemSpacing] @todo
+ *   @config {Timestamp} [startDate] @todo
+ *   @config {Timestamp} [endDate] @todo
+ *   @config {Integer}   [padding]
+ *   @config {Integer}   [axisLabelSize] @todo
  */
 function Timeline(items, opts) {
   this.items = items;
@@ -27,11 +63,10 @@ function Timeline(items, opts) {
   setParam(this, opts, 'widthOfYear',                     20); //px
   setParam(this, opts, 'itemHeight',                      20); //px
   setParam(this, opts, 'itemSpacing',                      2); //px
-  setParam(this, opts, 'startDate',                        0); // start of epoch
+  setParam(this, opts, 'startDate',                        0);
   setParam(this, opts, 'endDate',     (new Date()).getTime()); // present
   setParam(this, opts, 'padding',                          5);
   setParam(this, opts, 'axisLabelSize',                   20); //px
-  setParam(this, opts, 'itemColor',                 '#ffdd55');
 }
 
 // getters/setters
@@ -45,6 +80,9 @@ Object.defineProperty(Timeline.prototype, 'gridStartPoint',
     y: this.canvasHeight - this.padding - this.axisLabelSize
   }}});
 
+/**Creates SVG, calculates range/scale
+ * @private
+ */
 Timeline.prototype.init = function() {
   var _this = this;
   // determine data extents
@@ -69,6 +107,9 @@ Timeline.prototype.init = function() {
   };
 }
 
+/** Creates the timeline and appends it to HTMLContainer
+ * @param{HTMLElement} HTMLContainer
+ */
 Timeline.prototype.draw = function(HTMLContainer) {
   this.container = HTMLContainer;
   if (!this.svg) {
@@ -80,7 +121,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
   this._drawItems();
 };
 
-/**
+/**Draws the grid/axes
  * @private
  */
 Timeline.prototype._drawGrid = function() {
@@ -97,6 +138,9 @@ Timeline.prototype._drawGrid = function() {
   this._grid.classed('grid', true);
 }
 
+/**Draws the individual items
+ * @private
+ */
 Timeline.prototype._drawItems = function() {
   var _this = this;
   this.svg._itemsGroup = this.svg.append('g').classed('items', true);
