@@ -17,12 +17,6 @@ function sprintf() {
   return str.replace(/%%/g, function() { return args[i++];});
 }
 
-var sampleItem = {
-  name: 'Leave it to Beaver',
-  start: '+1957-10-04T00:00:00Z', // actually, timestamp :)
-  end: '+1963-06-20T00:00:00Z'
-};
-
 /**
  *
  */
@@ -117,20 +111,31 @@ Timeline.prototype._drawItems = function() {
     });
   groups.append('rect')
     .attr({
-      x:      0,
+      x:      function(d)    {return (_this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start))/2 },
       y:      0,
-      width:  function(d)    {return _this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start)},
+      width:  0,
       height: _this.itemHeight,
+    })
+    .transition().duration(80)
+    .delay(function(d, i) { return 60*Math.log(i); })
+    .attr({
+      x: 0,
+      width:  function(d)    {return _this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start)}
     });
   groups.append('text')
     .attr({
       x: function(d)    {return (_this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start))/2 },
       y: _this.itemHeight / 2
     })
+		.append('tspan')
+		.text(function(d) { return d.name; })
     .style({
       fill: '#000',
       'text-anchor': 'middle',
-      'alignment-baseline': 'central'
+      'alignment-baseline': 'central',
+      opacity: 0
     })
-    .text(function(d) { return d.name; });
+    .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
+    .style('opacity', 1);
+
 };
