@@ -6,3 +6,8 @@
   stroke: white;
   stroke-width: 1.5px;
 }
+
+.timeline .item text {
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+}

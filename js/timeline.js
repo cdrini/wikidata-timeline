@@ -39,6 +39,16 @@ function sprintf(str) {
   return str.replace(/%%/g, function() { return args[i++];});
 }
 
+/**
+ * @private
+ * returns the end timestamp, or, if its undefined, present timestamp
+ * @param {object} item
+ * @returns {timestamp}
+ */
+function getEndTime(item) {
+	return !item.end && item.end !== 0 ? (new Date()).getTime() : item.end;
+}
+
 /******************************************
  ****** Main
  ******************************************/
@@ -114,7 +124,6 @@ Timeline.prototype.draw = function(HTMLContainer) {
   this.container = HTMLContainer;
   if (!this.svg) {
     this.init();
-
   }
 
   this._drawGrid();
@@ -145,30 +154,39 @@ Timeline.prototype._drawItems = function() {
   var _this = this;
   this.svg._itemsGroup = this.svg.append('g').classed('items', true);
 
+	// each row will store a (sorted) part of start, end values (px).
+	// row 0 is at the bottom
+	var rows = [];
+	var nextRow = 0;
+
+	// Group
   var groups = this.svg._itemsGroup.selectAll('g')
     .data(this.items)
     .enter()
     .append('g')
     .attr({
-      class: 'item',
-      transform: function(d, i) { return sprintf('translate(%%, %%)', _this.xScale(d.start), _this.gridStartPoint.y - (i+1) * _this.itemHeight); }
-    });
+			class: 'item'
+		});
+
+	// Rect
   groups.append('rect')
     .attr({
-      x:      function(d)    {return (_this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start))/2 },
+      x:      function(d)    {return (_this.xScale(getEndTime(d)) - _this.xScale(d.start))/2 },
       y:      0,
       width:  0,
       height: _this.itemHeight,
     })
-    .transition().duration(80)
-    .delay(function(d, i) { return 60*Math.log(i); })
+    // .transition().duration(80)
+    // .delay(function(d, i) { return 60*Math.log(i); })
     .attr({
       x: 0,
-      width:  function(d)    {return _this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start)}
+      width:  function(d)    {return _this.xScale(getEndTime(d)) - _this.xScale(d.start)}
     });
+
+	// Item text
   groups.append('text')
     .attr({
-      x: function(d)    {return (_this.xScale(!d.end && d.end !== 0 ? (new Date()).getTime() : d.end) - _this.xScale(d.start))/2 },
+      x: function(d)    {return (_this.xScale(getEndTime(d)) - _this.xScale(d.start))/2 },
       y: _this.itemHeight / 2
     })
 		.append('tspan')
@@ -182,4 +200,77 @@ Timeline.prototype._drawItems = function() {
     .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
     .style('opacity', 1);
 
+		groups.attr({
+      transform: function(d, i) {
+				var defaultY = _this.gridStartPoint.y - (nextRow+1) * _this.itemHeight;
+				var finalY = defaultY;
+				var bbox = this.getBBox();
+				var xRange = {
+					start: _this.xScale(d.start) + bbox.x,
+					end: _this.xScale(d.start) + bbox.x + bbox.width
+				};
+
+				// first item; just add it
+				if (nextRow === 0) {
+					finalY = defaultY;
+					rows[nextRow] = [ xRange ];
+					nextRow++;
+				} else {
+					var rowWithRoom = -1;
+					var indexInRow = -1;
+
+					// starting from row 0, check if there is room.
+					for(var i = 0; i < nextRow; ++i) {
+						// check left
+						if (xRange.end < rows[i][0].start) {
+							rowWithRoom = i;
+							indexInRow = 0;
+							break;
+						}
+						// check right
+						if (xRange.start > rows[i][rows[i].length - 1].end) {
+							rowWithRoom = i;
+							indexInRow = rows[i].length;
+							break;
+						}
+						// check middle
+						for(var j = 0; j < rows[i].length - 1; j++) {
+							if (rows[i][j].end < xRange.start && rows[i][j+1].start > xRange.end) {
+								rowWithRoom = i;
+								indexInRow = j+1;
+								break;
+							}
+						}
+
+						if (rowWithRoom !== -1) break;
+					}
+
+					if (rowWithRoom != -1) {
+						// success! put it here
+						finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
+
+						// add it to row (in correct position)
+						rows[rowWithRoom] = rows[rowWithRoom].slice(0, indexInRow)
+							.concat(xRange)
+							.concat(rows[rowWithRoom].slice(indexInRow));
+					} else {
+						finalY = defaultY;
+						rows[nextRow] = [ xRange ];
+						nextRow++;
+					}
+				}
+
+				return sprintf('translate(%%, %%)', _this.xScale(d.start), finalY);
+			}
+    });
+
+		// the height has probably changed because of stacking; should shrink doc
+		var newGridHeight = this.svg._itemsGroup[0][0].getBBox().height;
+		var heightDiff = this.dimensions.gridHeight - newGridHeight;
+		this.dimensions.gridHeight = newGridHeight;
+
+		this.svg.attr({
+			height:  this.canvasHeight,
+			viewBox: sprintf("0 %% %% %%", heightDiff, this.canvasWidth, this.canvasHeight)
+		});
 };
