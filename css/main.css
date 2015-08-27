@@ -6,3 +6,8 @@ html, body {
 .timeline .item {
   fill: #ffdd55
 }
+
+.timeline .item rect {
+  stroke: white;
+  stroke-width: 1.5px;
+}
