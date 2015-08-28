@@ -473,7 +473,7 @@ angular.module('wikidataTimeline.samplesView', ['ngRoute'])
   	  end: format.parse('07/03/2001')
   	},
   	{
-  	  name: "Selfie (TV series)",
+  	  name: "Selfie",
   	  start: format.parse('30/09/2014'),
   	  end: format.parse('30/12/2014')
   	},
