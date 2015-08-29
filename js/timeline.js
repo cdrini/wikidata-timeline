@@ -200,6 +200,7 @@ Timeline.prototype._drawItems = function() {
     .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
     .style('opacity', 1);
 
+		// position the group
 		groups.attr({
       transform: function(d, i) {
 				var defaultY = _this.gridStartPoint.y - (nextRow+1) * _this.itemHeight;
@@ -264,8 +265,29 @@ Timeline.prototype._drawItems = function() {
 			}
     });
 
+		// Add anchors (where appropriate)
+		groups.each(function(d) {
+			if (d.href) {
+				var group = d3.select(this);
+				// move all the groups children into the anchor
+				var anchor = group.append('a')
+				.attr({
+					'class': 'main-link',
+					'xlink:href': function(d) { return d.href; },
+					'xlink:show': 'new'
+				});
+
+				var anchorNode = anchor.node();
+
+				var children = this.children;
+				while(children.length > 1) {
+					anchorNode.appendChild(children[0]);
+				}
+			}
+		});
+
 		// the height has probably changed because of stacking; should shrink doc
-		var newGridHeight = this.svg._itemsGroup[0][0].getBBox().height;
+		var newGridHeight = this.svg._itemsGroup.node().getBBox().height;
 		var heightDiff = this.dimensions.gridHeight - newGridHeight;
 		this.dimensions.gridHeight = newGridHeight;
 
