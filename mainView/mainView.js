@@ -38,19 +38,35 @@ function($scope, $location, $wikidata) {
         var link = ent.getWikipediaSitelink(undefined, true);
         link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
 
-        var item = {
-          name:  ent.getLabel(),
+        var tmpRange = {
           start: ent.getFirstClaim('P580', 'P569'),
-          end:   ent.getFirstClaim('P582', 'P570'),
+          end:   ent.getFirstClaim('P582', 'P570')
+        };
+
+        var item = {
+          name: ent.getLabel(),
           href:  link
+        };
+
+        if (tmpRange.start) {
+          if (tmpRange.start[0].mainsnak.snaktype == 'value') {
+            item.start = $wikidata.parseDateTime(tmpRange.start[0].mainsnak.datavalue.value.time);
+          }
         }
 
-        item.start = item.start
-          && item.start[0].mainsnak.snaktype == 'value'
-          && $wikidata.parseDateTime(item.start[0].mainsnak.datavalue.value.time);
-        item.end = item.end
-          && item.end[0].mainsnak.snaktype == 'value'
-          && $wikidata.parseDateTime(item.end[0].mainsnak.datavalue.value.time);
+        if (tmpRange.end) {
+          console.log(item);
+
+          var snaktype = tmpRange.end[0].mainsnak.snaktype;
+          if (snaktype == 'value') {
+            item.end = $wikidata.parseDateTime(tmpRange.end[0].mainsnak.datavalue.value.time);
+          } else if (snaktype == 'somevalue' && item.start) {
+            // average lifespan is like 80, right?!
+            // TODO: Add visual indicator (gradient? wavy line?)
+            console.log('somevalue');
+            item.end = new Date(item.start.getTime() + 3.15569e10 * 80);
+          }
+        }
 
         if (!item.start) {
           hiddenEntities[id] = ent;

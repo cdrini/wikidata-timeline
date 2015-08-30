@@ -2,7 +2,7 @@
   font-family: Roboto, sans-serif;
 }
 
-.timeline .item {
+.timeline .item rect {
   fill: #ffdd55
 }
 
