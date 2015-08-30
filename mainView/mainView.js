@@ -35,10 +35,14 @@ function($scope, $location, $wikidata) {
       for (var id in entities) {
         var ent = new $wikidata.Entity(entities[id]);
 
+        var link = ent.getWikipediaSitelink(undefined, true);
+        link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
+
         var item = {
           name:  ent.getLabel(),
           start: ent.getFirstClaim('P580', 'P569'),
-          end:   ent.getFirstClaim('P582', 'P570')
+          end:   ent.getFirstClaim('P582', 'P570'),
+          href:  link
         }
 
         item.start = item.start

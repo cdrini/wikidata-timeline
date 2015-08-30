@@ -112,6 +112,45 @@ angular.module('wikidataTimeline')
   	return "";
   };
 
+  WD.Entity.prototype.getWikipediaSitelink = function(langs, returnObject) {
+    if (typeof langs == 'undefined') {
+      langs = WD.langs;
+    }
+    if (langs instanceof String) {
+  		langs = [ langs ];
+  	}
+
+    if (!this.entity.sitelinks) {
+      return null;
+    }
+
+  	// iterate through langs until we find one we have
+  	for(var i = 0; i < langs.length; ++i) {
+  		var obj = this.entity.sitelinks[langs[i] + 'wiki'];
+  		if(obj) {
+  			if (returnObject) {
+  				return obj;
+  			} else {
+  				return obj.title;
+  			}
+  		}
+  	}
+
+  	// no luck. Try to return any label.
+  	for (var sitelink in this.entity.sitelinks) {
+      if (/wiki/.test(sitelink)) {
+    		if (returnObject) {
+    			return this.entity.sitelinks[sitelink];
+    		} else {
+    			return this.entity.sitelinks[sitelink].title;
+    		}
+      }
+  	}
+
+  	// still nothing?!? return null
+  	return null;
+  };
+
   /**
    * @param {string} wikidata query
    * @returns {Promise}
