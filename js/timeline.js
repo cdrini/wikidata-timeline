@@ -139,11 +139,18 @@ Timeline.prototype._drawGrid = function() {
   var xAxis = d3.svg.axis()
     .scale(this.xScale)
     .orient("bottom")
-	  .ticks(8)
-	  .tickPadding(2);
+	  .tickPadding(4);
 
-  this._grid = this.svg.append('g').call(xAxis)
-    .attr('transform', 'translate(0, ' + (this.dimensions.gridHeight) + ')');;
+	var grid = d3.svg.axis()
+    .scale(this.xScale)
+		.tickFormat('')
+    .orient("bottom")
+		.innerTickSize(-1*this.dimensions.gridHeight)
+
+  this._xAxis = this.svg.append('g').call(xAxis)
+    .attr('transform', 'translate(0, ' + (this.dimensions.gridHeight) + ')');
+	this._grid = this.svg.append('g').call(grid)
+    .attr('transform', 'translate(0, ' + (this.dimensions.gridHeight) + ')');
   this._grid.classed('grid', true);
 }
 
@@ -291,6 +298,7 @@ Timeline.prototype._drawItems = function() {
 
 		this._updateSVGSize();
 };
+
 
 Timeline.prototype._updateSVGSize = function() {
 	var newGridHeight = this.svg._itemsGroup.node().getBBox().height;

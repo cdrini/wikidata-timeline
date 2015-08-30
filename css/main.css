@@ -1,3 +1,7 @@
+.timeline-container {
+  font-family: Roboto, sans-serif;
+}
+
 .timeline .item {
   fill: #ffdd55
 }
@@ -8,6 +12,10 @@
 }
 
 .timeline .item text {
-  font-family: Roboto, sans-serif;
   font-size: 12px;
+}
+
+.timeline .grid .tick line {
+  stroke-width: 1px;
+  stroke: #AAA;
 }
