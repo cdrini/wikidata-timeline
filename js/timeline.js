@@ -167,6 +167,7 @@ Timeline.prototype._drawItems = function() {
     .attr({
 			class: 'item'
 		});
+	this._groups = groups;
 
 	// Rect
   groups.append('rect')
@@ -287,12 +288,17 @@ Timeline.prototype._drawItems = function() {
 		});
 
 		// the height has probably changed because of stacking; should shrink doc
-		var newGridHeight = this.svg._itemsGroup.node().getBBox().height;
-		var heightDiff = this.dimensions.gridHeight - newGridHeight;
-		this.dimensions.gridHeight = newGridHeight;
 
-		this.svg.attr({
-			height:  this.canvasHeight,
-			viewBox: sprintf("0 %% %% %%", heightDiff, this.canvasWidth, this.canvasHeight)
-		});
+		this._updateSVGSize();
+};
+
+Timeline.prototype._updateSVGSize = function() {
+	var newGridHeight = this.svg._itemsGroup.node().getBBox().height;
+	var heightDiff = this.dimensions.gridHeight - newGridHeight;
+	this.dimensions.gridHeight = newGridHeight;
+
+	this.svg.attr({
+		height:  this.canvasHeight,
+		viewBox: sprintf("0 %% %% %%", heightDiff, this.canvasWidth, this.canvasHeight)
+	});
 };
