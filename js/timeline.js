@@ -134,24 +134,22 @@ Timeline.prototype.draw = function(HTMLContainer) {
  * @private
  */
 Timeline.prototype._drawGrid = function() {
-  var tl = this;
-
-  var xAxis = d3.svg.axis()
+  this._xAxis = d3.svg.axis()
     .scale(this.xScale)
     .orient("bottom")
 	  .tickPadding(4);
 
-	var grid = d3.svg.axis()
+	this._gridAxis = d3.svg.axis()
     .scale(this.xScale)
 		.tickFormat('')
     .orient("bottom")
-		.innerTickSize(-1*this.dimensions.gridHeight)
+		.innerTickSize(-1*this.dimensions.gridHeight);
 
-  this._xAxis = this.svg.append('g').call(xAxis)
+  this._xAxisGroup = this.svg.append('g').call(this._xAxis)
     .attr('transform', 'translate(0, ' + (this.dimensions.gridHeight) + ')');
-	this._grid = this.svg.append('g').call(grid)
+	this._gridGroup = this.svg.append('g').call(this._gridAxis)
+		.classed('grid', true)
     .attr('transform', 'translate(0, ' + (this.dimensions.gridHeight) + ')');
-  this._grid.classed('grid', true);
 }
 
 /**Draws the individual items

@@ -55,15 +55,12 @@ function($scope, $location, $wikidata) {
         }
 
         if (tmpRange.end) {
-          console.log(item);
-
           var snaktype = tmpRange.end[0].mainsnak.snaktype;
           if (snaktype == 'value') {
             item.end = $wikidata.parseDateTime(tmpRange.end[0].mainsnak.datavalue.value.time);
           } else if (snaktype == 'somevalue' && item.start) {
             // average lifespan is like 80, right?!
             // TODO: Add visual indicator (gradient? wavy line?)
-            console.log('somevalue');
             item.end = new Date(item.start.getTime() + 3.15569e10 * 80);
           }
         }
