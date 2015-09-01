@@ -31,6 +31,7 @@ function($scope, $location, $wikidata) {
         return;
       }
 
+      var itemsChunk = [];
       var entities = response.data.entities;
       for (var id in entities) {
         var ent = new $wikidata.Entity(entities[id]);
@@ -69,12 +70,18 @@ function($scope, $location, $wikidata) {
           hiddenEntities[id] = ent;
         } else {
           shownEntities[id] = ent;
-          items.push(item);
+          itemsChunk.push(item);
         }
+      }
+
+      if (!tl.isDrawn()) {
+        Array.prototype.push.apply(items, itemsChunk);
+        tl.draw(d3.select('.timeline-container')[0][0]);
+      } else {
+        tl.addItems(itemsChunk);
       }
     })
     .onFullCompletion(function() {
-      tl.draw(d3.select('.timeline-container')[0][0]);
       console.log('done!');
     });
   });
