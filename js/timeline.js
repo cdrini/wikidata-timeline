@@ -122,6 +122,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	// x axis
 	this._xAxis = d3.svg.axis()
 		.scale(this.xScale)
+		.ticks(100)
     .orient("bottom")
 	  .tickPadding(4);
 	this._xAxisGroup = this.svg.append('g').classed('x axis', true)
@@ -130,6 +131,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	// grid
 	this._gridAxis = d3.svg.axis()
 		.scale(this.xScale)
+		.ticks(100)
 		.tickFormat('')
     .orient("bottom")
 		.innerTickSize(-1*this.gridHeight);
@@ -295,6 +297,8 @@ Timeline.prototype._drawItems = function(items) {
  * @return {Timeline} @this
  */
 Timeline.prototype.addItems = function(itemsArr) {
+	var _this = this;
+
   if (!this.isDrawn()) {
     this.items = this.items.concat(itemsArr);
     return this;
@@ -310,11 +314,11 @@ Timeline.prototype.addItems = function(itemsArr) {
 		|| (newItemsDomain[1] > currentDomain[1]);
 
 	if (mustChangeDomain) {
-		// change domain :)
 		var newDomain = [
 			Math.min(newItemsDomain[0], currentDomain[0]),
 			Math.max(newItemsDomain[1], currentDomain[1])
 		];
+		var xTmp = this.xScale(0);
 		this.xScale.domain(newDomain);
 	}
 
@@ -327,6 +331,26 @@ Timeline.prototype.addItems = function(itemsArr) {
   // update axes
   this._xAxisGroup.call(this._xAxis);
   this._gridGroup.call(this._gridAxis);
+
+	if (mustChangeDomain) {
+		var xChange = this.xScale(0) - xTmp;
+		// move all the existing items over
+		this.svg._itemsGroup.selectAll('g.item')
+		.each(function(d, i) {
+			var currentTransform = this.getAttribute('transform');
+			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
+
+			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.xScale(d.start), translation[1]));
+		});
+
+		// update ranges in rows so that things stay correct
+		for (var i = 0; i < this.rows.length; ++i ) {
+			for (var j = 0; j < this.rows[i].length; ++j) {
+				this.rows[i][j].start += xChange;
+				this.rows[i][j].end += xChange;
+			}
+		}
+	}
 
   // draw the new items
   this._drawItems();
