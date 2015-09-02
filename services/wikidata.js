@@ -13,7 +13,9 @@ angular.module('wikidataTimeline')
   WD.parseDateTime = function(dateTimeStr) {
     var match = dateTimeStr.match(/^([+-]\d+)-(\d\d)-(\d\d)/);
     if (match && match.length == 4) {
-      return new Date(match[1], match[2] - 1, match[3]);
+      var result = new Date(match[1], match[2] - 1, match[3]);
+      result.setFullYear(match[1]); // 30 != 1930, javascript!
+      return result;
     } else {
       return undefined;
     }
