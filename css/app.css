@@ -6,17 +6,5 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-}
-
-#menu-bar {
-  width: 100%;
-}
-
-#main-content {
-  width: 100%;
-  flex: 1;
-
-  overflow: auto;
+  padding-top: 50px; /* fixed header */
 }

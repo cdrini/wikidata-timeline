@@ -1,5 +1,7 @@
 .timeline-container {
   font-family: Roboto, sans-serif;
+
+  overflow: auto;
 }
 
 .timeline .item rect {
