@@ -40,8 +40,8 @@ function($scope, $location, $wikidata) {
         link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
 
         var tmpRange = {
-          start: ent.getFirstClaim('P580', 'P569'),
-          end:   ent.getFirstClaim('P582', 'P570')
+          start: ent.getFirstClaim('P580', 'P569', 'P571'),
+          end:   ent.getFirstClaim('P582', 'P570', 'P576')
         };
 
         var item = {
