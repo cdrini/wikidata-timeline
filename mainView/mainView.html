@@ -3,7 +3,8 @@
 <div class="notification-container" ng-show="queryState">
 
   <div class="alert alert-info" role="alert"
-    ng-if="queryState == queryStates.Wikidata && wikidataQuery">
+    ng-if="queryState == queryStates.Wikidata && wikidataQuery"
+    style="padding-bottom: 0;">
     <div class="progress">
       <div class="progress-bar progress-bar-striped active"
       ng-class="{'active': wikidataQueryState != wikidataQueryStates.Paused }"
@@ -34,5 +35,10 @@
         Resume
       </button>
     </div>
+  </div>
+
+  <div class="alert alert-info" role="alert"
+    ng-if="queryState == queryStates.WDQ">
+    Querying <a href="https://wdq.wmflabs.org/api_documentation.html" target="_blank">WikidataQuery</a>...
   </div>
 </div>

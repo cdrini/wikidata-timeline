@@ -34,7 +34,7 @@ body {
   width: 100%;
   transform: translateX(-50%);
   margin-bottom: 20px;
-  padding-bottom: 6px;
+  padding: 8px;
   bottom: 0;
   left: 50%;
 }
