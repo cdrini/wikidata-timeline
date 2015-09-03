@@ -6,12 +6,16 @@
   overflow: auto;
 }
 
-.timeline .item rect {
-  fill: #ffdd55
+.timeline {
+  background-color: #F0F0F0;
 }
 
 .timeline .item rect {
-  stroke: white;
+  fill: #FFDD55
+}
+
+.timeline .item rect {
+  stroke: #F0F0F0;
   stroke-width: 1.5px;
 }
 
@@ -22,4 +26,5 @@
 .timeline .grid .tick line {
   stroke-width: 1px;
   stroke: #AAA;
+  stroke-dasharray: 1,1;
 }
