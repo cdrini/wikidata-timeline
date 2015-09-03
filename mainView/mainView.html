@@ -7,7 +7,7 @@
     style="padding-bottom: 0;">
     <div class="progress">
       <div class="progress-bar progress-bar-striped active"
-      ng-class="{'active': wikidataQueryState != wikidataQueryStates.Paused }"
+      ng-class="{'active': wikidataQuery.getState() !== wdQueryStates.Paused }"
       role="progressbar"
       aria-valuenow="{{percentLoaded()}}"
       aria-valuemin="0"
