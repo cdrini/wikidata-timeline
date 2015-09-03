@@ -8,3 +8,7 @@ html, body {
 body {
   padding-top: 50px; /* fixed header */
 }
+
+#main-content, div[ng-view] {
+  height: 100%;
+}
