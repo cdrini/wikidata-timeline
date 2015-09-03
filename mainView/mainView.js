@@ -5,6 +5,19 @@ angular.module('wikidataTimeline.mainView', [])
 .controller('MainViewCtrl', ['$scope', '$location', '$wikidata',
 function($scope, $location, $wikidata) {
 
+  // scope variables
+  $scope.queryStates = {
+    WDQ:      1,
+    Wikidata: 2
+  };
+  $scope.queryState = null;
+
+  $scope.totalItemsToLoad = 0;
+  $scope.itemsLoaded = 0;
+  $scope.percentLoaded = function() {
+    return Math.round(100*$scope.itemsLoaded / $scope.totalItemsToLoad);
+  };
+
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     langs: ['en', 'fr'],
@@ -15,14 +28,21 @@ function($scope, $location, $wikidata) {
 
   // read in URL params
   var wdq = $location.search().query;
+  $scope.queryState = $scope.queryStates.WDQ;
+
   $wikidata.WDQ(wdq)
   .then(function(response) {
+    $scope.queryState = null;
+
     if (response.data.status.error !== 'OK') {
       throw response.data.status.error;
       return;
     }
     console.log(response);
     var ids = response.data.items;
+    $scope.totalItemsToLoad = ids.length;
+
+    $scope.queryState = $scope.queryStates.Wikidata;
     $wikidata.api.wbgetentities(ids, ['labels', 'sitelinks', 'claims'])
     .onChunkCompletion(function(response) {
       console.log('chunk!');
@@ -34,6 +54,8 @@ function($scope, $location, $wikidata) {
       var itemsChunk = [];
       var entities = response.data.entities;
       for (var id in entities) {
+        $scope.itemsLoaded++;
+
         var ent = new $wikidata.Entity(entities[id]);
 
         var link = ent.getWikipediaSitelink(undefined, true);
@@ -82,6 +104,7 @@ function($scope, $location, $wikidata) {
       }
     })
     .onFullCompletion(function() {
+      $scope.queryState = null;
       console.log('done!');
     });
   });

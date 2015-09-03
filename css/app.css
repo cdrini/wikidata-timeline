@@ -12,3 +12,56 @@ body {
 #main-content, div[ng-view] {
   height: 100%;
 }
+
+.alert-info {
+  color: #B5B5B5;
+  background-color: rgba(20, 20, 20, 0.95);
+  border-color: #3A3A3A;
+}
+
+.notification-container {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.notification-container > .alert {
+  text-align: center;
+  box-shadow: 0 0 4px #000;
+
+  position: absolute;
+  max-width: 300px;
+  width: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 20px;
+  bottom: 0;
+  left: 50%;
+}
+
+.notification-container > .alert > .progress {
+  background-color: rgba(0, 0, 0, 0.24);
+  margin-bottom: 15px;
+
+  overflow: visible;
+  height: 6px;
+}
+
+.notification-container > .alert > .progress > .progress-bar {
+  background-color: #0067BF;
+  box-shadow: 0 0 10px 0px #338BB7;
+}
+
+.progress-bar:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.progress-bar:last-child {
+  border-radius: 0 4px 4px 0;
+}
+.progress-bar:first-child:last-child {
+  border-radius: 4px;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
