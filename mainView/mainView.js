@@ -12,6 +12,23 @@ function($scope, $location, $wikidata) {
   };
   $scope.queryState = null;
 
+  $scope.wikidataQueryStates = {
+    Active:  1,
+    Pausing: 2,
+    Paused:  3
+  };
+  $scope.wikidataQueryState = $scope.wikidataQueryStates.Active;
+  $scope.pauseWikidataQuery = function() {
+    if ($scope.wikidataQuery) {
+      $scope.wikidataQuery.pause();
+      $scope.wikidataQueryState = $scope.wikidataQueryStates.Pausing;
+    }
+  };
+  $scope.resumeWikidataQuery = function() {
+    $scope.wikidataQuery.resume();
+    $scope.wikidataQueryState = $scope.wikidataQueryStates.Active;
+  };
+
   $scope.totalItemsToLoad = 0;
   $scope.itemsLoaded = 0;
   $scope.percentLoaded = function() {
@@ -43,7 +60,7 @@ function($scope, $location, $wikidata) {
     $scope.totalItemsToLoad = ids.length;
 
     $scope.queryState = $scope.queryStates.Wikidata;
-    $wikidata.api.wbgetentities(ids, ['labels', 'sitelinks', 'claims'])
+    $scope.wikidataQuery = $wikidata.api.wbgetentities(ids, ['labels', 'sitelinks', 'claims'])
     .onChunkCompletion(function(response) {
       console.log('chunk!');
       if (response.error) {
@@ -101,6 +118,10 @@ function($scope, $location, $wikidata) {
         tl.draw(d3.select('.timeline-container')[0][0]);
       } else {
         tl.addItems(itemsChunk);
+      }
+
+      if ($scope.wikidataQueryState == $scope.wikidataQueryStates.Pausing) {
+        $scope.wikidataQueryState = $scope.wikidataQueryStates.Paused;
       }
     })
     .onFullCompletion(function() {

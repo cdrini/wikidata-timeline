@@ -5,6 +5,7 @@
   <div class="alert alert-info" role="alert" ng-show="queryState == queryStates.Wikidata">
     <div class="progress">
       <div class="progress-bar progress-bar-striped active"
+      ng-class="{'active': wikidataQueryState != wikidataQueryStates.Paused }"
       role="progressbar"
       aria-valuenow="{{percentLoaded()}}"
       aria-valuemin="0"
@@ -15,7 +16,22 @@
     </div>
     <div class="flex-row">
       <div style="flex:1">{{itemsLoaded}} / {{totalItemsToLoad}}</div>
-      <!-- <div>Pause | Cancel</div> -->
+
+      <button
+        ng-show="wikidataQueryState == wikidataQueryStates.Active"
+        ng-click="pauseWikidataQuery()">
+        Pause
+      </button>
+      <button
+        disabled
+        ng-show="wikidataQueryState == wikidataQueryStates.Pausing">
+        Pausing...
+      </button>
+      <button
+        ng-show="wikidataQueryState == wikidataQueryStates.Paused"
+        ng-click="resumeWikidataQuery()">
+        Resume
+      </button>
     </div>
   </div>
 </div>

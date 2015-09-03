@@ -34,13 +34,14 @@ body {
   width: 100%;
   transform: translateX(-50%);
   margin-bottom: 20px;
+  padding-bottom: 6px;
   bottom: 0;
   left: 50%;
 }
 
 .notification-container > .alert > .progress {
   background-color: rgba(0, 0, 0, 0.24);
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 
   overflow: visible;
   height: 6px;
@@ -49,6 +50,28 @@ body {
 .notification-container > .alert > .progress > .progress-bar {
   background-color: #0067BF;
   box-shadow: 0 0 10px 0px #338BB7;
+}
+
+.notification-container button {
+  background: none;
+  border: none;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #1D6CAF;
+  text-shadow: 0 0 10px #338BB7;
+  padding: 8px;
+  font-size: 0.8em;
+  border-radius: 4px;
+
+  transition-property: background-color;
+  transition-duration: 0.2s;
+}
+.notification-container button:hover:not([disabled]) {
+  background-color: rgba(255,255,255,0.1);
+}
+.notification-container button[disabled] {
+  color: #797A7B;
+  text-shadow: none;
 }
 
 .progress-bar:first-child {
@@ -64,4 +87,5 @@ body {
 .flex-row {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }

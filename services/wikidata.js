@@ -171,6 +171,7 @@ angular.module('wikidataTimeline')
   WD.api = {};
   var api = WD.api;
   api.baseURL = 'https://www.wikidata.org/w/api.php';
+
   api.wbgetentities = function(ids, props, opts) {
     ids = ids.map(function(id) { return 'Q' + id; });
 
@@ -185,7 +186,8 @@ angular.module('wikidataTimeline')
 
     var api = {
       onChunkCompletion: function() {},
-      onFullCompletion: function() {}
+      onFullCompletion: function() {},
+      isPaused: false
     };
     var publicApi = {
       onChunkCompletion: function(fn) {
@@ -195,24 +197,37 @@ angular.module('wikidataTimeline')
       onFullCompletion: function(fn) {
         api.onFullCompletion = fn;
         return publicApi;
+      },
+      pause: function() {
+        api.isPaused = true;
+        return publicApi;
+      },
+      resume: function() {
+        if (api.isPaused) {
+          api.isPaused = false;
+          queryForNextChunk();
+        }
+        return publicApi;
       }
     };
 
     function queryForNextChunk() {
-      $http({
-        url: WD.api.baseURL,
-        method: 'jsonp',
-        params: {
-          action: 'wbgetentities',
-          ids: idChunks.shift().join('|'),
-          languages: WD.langs.join('|'),
-          props: props.join('|'),
-          callback: 'JSON_CALLBACK',
-          format: 'json',
-          cache: true
-        }
-      })
-      .then(_onChunkCompletion);
+      if (!api.isPaused) {
+        $http({
+          url: WD.api.baseURL,
+          method: 'jsonp',
+          params: {
+            action: 'wbgetentities',
+            ids: idChunks.shift().join('|'),
+            languages: WD.langs.join('|'),
+            props: props.join('|'),
+            callback: 'JSON_CALLBACK',
+            format: 'json',
+            cache: true
+          }
+        })
+        .then(_onChunkCompletion);
+      }
     };
 
     function _onChunkCompletion(response) {
