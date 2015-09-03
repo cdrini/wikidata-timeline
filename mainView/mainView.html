@@ -2,7 +2,8 @@
 
 <div class="notification-container" ng-show="queryState">
 
-  <div class="alert alert-info" role="alert" ng-show="queryState == queryStates.Wikidata">
+  <div class="alert alert-info" role="alert"
+    ng-if="queryState == queryStates.Wikidata && wikidataQuery">
     <div class="progress">
       <div class="progress-bar progress-bar-striped active"
       ng-class="{'active': wikidataQueryState != wikidataQueryStates.Paused }"
@@ -18,18 +19,18 @@
       <div style="flex:1">{{itemsLoaded}} / {{totalItemsToLoad}}</div>
 
       <button
-        ng-show="wikidataQueryState == wikidataQueryStates.Active"
-        ng-click="pauseWikidataQuery()">
+        ng-show="wikidataQuery.getState() == wdQueryStates.Active"
+        ng-click="wikidataQuery.pause()">
         Pause
       </button>
       <button
         disabled
-        ng-show="wikidataQueryState == wikidataQueryStates.Pausing">
+        ng-show="wikidataQuery.getState() == wdQueryStates.Pausing">
         Pausing...
       </button>
       <button
-        ng-show="wikidataQueryState == wikidataQueryStates.Paused"
-        ng-click="resumeWikidataQuery()">
+        ng-show="wikidataQuery.getState() == wdQueryStates.Paused"
+        ng-click="wikidataQuery.resume()">
         Resume
       </button>
     </div>

@@ -172,8 +172,35 @@ angular.module('wikidataTimeline')
   var api = WD.api;
   api.baseURL = 'https://www.wikidata.org/w/api.php';
 
+  /**
+   * @name QueryState
+   * @enum {number}
+   */
+  WD.QueryStates = {
+    Active:   1,
+    Pausing:  2,
+    Paused:   3,
+    Complete: 4
+  };
+
+  /**
+   * See {@link https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities}
+   * Executes the query in 50-sized chunks
+   * @async
+   * @param {array<integer>} ids the IDs to get
+   * @param {array<string>} props props to get back for each item
+   * @param {object} opts @todo
+   * @return {Object} publicApi
+   * @return {Function} publicApi.onChunkComplete
+   * @return {Function} publicApi.onFullCompletion
+   * @return {Function} publicApi.pause
+   * @return {Function} publicApi.resume
+   * @return {Function} publicApi.getState the state of the query.
+   * See {@link QueryState}
+   */
   api.wbgetentities = function(ids, props, opts) {
     ids = ids.map(function(id) { return 'Q' + id; });
+
 
     // split into 50-sized chunks
     var idChunks = [];
@@ -184,10 +211,10 @@ angular.module('wikidataTimeline')
       idChunks[idChunks.length - 1].push(ids[i]);
     }
 
+    var state = WD.QueryStates.Active;
     var api = {
       onChunkCompletion: function() {},
-      onFullCompletion: function() {},
-      isPaused: false
+      onFullCompletion: function() {}
     };
     var publicApi = {
       onChunkCompletion: function(fn) {
@@ -199,20 +226,23 @@ angular.module('wikidataTimeline')
         return publicApi;
       },
       pause: function() {
-        api.isPaused = true;
+        state = WD.QueryStates.Pausing;
         return publicApi;
       },
       resume: function() {
-        if (api.isPaused) {
-          api.isPaused = false;
+        if (state == WD.QueryStates.Paused) {
+          state = WD.QueryStates.Active;
           queryForNextChunk();
         }
         return publicApi;
+      },
+      getState: function() {
+        return state;
       }
     };
 
     function queryForNextChunk() {
-      if (!api.isPaused) {
+      if (state == WD.QueryStates.Active) {
         $http({
           url: WD.api.baseURL,
           method: 'jsonp',
@@ -231,9 +261,13 @@ angular.module('wikidataTimeline')
     };
 
     function _onChunkCompletion(response) {
+      if (state == WD.QueryStates.Pausing) {
+        state = WD.QueryStates.Paused;
+      }
       api.onChunkCompletion(response);
 
       if (idChunks.length === 0) {
+        state = WD.QueryStates.Complete;
         api.onFullCompletion();
       } else {
         queryForNextChunk();
