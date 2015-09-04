@@ -10,6 +10,11 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128" type="image/vnd.microsoft.icon">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">  
+
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
 
   <link rel="stylesheet" href="css/app.css">
@@ -34,13 +39,14 @@
         <ul class="nav navbar-nav">
           <li class="active"><a href="#">Home<span class="sr-only">(current)</span></a></li>
           <li class="dropdown">
-            <p class="navbar-text dropdown-toggle"
+            <a class="dropdown-toggle"
+               href="javascript:;"
                data-toggle="dropdown"
                role="button"
                aria-haspopup="true"
                aria-expanded="false">
               Samples <span class="caret"></span>
-            </p>
+            </a>
             <ul class="dropdown-menu">
               <li><a href="#?query=claim[31:(TREE[3024240][][279])] AND CLAIM[571]&widthOfYear=1">Former Countries</a></li>
               <li><a href="#?query=claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]">American Sitcoms</a></li>
