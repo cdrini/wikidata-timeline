@@ -13,12 +13,13 @@
 # Current Sprint
 * Smarter Axis appearance
 * Restructure angular routes (home; no samples)
-* Visual indicator for 'somevalue' (i.e. unknown end date)
+* Trim Wikidata items so we use less memory
 * Add UI page for query entry
-* Better date formatting for BCE years
 ## Done:
+* Better date formatting for BCE years
 
 # Backlog
+* Visual indicator for 'somevalue' (i.e. unknown end date)
 * Visual indicator for date precision
 * cleanup timeline.js:285
 * Add point events
