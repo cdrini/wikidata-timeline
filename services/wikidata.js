@@ -26,7 +26,7 @@ angular.module('wikidataTimeline')
    */
   WD.Entity = function(entity) {
   	this.entity = entity;
-  }
+  };
   /**
    * Gets the array of property's values. If not found, returns undefined.
    *
@@ -35,8 +35,7 @@ angular.module('wikidataTimeline')
    */
   WD.Entity.prototype.getClaim = function(prop) {
   	return this.entity.claims[prop];
-  }
-
+  };
   /**
    * Get's a claim's value. Uses the first statement.
    *
@@ -60,7 +59,6 @@ angular.module('wikidataTimeline')
   			return statement.mainsnak.datavalue.value;
   	}
   };
-
   /**
    * Returns the first of the arguments that has 1 or more claims. If none
    * found, returns undefined.
@@ -76,7 +74,13 @@ angular.module('wikidataTimeline')
   	};
   	return undefined;
   };
-
+  /**
+   * Returns an entity's label. If langs provided, finds langs, otherwise uses
+   * APIs defaults.
+   * @param {array<string>} [langs] langs to look for label. Defaults to WD params
+   * @param {Boolean} [returnObject=false] if true, returns an object ({language, value})
+   * @return {string|object} string if !returnObject, else {language, value} object
+   */
   WD.Entity.prototype.getLabel = function(langs, returnObject) {
     if (typeof langs == 'undefined') {
       langs = WD.langs;
@@ -113,7 +117,13 @@ angular.module('wikidataTimeline')
   	// still nothing?!? return empty string
   	return "";
   };
-
+  /**
+   * Returns an entity's sitelink. If langs provided, finds langs, otherwise uses
+   * APIs defaults.
+   * @param {array<string>} [langs] langs to look for label. Defaults to WD params
+   * @param {Boolean} [returnObject=false] if true, returns an object ({site, title, badges})
+   * @return {string|object} string if !returnObject, else {site, title, badges} object
+   */
   WD.Entity.prototype.getWikipediaSitelink = function(langs, returnObject) {
     if (typeof langs == 'undefined') {
       langs = WD.langs;
