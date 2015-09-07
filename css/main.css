@@ -21,6 +21,11 @@
   font-size: 12px;
 }
 
+.timeline .axis .tick line {
+  stroke-width: 1px;
+  stroke: #000;
+}
+
 .timeline .grid .tick line {
   stroke-width: 1px;
   stroke: #AAA;

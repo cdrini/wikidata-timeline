@@ -124,6 +124,8 @@ Timeline.prototype.draw = function(HTMLContainer) {
 		.scale(this.xScale)
 		.ticks(100)
     .orient("bottom")
+		.tickSize(8,4)
+		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
 	  .tickPadding(4);
 	this._xAxisGroup = this.svg.append('g').classed('x axis', true)
 		.call(this._xAxis);
@@ -134,7 +136,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 		.ticks(100)
 		.tickFormat('')
     .orient("bottom")
-		.innerTickSize(-1*this.gridHeight);
+		.tickSize(-1*this.gridHeight, 0);
 	this._gridGroup = this.svg.append('g').classed('grid', true)
 		.call(this._gridAxis);
 
