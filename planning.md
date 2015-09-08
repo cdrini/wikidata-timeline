@@ -13,12 +13,15 @@
 # Current Sprint
 * Smarter Axis appearance
 * Restructure angular routes (home; no samples)
-* Add UI page for query entry
 ## Done:
+* Add UI page for query entry
 * Trim Wikidata items so we use less memory
 * Better date formatting for BCE years
 
 # Backlog
+* Add UI page to change timeline settings in-place
+* Make progress notification appear as bar instead of hovering overtop. Blocks a considerable chunk of the screen.
+* bug: fix shrinking API field in newView causing button to be difficult to press.
 * Visual indicator for 'somevalue' (i.e. unknown end date)
 * Visual indicator for date precision
 * cleanup timeline.js:285
