@@ -51,7 +51,8 @@ function($scope, $timeout, $location, $wikidata) {
 
   var queryEditor = CodeMirror.fromTextArea($('.query-editor')[0], {
     viewportMargin: Infinity,
-    lineWrapping: true
+    lineWrapping: true,
+    matchBrackets: true
   });
 
   var updateTokenOnChange = function(cm, changeObj) {
