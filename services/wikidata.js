@@ -207,13 +207,15 @@ angular.module('wikidataTimeline')
    * @param {string} wikidata query
    * @returns {Promise}
    */
-  WD.WDQ = function(query) {
+  WD.WDQ = function(query, opts) {
+    opts = opts || {};
+    
   	return $http({
       url: 'https://wdq.wmflabs.org/api',
-      params: {
+      params: angular.extend({
         q: query,
         callback: 'JSON_CALLBACK' // -_-
-      },
+      }, opts),
       method: 'jsonp'
     });
   };
