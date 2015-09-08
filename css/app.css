@@ -11,6 +11,7 @@ body {
 
 #main-content, div[ng-view] {
   height: 100%;
+  overflow: auto;
 }
 
 .alert-info {
