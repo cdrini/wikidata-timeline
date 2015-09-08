@@ -7,7 +7,7 @@ CodeMirror.defineSimpleMode("simplemode", {
     // {regex: /(function)(\s+)([a-z$][\w$]*)/, token: ["keyword", null, "variable-2"]},
     // Rules are matched in the order in which they appear, so there is
     // no ambiguity between this one and the one above
-    {regex: /(?:noclaim|claim|tree|web|string|between|quantity|items|link)\b/i,
+    {regex: /(?:noclaim|claim|tree|web|string|around|between|quantity|items|link)\b/i,
      token: "keyword"},
     {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
      token: "number"},
