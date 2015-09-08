@@ -25,6 +25,7 @@ angular.module('wikidataTimeline')
    * @class
    */
   WD.Entity = function(entity) {
+    this.isTrimmed = false;
   	this.entity = entity;
   };
   /**
@@ -162,6 +163,45 @@ angular.module('wikidataTimeline')
   	// still nothing?!? return null
   	return null;
   };
+  /**
+   * Deletes any unneeded items. Define the properties to keep. Everything else
+   * deleted.
+   * @param {object} config defines how to trim
+   *   @config {array<string>}  claims
+   *   @config {array<string>}  descriptions
+   *   @config {*}              id
+   *   @config {array<string>}  labels
+   *   @config {*}              lastrevid
+   *   @config {*}              modified
+   *   @config {*}              ns
+   *   @config {*}              pageid
+   *   @config {array<string>}  sitelinks
+   *   @config {*}              title
+   *   @config {*}              type
+   */
+   WD.Entity.prototype.trimIncludeOnly = function(config) {
+     var neverRemove = ['id'];
+
+     for (var key in this.entity) {
+       if(neverRemove.indexOf(key) !== -1) {
+         continue;
+       }
+
+       if (typeof config[key] !== 'undefined') {
+         if (['claims', 'descriptions', 'labels', 'sitelinks'].indexOf(key) !== -1) {
+           for (var p in this.entity[key]) {
+             if (config[key].indexOf(p) == -1) {
+               delete this.entity[key][p];
+             }
+           }
+         }
+       } else {
+         delete this.entity[key];
+       }
+     }
+
+     return this;
+   };
 
   /**
    * @param {string} wikidata query
