@@ -112,6 +112,9 @@ button[type="submit"] {
   margin: 10px auto;
 }
 
+.panel-footer {
+  overflow: auto;
+}
 
 /* NEW VIEW */
 
