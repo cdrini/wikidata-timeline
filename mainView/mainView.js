@@ -90,6 +90,13 @@ function($scope, $location, $wikidata) {
           }
         }
 
+        ent.trimIncludeOnly({
+          claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576'],
+          labels:       defaultOpts.langs,
+          descriptions: defaultOpts.langs,
+          sitelinks:    defaultOpts.langs.map(function(l) { return l + "wiki"; })
+        });
+
         if (!item.start) {
           hiddenEntities[id] = ent;
         } else {

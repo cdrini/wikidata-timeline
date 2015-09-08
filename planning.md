@@ -13,9 +13,9 @@
 # Current Sprint
 * Smarter Axis appearance
 * Restructure angular routes (home; no samples)
-* Trim Wikidata items so we use less memory
 * Add UI page for query entry
 ## Done:
+* Trim Wikidata items so we use less memory
 * Better date formatting for BCE years
 
 # Backlog
