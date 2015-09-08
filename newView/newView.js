@@ -68,8 +68,4 @@ function($scope, $timeout, $location, $wikidata) {
   };
 
   queryEditor.on('change', updateTokenOnChange);
-  queryEditor.on('blur', function() {
-    $scope.activeToken = '';
-    $scope.$digest();
-  });
 }]);
