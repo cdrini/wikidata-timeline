@@ -4,11 +4,12 @@
 angular.module('wikidataTimeline', [
   'ngRoute',
   'wikidataTimeline.samplesView',
-  'wikidataTimeline.mainView'
+  'wikidataTimeline.mainView',
+  'wikidataTimeline.newView'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({
-    templateUrl: 'mainView/mainView.html',
-    controller: 'MainViewCtrl'
+    templateUrl: 'newView/newView.html',
+    controller: 'NewViewCtrl'
   });
 }]);

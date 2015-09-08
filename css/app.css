@@ -89,3 +89,66 @@ body {
   flex-direction: row;
   align-items: center;
 }
+
+form {
+  padding: 14px;
+}
+
+a:not([disabled]) {
+  cursor: pointer;
+}
+
+a[disabled] {
+  color: #888;
+}
+
+a[disabled]:hover {
+  text-decoration: none;
+}
+
+button[type="submit"] {
+  display:block;
+  margin: 10px auto;
+}
+
+
+/* NEW VIEW */
+
+.query-editor+.CodeMirror {
+  height: auto;
+}
+
+form.new-view {
+  width:100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.wdq-docs tt {
+	margin:2px;
+	padding:1px;
+	border:dotted 1px #AAAAAA;
+	background-color:#CEDEF4;
+}
+span.property {
+	background-color:#CAFFD8;
+	font-family:Courier, monospace;
+	font-size:11pt;
+}
+span.item {
+	background-color:#FFCECE;
+	font-family:Courier, monospace;
+	font-size:11pt;
+}
+.wdq-docs .qualifiers {
+	color:#1FCB4A;
+	font-style:italic;
+}
+
+.wdq-docs.contextual-only > ul {
+  padding: 0;
+  margin-top: 10px;
+}
+.wdq-docs.contextual-only > ul > li {
+  list-style: none;
+}

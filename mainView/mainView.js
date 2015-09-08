@@ -2,6 +2,13 @@
 
 angular.module('wikidataTimeline.mainView', [])
 
+.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.when('/timeline', {
+    templateUrl: 'mainView/mainView.html',
+    controller: 'MainViewCtrl'
+  });
+}])
+
 .controller('MainViewCtrl', ['$scope', '$location', '$wikidata',
 function($scope, $location, $wikidata) {
 

@@ -1,0 +1,190 @@
+<form role="form" class="new-view">
+  <label for="query">Query:</label>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <textarea name="query" class="query-editor form-control"></textarea>
+    </div>
+    <div class="panel-footer">
+      <small style="float: right;">
+        powered by
+        <a target="blank" href="https://wdq.wmflabs.org/api_documentation.html">WDQ</a> and
+        <a target="blank" href="https://codemirror.net/">CodeMirror</a>
+      </small>
+
+      <div class="btn-group" role="group" aria-label="...">
+        <button type="button" class="btn btn-sm btn-default"
+          ng-class="{'btn-primary': !showAllWDQDocs && contextualDocsEnabled}"
+          ng-click="toggleContextualDocs();"
+          ng-disabled="showAllWDQDocs">
+          Contextual Docs
+        </button>
+        <button type="button" class="btn btn-sm btn-default"
+          ng-class="{'btn-primary': showAllWDQDocs}"
+          ng-click="showAllWDQDocs = !showAllWDQDocs">
+          Show all docs
+        </button>
+      </div>
+
+      <div class="wdq-docs"
+        ng-show="showAllDocs || contextualDocsEnabled"
+        ng-class="{'contextual-only': !showAllWDQDocs && contextualDocsEnabled }"
+        style="margin-top: 6px;">
+
+        <ul>
+          <li ng-show="showAllWDQDocs || activeToken == 'claim'">
+            <b><tt>claim[PROPERTY<i>:ITEM</i>,...]</tt></b><br>
+            This finds all items with claims that either have a specific <tt>PROPERTY</tt> (omitting <tt>:ITEM</tt>), or that have a claim for a <tt>PROPERTY</tt> towards a specific <tt>ITEM</tt>.<br>
+            <i>Example:</i> <tt>claim[138:676555]</tt> returns all items that are named after (<span class="property">P138</span>) Francis of Assisi (<span class="item">Q676555</span>).<br>
+            Multiple such claim statements can be concatenated within <tt>[]</tt> by commas; all items fulfilling any of the statements (union) will be returned.<br>
+            Note that the item-less form of this query also works for string, time, and coordinate properties.<br>
+            <i>Alternatively</i>, a nested query (subquery) can be used instead of the item. The resulting items of the subquery are then all used together with the property.<br>
+            <i>Example:</i> <tt>claim[31:(tree[12280][][279])]</tt> gives a list of all instances (<span class="property">P31</span>) of subclasses (<span class="property">P279</span>) of bridges <span class="item">Q12280</span>.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'noclaim'">
+            <b><tt>noclaim[PROPERTY<i>:ITEM</i>,...]</tt></b><br>
+            Similar to <tt>claim</tt> this removes all items with claims that either have a specific <tt>PROPERTY</tt> (omitting <tt>:ITEM</tt>), or that have a claim for a <tt>PROPERTY</tt> towards a specific <tt>ITEM</tt>, from the current result set.<br>
+            <tt>noclaim</tt> must be part of an <tt>AND</tt> statement, and must <i>not</i> be the first element in it; it can only work on an existing item list.<br>
+            <i>Example:</i> <tt>claim[138:676555] AND noclaim[31:515]</tt> returns all items that are named after (<span class="property">P138</span>) Francis of Assisi (<span class="item">Q676555</span>)
+            and are <i>not</i> an instance of (<span class="property">P31</span>) city (<span class="item">Q515</span>).<br>
+            Multiple such claim statements can be concatenated within <tt>[]</tt> by commas; all items fulfilling any of the statements (union) will be removed.<br>
+            <i>Alternatively</i>, a nested query (subquery) can be used instead of the item. See <tt>claim</tt> above for details.
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'tree'">
+            <b><tt>tree[ITEM,...][PROPERTY,...]<i>[PROPERTY,...]</i></tt></b><br>
+            This returns all items on a tree of properties (can be separated by commas), following properties recursively from root items.
+            <ul>
+            <li>The first list (one or multiple <tt>ITEM</tt>) are the root elements of the tree.</li>
+            <li>The second list (one or multiple <tt>PROPERTY</tt>, can be empty) is the list of properties to follow <i>forward</i>; that is, if root item <span class="item">R</span> has a claim <span class="property">P</span>:<span class="item">I</span>, and <span class="property">P</span> is in the list, the search will branch recursively to item <span class="item">I</span> as well.<br>
+            An example would be to follow a taxonomy, starting from a species.</li>
+            <li>The third list (one or multiple <tt>PROPERTY</tt>, can be empty, or omitted entirely) is the list of properties to follow <i>in reverse</i>;
+            that is, if (for a root item <span class="item">R</span>) an item <span class="item">I</span> has a claim <span class="property">P</span>:<span class="item">R</span>, and <span class="property">P</span> is in the list, the search will branch recursively to item <span class="item">I</span> as well.<br>
+            An example would be to find all places in a country by following the "in administrative unit" trail in reverse, starting form the country.
+            </li>
+            </ul>
+            <i>Example:</i> <tt>tree[30][150][17,131]</tt> returns all items that are in the country (<span class="property">P17</span>) or administrative unit (<span class="property">P131</span>) of the U.S.A. (<span class="item">Q30</span>), or sub-units thereof (<span class="property">P150</span>).
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'web'">
+            <b><tt>web[ITEM,...][PROPERTY,...]</tt></b><br>
+            Similar to <tt>tree</tt>, this follows properties from root items, but in both directions ("up" and "down" the tree) for the same properties.<br>
+            <i>Example:</i> <tt>web[9682][25,22,40,26,7,9,1038]</tt> finds all relatives of Queen Elizabeth II (<span class="item">Q9682</span>).
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'string'">
+            <b><tt>string[PROPERTY:"STRING",...]</tt></b><br>
+            This finds all items with string value <tt>STRING</tt> for <tt>PROPERTY</tt>.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+
+          <li ng-show="showAllWDQDocs || activeToken == 'around'">
+            <b><tt>around[PROPERTY,LATITUDE,LONGITUDE,RADIUS]</tt></b><br>
+            This finds all items with coordinates in <tt>PROPERTY</tt> (usually <i>625</i>) that are no more that <tt>RADIUS</tt> km (accepts fractions, e.g. "2.5") away from <tt>LATITUDE</tt>,<tt>LONGITUDE</tt> (decimal degrees, e.g. "52.205,0.119"). Precision is ignored.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'between'">
+            <b><tt>between[PROPERTY,<i>BEGIN</i>,<i>END</i>]</tt></b><br>
+            This finds all items with times in <tt>PROPERTY</tt> between <tt>BEGIN</tt> and <tt>END</tt> times. Either <tt>BEGIN</tt> or <tt>,END</tt> (with comma!) can be omitted to indicate "any value", but not both. Ranges are inclusive, precision is ignored, calendar is always Gergorian.<br>
+            Times are given in the format <tt>+00000001861-03-17T00:00:00Z</tt>, though short versions are allowed, e.g. "1974" or "1974-05"; missing values will be set to 0, even months and days, so "before 1974" becomes "before 1974-00-00T00:00:00Z".<br>
+            Excessive values are allowed, e.g. "before 1974-05-32" gives all dates before, and including, May 1974.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'quantity'">
+            <b><tt>quantity[PROPERTY:VALUE1<i>,VALUE2</i>]</tt></b><br>
+            This finds all items with a quantity value in <tt>PROPERTY</tt> that is larger or equal to <tt>VALUE1</tt>, and less or equal to <tt>VALUE2</tt>. If <tt>VALUE2</tt> is omitted, it will be set to <tt>VALUE1</tt>, that is, only items with a value equal to <tt>VALUE1</tt> will be returned.<br>
+            <i>Example:</i> <tt>quantity[1082,35000,40000]</tt> finds all items with a population (<span class="property">P1082</span>) between (inclusive) 35,000 and 40,000.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'items'">
+            <b><tt>items[ITEM<i>,...</i>]</tt></b><br>
+            A static list of <tt>ITEM</tt>s, for example, to filter for <tt>NOCLAIM</tt> (which cannot be the first command). <tt>POST</tt> is recommended over <tt>GET</tt> for longer lists.<br>
+            <i>Example:</i> <tt>items[1339,350]</tt> adds items for J.S. Bach and Cambridge, UK.
+            <div class="qualifiers">This command supports qualifiers.</div>
+          </li>
+
+          <li ng-show="showAllWDQDocs || activeToken == 'link'">
+            <b><tt>link[wiki<i>,wiki,...</i>]</tt></b> / <b><tt>nolink[wiki<i>,wiki,...</i>]</tt></b><br>
+            <tt>link</tt> finds all items with links to any of the stated wikis.<br>
+            <tt>nolink</tt> finds all items without links to any of the stated wikis.<br>
+            <i>Example:</i> <tt>link[dewiki] and nolink[frwiki]</tt> returns all items that have a link to <i>dewiki</i> but not to <i>frwiki</i>.
+          </li>
+
+
+          <li ng-show="showAllWDQDocs || activeToken == 'qualifier'">
+            <b><tt>{<i>QUALIFIER QUERY</i>}</tt></b><br>
+            This can be added to <span class="qualifiers">supported</span> commands. The query between { and } will be run against the qualifiers of each statement that matches the main query.<br>
+            <i>Example:</i> <tt>claim[166:746756]{BETWEEN[585,1853,1853-13]}</tt> returns the award recipient (<span class="property">P166</span>) of the Royal Medal (<span class="item">Q746756</span>) in 1853 (<tt>1853-13</tt> indicating the end of the year 1853).
+          </li>
+
+
+          <li ng-show="showAllWDQDocs || activeToken == 'operator'">
+            <b><tt>AND</tt></b> / <b><tt>OR</tt></b><br>
+            You can join multiple of the above queries into a subset (<tt>AND</tt>) or union (<tt>OR</tt>). Use spaces around either to separate them from the queries they connect.<br>
+            <i>Example:</i> <tt>tree[30][150][17,131] AND claim[138:676555]</tt> returns all items (three in total) that are <i>both</i>
+            <ul>
+            <li>places in the "reverse tree" of country (<span class="property">P17</span>) or administrative unit (<span class="property">P131</span>) within the U.S.A. (<span class="item">Q30</span>), or areas it subdivides into (<span class="property">P150</span> of the "forward tree"), <i>and</i></li>
+            <li>named after (<span class="property">P138</span>) Francis of Assisi (<span class="item">Q676555</span>)</li>
+            </ul>
+            Note that mixing <tt>AND</tt> and <tt>OR</tt> will auto-group them by order: <tt>a AND b OR c</tt> becomes <tt>(a AND b) OR c</tt> internally.
+          </li>
+        </ul>
+
+        <div class="wdq-notes" ng-show="showAllWDQDocs">
+          <h4>Note</h4>
+          <ul>
+          <li>All properties and items are numeric (no "P" or "Q" prefix)</li>
+          <li>Commands are case-insensitive</li>
+          <li><i>no value</i> is represented as item 4294967295</li>
+          <li><i>unknown value</i> is represented as item 4294967294</li>
+          </ul>
+
+          <pre>&props=P1,P2,...</pre>
+          <p>
+          Adding a "props" parameter to the URL will return the specified statements (items, properties, and their values) for the resulting items.
+          <ul>
+          <li>P1, P2, etc. are comma-separated property numbers, e.g. <tt>&props=17,47</tt>.</li>
+          <li>Each such statement will be written as an array with three values: <tt>[source_item,value_type,value]</tt>.</li>
+          <li>For all properties, value_type may be "item" if the value is one of <i>no value</i> or <i>unknown value</i> (see note above).</li>
+          <li>Using a single "*" instead of a property number list will return all properties of the resulting items, though that can take significantly longer, and generate much more data. <a href="./api?q=tree[4504][171,273,75,76,77,70,71,74,89]&props=*">Komodo dragon taxon tree example</a>.</li>
+          <!--If "props" is used together with "labels", labels for the properties and all items in property values ("target items") will be generated as well.-->
+          </ul>
+          </p>
+
+          <pre>&noitems=1</pre>
+          <p>
+          Suppresses the item list; still returns number of items and property values (if requested).
+          </p>
+
+
+          <h2>Results</h2>
+          <p>
+          <ul>
+          <li>Result format is JSON</li>
+          <li>For JSONP, add a <tt>&callback=FUNCTION</tt> parameter to the URL; the result will then be a parameter in the call of the JavaScript <tt>FUNCTION</tt></li>
+          </ul>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="wdqError"
+    class="alert alert-danger" role="alert">
+      WDQ Error: {{wdqError}}
+  </div>
+
+  <button type="submit" class="btn btn-primary"
+    ng-disabled="saveButtonState != saveButtonStates.Def"
+    ng-click="drawTimeline()">
+    <span ng-show="saveButtonState == saveButtonStates.Def">Draw Timeline</span>
+    <span ng-show="saveButtonState == saveButtonStates.ValidatingWDQ">Validating WDQ...</span>
+    <span ng-show="saveButtonState == saveButtonStates.InvalidWDQ">Invalid WDQ</span>
+    <span ng-show="saveButtonState == saveButtonStates.PreparingToDraw">Drawing...</span>
+  </button>
+</form>
