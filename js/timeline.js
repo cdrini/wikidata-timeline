@@ -277,12 +277,7 @@ Timeline.prototype._drawItems = function(items) {
 					'xlink:show': 'new'
 				});
 
-				var anchorNode = anchor.node();
-
-				var children = this.children;
-				while(children.length > 1) {
-					anchorNode.appendChild(children[0]);
-				}
+				$(anchor.node()).append($(this).children());
 			}
 		});
 
