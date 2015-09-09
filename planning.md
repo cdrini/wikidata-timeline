@@ -11,12 +11,13 @@
 * Display a timeline using data from wikidata
 
 # Current Sprint
-* Restructure angular routes (home; no samples)
 ## Done:
+* Restructure angular routes (home; no samples)
 * Smarter Axis appearance
 * Add UI page for query entry
 * Trim Wikidata items so we use less memory
 * Better date formatting for BCE years
+* Added toolinfo.json
 
 # Backlog
 * Restructure timeline.js to be more d3-y (i.e. .data())
