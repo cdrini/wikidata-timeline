@@ -1,5 +1,6 @@
 html, body {
   width:100%;
+  width: -moz-calc(100% - 8px); /* firefox fix :/ */
   height:100%;
 
   margin: 0;
