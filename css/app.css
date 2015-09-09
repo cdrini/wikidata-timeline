@@ -12,6 +12,7 @@ body {
 #main-content, div[ng-view] {
   height: 100%;
   overflow: auto;
+  position: relative;
 }
 
 .alert-info {
@@ -155,4 +156,23 @@ span.item {
 }
 .wdq-docs.contextual-only > ul > li {
   list-style: none;
+}
+
+/** timeline view **/
+
+.options-bar {
+  height: 32px;
+  line-height: 32px;
+  background-color: #FFF;
+  width: 100%;
+  position: absolute;
+  top: 0;
+}
+.left-right-bar > .left {
+  float: left;
+  margin-left: 8px;
+}
+.left-right-bar > .right {
+  float: right;
+  margin-right: 8px;
 }

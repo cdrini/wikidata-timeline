@@ -1,3 +1,19 @@
+<style> [ng-view] { padding-top: 32px; } </style> <!-- make room for options bar -->
+
+<div class="options-bar left-right-bar">
+  <div class="left">
+    <!-- <a href="javascript:;">Settings</a> -->
+  </div>
+  <div class="right">
+    <a role="button"
+      class="download-link"
+      href-lang="image/svg+xml"
+      target="blank"
+      ng-click="downloadTimeline()"
+      href="javascript:;">Download</a>
+  </div>
+</div>
+
 <div class="timeline-container"></div>
 
 <div class="notification-container" ng-show="queryState">

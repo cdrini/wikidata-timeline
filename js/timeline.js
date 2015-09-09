@@ -117,6 +117,8 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	// the svg
   this.svg = d3.select(this.container).append('svg')
+		.attr("version", 1.1)
+		.attr("xmlns", "http://www.w3.org/2000/svg")
     .classed('timeline', true);
 
 	// x axis

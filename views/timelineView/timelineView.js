@@ -9,8 +9,8 @@ angular.module('wikidataTimeline.timelineView', [])
   });
 }])
 
-.controller('TimelineViewCtrl', ['$scope', '$location', '$wikidata',
-function($scope, $location, $wikidata) {
+.controller('TimelineViewCtrl', ['$scope', '$http', '$location', '$wikidata',
+function($scope, $http, $location, $wikidata) {
 
   // scope variables
   $scope.queryStates = {
@@ -27,10 +27,28 @@ function($scope, $location, $wikidata) {
     return Math.round(100*$scope.itemsLoaded / $scope.totalItemsToLoad);
   };
 
+  var timelineStyle;
+  $http({
+    url: 'css/main.css'
+  }).then(function(response) {
+    timelineStyle = $('<style>' + response.data + '</style>');
+  });
+  $scope.downloadTimeline = function() {
+    var svgEl = $('svg.timeline');
+    if (svgEl.length == 0) {
+      return;
+    }
+    $('svg.timeline')
+      .prepend(timelineStyle);
+    var svg = $('.timeline-container').html();
+    timelineStyle.remove();
+    window.open("data:image/svg+xml;base64,\n" + btoa(svg));
+  };
+
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     langs: ['en', 'fr'],
-    widthOfYear: 40
+    widthOfYear: 20
   };
 
   var dateTimeFormat = d3.time.format("%Y-%m-%d");
@@ -130,6 +148,6 @@ function($scope, $location, $wikidata) {
 
   var items = [];
   var tl = new Timeline(items, {
-  	widthOfYear: $location.search().widthOfYear || 40
+  	widthOfYear: $location.search().widthOfYear || 20
   });
 }]);
