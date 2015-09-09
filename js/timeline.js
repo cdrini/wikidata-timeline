@@ -285,10 +285,16 @@ Timeline.prototype._drawItems = function(items) {
 		});
 
 		// the height has probably changed because of stacking; should shrink doc
-		this.gridHeight = this.svg._itemsGroup.node().getBBox().height;
+		var bbox = this.svg._itemsGroup.node().getBBox();
+		var axisTicks = Math.floor(bbox.width / 100);
+		console.log(axisTicks);
+		this.gridHeight = bbox.height;
 		this._gridAxis.innerTickSize(-1*this.gridHeight); // FIXME: put me in better place T_T
-		this._gridGroup.call(this._gridAxis);
 		this._updateSVGSize();
+		this._gridAxis.ticks(axisTicks);
+		this._xAxis.ticks(axisTicks);
+		this._gridGroup.call(this._gridAxis);
+		this._xAxisGroup.call(this._xAxis);
 };
 
 /**
