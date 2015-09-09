@@ -11,14 +11,17 @@
 * Display a timeline using data from wikidata
 
 # Current Sprint
-* Smarter Axis appearance
 * Restructure angular routes (home; no samples)
 ## Done:
+* Smarter Axis appearance
 * Add UI page for query entry
 * Trim Wikidata items so we use less memory
 * Better date formatting for BCE years
 
 # Backlog
+* Restructure timeline.js to be more d3-y (i.e. .data())
+* Add WDQ API examples
+* Add Samples to New page
 * Add UI page to change timeline settings in-place
 * Make progress notification appear as bar instead of hovering overtop. Blocks a considerable chunk of the screen.
 * bug: fix shrinking API field in newView causing button to be difficult to press.
@@ -38,6 +41,7 @@
   * Timeline example: http://bl.ocks.org/bunkat/2338034
   * General example: http://bl.ocks.org/mbostock/1667367
   * Docs: https://github.com/mbostock/d3/wiki/SVG-Controls
+  * Great example on codepen: http://codepen.io/techniq/pen/QbdpmB?editors=001
 
 ## Done:
 * Stack the items so they take less vertical space

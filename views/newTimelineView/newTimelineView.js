@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('wikidataTimeline.newView', ['ngRoute'])
+angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/new', {
-    templateUrl: 'newView/newView.html',
-    controller: 'NewViewCtrl'
+    templateUrl: 'views/newTimelineView/newTimelineView.html',
+    controller: 'NewTimelineViewCtrl'
   });
 }])
 
-.controller('NewViewCtrl', ['$scope', '$timeout', '$location', '$wikidata',
+.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata',
 function($scope, $timeout, $location, $wikidata) {
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;

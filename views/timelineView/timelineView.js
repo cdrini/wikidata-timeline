@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('wikidataTimeline.mainView', [])
+angular.module('wikidataTimeline.timelineView', [])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/timeline', {
-    templateUrl: 'mainView/mainView.html',
-    controller: 'MainViewCtrl'
+    templateUrl: 'views/timelineView/timelineView.html',
+    controller: 'TimelineViewCtrl'
   });
 }])
 
-.controller('MainViewCtrl', ['$scope', '$location', '$wikidata',
+.controller('TimelineViewCtrl', ['$scope', '$location', '$wikidata',
 function($scope, $location, $wikidata) {
 
   // scope variables

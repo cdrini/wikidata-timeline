@@ -3,13 +3,13 @@
 // Declare app level module which depends on views, and components
 angular.module('wikidataTimeline', [
   'ngRoute',
-  'wikidataTimeline.samplesView',
-  'wikidataTimeline.mainView',
-  'wikidataTimeline.newView'
+  'wikidataTimeline.newTimelineView',
+  'wikidataTimeline.timelineView',
+  'wikidataTimeline.staticSampleView'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({
-    templateUrl: 'newView/newView.html',
-    controller: 'NewViewCtrl'
+    templateUrl: 'views/newTimelineView/newTimelineView.html',
+    controller: 'NewTimelineViewCtrl'
   });
 }]);

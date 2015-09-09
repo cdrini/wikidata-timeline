@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('wikidataTimeline.samplesView', ['ngRoute'])
+angular.module('wikidataTimeline.staticSampleView', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/samples', {
-    templateUrl: 'samplesView/samplesView.html',
-    controller: 'SamplesViewCtrl'
+    templateUrl: 'views/staticSampleView/staticSampleView.html',
+    controller: 'StaticSampleViewCtrl'
   });
 }])
 
-.controller('SamplesViewCtrl', [function() {
+.controller('StaticSampleViewCtrl', [function() {
   var format = d3.time.format("%d/%m/%Y");
   var items = [
   	{
