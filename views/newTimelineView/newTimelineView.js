@@ -68,4 +68,11 @@ function($scope, $timeout, $location, $wikidata) {
   };
 
   queryEditor.on('change', updateTokenOnChange);
+
+  $('form.new-view').on('keyup', function(ev) {
+    // submit on ctrl enter
+    if(ev.keyCode == 13 && ev.ctrlKey) {
+      $(this).find('button[type="submit"]').click();
+    }
+  })
 }]);
