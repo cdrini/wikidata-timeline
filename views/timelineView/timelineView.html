@@ -9,8 +9,10 @@
       class="download-link"
       href-lang="image/svg+xml"
       target="blank"
-      ng-click="downloadTimeline()"
-      href="javascript:;">Download</a>
+      ng-mouseenter="createDownloadURL()"
+      ng-focus="createDownloadURL()"
+      download="wikidata-timeline.svg"
+      ng-href="{{downloadURL || ''}}">Download</a>
   </div>
 </div>
 

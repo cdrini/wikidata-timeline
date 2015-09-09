@@ -33,7 +33,8 @@ function($scope, $http, $location, $wikidata) {
   }).then(function(response) {
     timelineStyle = $('<style>' + response.data + '</style>');
   });
-  $scope.downloadTimeline = function() {
+  $scope.downloadURL = '';
+  $scope.createDownloadURL = function() {
     var svgEl = $('svg.timeline');
     if (svgEl.length == 0) {
       return;
@@ -42,7 +43,13 @@ function($scope, $http, $location, $wikidata) {
       .prepend(timelineStyle);
     var svg = $('.timeline-container').html();
     timelineStyle.remove();
-    window.open("data:image/svg+xml;base64,\n" + btoa(svg));
+
+    var blob = new Blob([svg], {type: 'octet/stream'});
+    if ($scope.downloadURL != '') {
+      window.URL.revokeObjectURL($scope.downloadURL);
+    }
+    $scope.downloadURL = window.URL.createObjectURL(blob);
+    debugger;
   };
 
   var defaultOpts = {
