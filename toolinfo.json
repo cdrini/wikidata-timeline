@@ -1,0 +1,9 @@
+{
+    "name":        "wikidata-timeline",
+    "title":       "Wikidata Timeline",
+    "description": "Build timelines using live Wikidata queries and live Wikidata data",
+    "url":         "http://tools.wmflabs.org/cdrini/wikidata-timeline",
+    "keywords":    "visualization, timeline, viz, wdq",
+    "author":      "Drini Cami (i.e. Hardwigg)",
+    "repository":  "https://github.com/cdrini/wikidata-timeline.git"
+}
