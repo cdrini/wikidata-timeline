@@ -49,7 +49,6 @@ function($scope, $http, $location, $wikidata) {
       window.URL.revokeObjectURL($scope.downloadURL);
     }
     $scope.downloadURL = window.URL.createObjectURL(blob);
-    debugger;
   };
 
   var defaultOpts = {
