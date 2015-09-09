@@ -15,11 +15,6 @@
   fill: #FFDD55
 }
 
-.timeline .item rect {
-  stroke: #F0F0F0;
-  stroke-width: 1.5px;
-}
-
 .timeline .item text {
   font-size: 12px;
 }

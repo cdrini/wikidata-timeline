@@ -172,9 +172,9 @@ Timeline.prototype._drawItems = function(items) {
   groups.append('rect')
     .attr({
       x:      function(d) {return (_this.xScale(getEndTime(d)) - _this.xScale(d.start))/2 },
-      y:      0,
+      y:      1,
       width:  0,
-      height: _this.itemHeight,
+      height: _this.itemHeight -2,
     })
     // .transition().duration(80)
     // .delay(function(d, i) { return 60*Math.log(i); })
