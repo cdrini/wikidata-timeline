@@ -15,6 +15,10 @@
   fill: #FFDD55
 }
 
+.mini-timeline path {
+  stroke: #FD5;
+}
+
 .timeline .item text {
   font-size: 12px;
 }

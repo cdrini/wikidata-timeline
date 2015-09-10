@@ -70,6 +70,7 @@ function Timeline(items, opts) {
   this.items = items;
   opts = opts || {};
 
+	                     // param name                      // default value
   setParam(this, opts, 'widthOfYear',                     20); //px
   setParam(this, opts, 'itemHeight',                      20); //px
   setParam(this, opts, 'itemSpacing',                      2); //px
@@ -77,6 +78,7 @@ function Timeline(items, opts) {
   setParam(this, opts, 'endDate',     (new Date()).getTime()); // present
   setParam(this, opts, 'padding',                          5);
 	setParam(this, opts, 'axisLabelSize',                   20); //px
+	setParam(this, opts, 'miniChartHeight',                 80); //px
 }
 
 // getters/setters
@@ -103,26 +105,27 @@ Timeline.prototype.isDrawn = function() {
  */
 Timeline.prototype.draw = function(HTMLContainer) {
   this.container = HTMLContainer;
+	var _this = this;
 
 	this.gridWidth = 0;
 	this.gridHeight = 0;
 
 	// scale
-	var timeMin = d3.min(this.items, function(d) { return d.start; });
+	var timeMin = d3.min(this.items, function(d) { return d.start.getTime(); });
 	var timeMax = d3.max(this.items, function(d) { return getEndTime(d); });
 	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
 
 	this.mainChart = {};
-	// {svg, xScale, xAxis, xAxisGroup}
-	this.mainChart.xScale = d3.time.scale()
-		.domain([timeMin, timeMax])
-		.range([this.padding, this.padding + this.gridWidth]);
-
 	// the svg
   this.mainChart.svg = d3.select(this.container).append('svg')
 		.attr("version", 1.1)
 		.attr("xmlns", "http://www.w3.org/2000/svg")
     .classed('timeline', true);
+
+	// {svg, xScale, xAxis, xAxisGroup, gridAxis, gridGroup itemsGroup}
+	this.mainChart.xScale = d3.time.scale()
+		.domain([timeMin, timeMax])
+		.range([this.padding, this.padding + this.gridWidth]);
 
 	// x axis
 	this.mainChart.xAxis = d3.svg.axis()
@@ -148,12 +151,39 @@ Timeline.prototype.draw = function(HTMLContainer) {
 		.call(this.mainChart.gridAxis);
 
 	// the items
-	this.mainChart.svg._itemsGroup = this.mainChart.svg.append('g').classed('items', true);
+	this.mainChart.svg.itemsGroup = this.mainChart.svg.append('g').classed('items', true);
+
 	// these rows store the items in each row of the timeline, sorted. Used to
 	// pack events in the _drawItems method.
 	this.rows = [];
 	this.nextRow = 0;
 
+	// the brush control
+	this.miniChart = {};
+	this.miniChart.svg = d3.select(this.container).append('svg')
+		.classed('mini-timeline', true)
+		.attr({
+			width: '100%',
+			height: _this.miniChartHeight
+		});
+	this.miniChart.svg.itemsGroup = this.miniChart.svg.append('g').classed('items', true);
+
+	this.miniChart.xScale = d3.time.scale()
+		.domain([timeMin, timeMax])
+		.range([this.padding, this.container.clientWidth - this.padding]);
+	this.miniChart.xAxis = d3.svg.axis()
+		.scale(this.miniChart.xScale)
+		.ticks(5)
+    .orient("bottom")
+		.tickSize(0,0)
+		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
+	  .tickPadding(0);
+	this.miniChart.xAxisGroup = this.miniChart.svg.append('g')
+		.classed('x axis', true)
+		.call(this.miniChart.xAxis)
+		.attr({
+			'transform': sprintf('translate(0, %%)', this.miniChartHeight / 2)
+		});
 
   this._drawItems();
 };
@@ -165,7 +195,7 @@ Timeline.prototype._drawItems = function(items) {
   var _this = this;
 
 	// Group
-  var groups = this.mainChart.svg._itemsGroup.selectAll('g')
+  var groups = this.mainChart.svg.itemsGroup.selectAll('g')
     .data(this.items)
     .enter()
     .append('g')
@@ -205,7 +235,7 @@ Timeline.prototype._drawItems = function(items) {
     // .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
     .style('opacity', 1);
 
-		// position the group
+		// position the items
 		groups.attr({
       transform: function(d, i) {
 				var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
@@ -213,7 +243,8 @@ Timeline.prototype._drawItems = function(items) {
 				var bbox = this.getBBox();
 				var xRange = {
 					start: _this.mainChart.xScale(d.start) + bbox.x,
-					end: _this.mainChart.xScale(d.start) + bbox.x + bbox.width
+					end: _this.mainChart.xScale(d.start) + bbox.x + bbox.width,
+					item: d
 				};
 
 				// first item; just add it
@@ -270,6 +301,27 @@ Timeline.prototype._drawItems = function(items) {
 			}
     });
 
+		// mirror mini chart
+		if (this.miniChart.items) {
+			this.miniChart.items.remove();
+		}
+		this.miniChart.items = this.miniChart.svg.append('path');
+		var miniItemsD = "";
+		var miniItemHeight = this.miniChartHeight / this.rows.length;
+		for(var r = 0; r < this.rows.length; ++r) {
+			for(var i = 0; i < this.rows[r].length; ++i) {
+				var d = this.rows[r][i].item;
+				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
+				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
+																		           this.miniChart.xScale(getEndTime(d)));
+			}
+		}
+		this.miniChart.items.attr({
+			d: miniItemsD,
+			'stroke-width': miniItemHeight,
+			transform: sprintf('translate(0, %%)', this.rows.length * miniItemHeight)
+		});
+
 		// Add anchors (where appropriate)
 		groups.each(function(d) {
 			if (d.href) {
@@ -282,12 +334,12 @@ Timeline.prototype._drawItems = function(items) {
 					'xlink:show': 'new'
 				});
 
-				$(anchor.node()).append($(this).children());
+				$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
 			}
 		});
 
 		// the height has probably changed because of stacking; should shrink doc
-		var bbox = this.mainChart.svg._itemsGroup.node().getBBox();
+		var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
 		var axisTicks = Math.floor(bbox.width / 100);
 		console.log(axisTicks);
 		this.gridHeight = bbox.height;
@@ -330,6 +382,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 		];
 		var xTmp = this.mainChart.xScale(0);
 		this.mainChart.xScale.domain(newDomain);
+		this.miniChart.xScale.domain(newDomain);
 	}
 
 	this.items = this.items.concat(itemsArr);
@@ -339,13 +392,14 @@ Timeline.prototype.addItems = function(itemsArr) {
   this.mainChart.xScale.range([this.padding, this.padding + this.gridWidth]);
 
   // update axes
-  this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
   this.mainChart.gridGroup.call(this.mainChart.gridAxis);
+  this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
 
 	if (mustChangeDomain) {
 		var xChange = this.mainChart.xScale(0) - xTmp;
 		// move all the existing items over
-		this.mainChart.svg._itemsGroup.selectAll('g.item')
+		this.mainChart.svg.itemsGroup.selectAll('g.item')
 		.each(function(d, i) {
 			var currentTransform = this.getAttribute('transform');
 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
