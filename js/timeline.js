@@ -105,6 +105,11 @@ Timeline.prototype.isDrawn = function() {
  */
 Timeline.prototype.draw = function(HTMLContainer) {
   this.container = HTMLContainer;
+	this.chartContainer = document.createElement('div');
+	this.chartContainer.setAttribute('class', 'main-chart-container');
+	this.container.style.paddingBottom = this.miniChartHeight + 'px';
+	this.container.appendChild(this.chartContainer);
+
 	var _this = this;
 
 	this.gridWidth = 0;
@@ -117,10 +122,10 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	this.mainChart = {};
 	// the svg
-  this.mainChart.svg = d3.select(this.container).append('svg')
+  this.mainChart.svg = d3.select(this.chartContainer).append('svg')
 		.attr("version", 1.1)
 		.attr("xmlns", "http://www.w3.org/2000/svg")
-    .classed('timeline', true);
+    .classed('main-chart', true);
 
 	// {svg, xScale, xAxis, xAxisGroup, gridAxis, gridGroup itemsGroup}
 	this.mainChart.xScale = d3.time.scale()
@@ -161,7 +166,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	// the brush control
 	this.miniChart = {};
 	this.miniChart.svg = d3.select(this.container).append('svg')
-		.classed('mini-timeline', true)
+		.classed('mini-chart', true)
 		.attr({
 			width: '100%',
 			height: _this.miniChartHeight
@@ -305,10 +310,10 @@ Timeline.prototype._drawItems = function(items) {
 		if (this.miniChart.items) {
 			this.miniChart.items.remove();
 		}
-		this.miniChart.items = this.miniChart.svg.append('path');
+		this.miniChart.items = this.miniChart.svg.insert('path', ':first-child');
 		var miniItemsD = "";
 
-		var minItemHeight = 4;
+		var minItemHeight = 6;
 		var condensedRows = Math.floor(this.miniChartHeight / minItemHeight);
 		if (this.rows.length > condensedRows) {
 			var rowsToMerge = this.rows.length / condensedRows;
@@ -361,7 +366,7 @@ Timeline.prototype._drawItems = function(items) {
 				}
 			}
 			this.miniChart.items.attr({
-				'stroke-width':   2.5,
+				'stroke-width':   4.5,
 				transform:        sprintf('translate(0, %%)', condensedRows * minItemHeight)
 			});
 		} else {
