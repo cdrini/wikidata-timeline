@@ -26,12 +26,12 @@
 }
 
 .timeline-container .main-chart .item rect {
-  fill: #FFDD55
+  fill: #FFDD55;
 }
 
 .timeline-container .mini-chart .items-path {
   stroke: #FD5;
-  opacity: 0.7;
+  shape-rendering: crispEdges;
 }
 
 .timeline-container .main-chart .item text {
@@ -47,4 +47,13 @@
   stroke-width: 1px;
   stroke: #AAA;
   stroke-dasharray: 1,1;
+  shape-rendering: crispEdges;
+}
+
+.timeline-container .mini-chart .viewfield {
+  stroke: #0000EE;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+  fill: #0000DD;
+  fill-opacity: 0.1;
 }

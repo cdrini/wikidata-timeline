@@ -110,6 +110,8 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	this.container.style.paddingBottom = this.miniChartHeight + 'px';
 	this.container.appendChild(this.chartContainer);
 
+	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
+
 	var _this = this;
 
 	this.gridWidth = 0;
@@ -175,7 +177,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	this.miniChart.xScale = d3.time.scale()
 		.domain([timeMin, timeMax])
-		.range([this.padding, this.container.clientWidth - this.padding]);
+		.range([this.padding, this.container.clientWidth]);
 	this.miniChart.xAxis = d3.svg.axis()
 		.scale(this.miniChart.xScale)
 		.ticks(5)
@@ -189,9 +191,51 @@ Timeline.prototype.draw = function(HTMLContainer) {
 		.attr({
 			'transform': sprintf('translate(0, %%)', this.miniChartHeight / 2)
 		});
+	this.miniChart.viewfieldRect = this.miniChart.svg.append('rect')
+		.classed('viewfield', true)
+		.attr({
+			width: (this.chartContainerRect.width / this.chartContainer.scrollWidth) * this.chartContainerRect.width,
+			height: (this.chartContainerRect.height / this.chartContainer.scrollHeight) * this.miniChartHeight
+		});
+
+	// events
+	d3.select(this.chartContainer).on('scroll', function() {
+		_this.miniChart.viewfieldRect.attr({
+			transform: sprintf('translate(%%, %%)',
+				(this.scrollLeft / this.scrollWidth) * _this.chartContainerRect.width,
+				(this.scrollTop / this.scrollHeight) * _this.miniChartHeight)
+		});
+	});
+
+	d3.select(window).on('resize', Timeline.prototype.resizeHandler.bind(this));
 
   this._drawItems();
 };
+
+/**
+ * Call on resize / on scrollWidth/Height changes to keep variables accurate
+ */
+Timeline.prototype.resizeHandler = function() {
+	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
+	this.miniChart.viewfieldRect
+		.attr({
+			width: (this.chartContainerRect.width / this.chartContainer.scrollWidth) * this.chartContainerRect.width,
+			height: (this.chartContainerRect.height / this.chartContainer.scrollHeight) * this.miniChartHeight
+		});
+
+	// resize miniChart
+	var oldRange = this.miniChart.xScale.range();
+	var widthChangeRatio = this.chartContainerRect.width / oldRange[1];  //FIXME: padding :/
+	this.miniChart.items.attr({
+		transform: this.miniChart.items.attr('transform').replace(/scale\(([-+]?((\d*\.\d+)|\d+))/, function(match, $1) {
+			return 'scale(' + (parseFloat($1) * widthChangeRatio);
+		})
+	});
+
+	this.miniChart.xScale
+		.range([this.padding, this.chartContainerRect.width]);
+	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
+}
 
 /**Draws the individual items
  * @private
@@ -367,7 +411,7 @@ Timeline.prototype._drawItems = function(items) {
 			}
 			this.miniChart.items.attr({
 				'stroke-width':   4.5,
-				transform:        sprintf('translate(0, %%)', condensedRows * minItemHeight)
+				transform:        sprintf('translate(0, %%) scale(1,1)', condensedRows * minItemHeight)
 			});
 		} else {
 			var miniItemHeight = this.miniChartHeight / this.rows.length;
@@ -381,7 +425,7 @@ Timeline.prototype._drawItems = function(items) {
 			}
 			this.miniChart.items.attr({
 				'stroke-width':   miniItemHeight / 2,
-				transform: sprintf('translate(0, %%)', this.rows.length * miniItemHeight)
+				transform: sprintf('translate(0, %%) scale(1,1)', this.rows.length * miniItemHeight)
 			});
 		}
 
@@ -406,6 +450,8 @@ Timeline.prototype._drawItems = function(items) {
 				$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
 			}
 		});
+
+		this.resizeHandler();
 
 		// the height has probably changed because of stacking; should shrink doc
 		var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
