@@ -46,7 +46,7 @@ function sprintf(str) {
  * @returns {timestamp}
  */
 function getEndTime(item) {
-	return !item.end && item.end !== 0 ? (new Date()).getTime() : item.end;
+	return !item.end && item.end !== 0 ? (new Date()).getTime() : item.end.getTime();
 }
 
 /******************************************
@@ -307,19 +307,83 @@ Timeline.prototype._drawItems = function(items) {
 		}
 		this.miniChart.items = this.miniChart.svg.append('path');
 		var miniItemsD = "";
-		var miniItemHeight = this.miniChartHeight / this.rows.length;
-		for(var r = 0; r < this.rows.length; ++r) {
-			for(var i = 0; i < this.rows[r].length; ++i) {
-				var d = this.rows[r][i].item;
-				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
-				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
-																		           this.miniChart.xScale(getEndTime(d)));
+
+		var minItemHeight = 4;
+		var condensedRows = Math.floor(this.miniChartHeight / minItemHeight);
+		if (this.rows.length > condensedRows) {
+			var rowsToMerge = this.rows.length / condensedRows;
+			// don't want too many rows in the mini chart, so we'll merge them
+			var miniItemHeight = miniItemHeight;
+			for(var r = 0; r < this.rows.length; r += rowsToMerge) {
+				var mergedRow = [];
+				for(var r2 = Math.floor(r); r2 < Math.floor(r + rowsToMerge) && r2 < this.rows.length; r2++) {
+					for(var i = 0; i < this.rows[r2].length ; ++i) {
+						var d = this.rows[r2][i].item;
+						var toAdd = {
+							start: d.start.getTime(),
+							end: getEndTime(d)
+						};
+						if (r2 == Math.floor(r)) {
+							// first row to be merge; just place a copy in the mergedRow
+							mergedRow.push(toAdd);
+						} else {
+							// merge with the stuff in merged rows.
+							var inserted = false;
+							for(var j = 0; j < mergedRow.length; ++j) {
+								if (toAdd.end < mergedRow[j].start) {
+									// insert before current item
+									mergedRow = mergedRow.splice(j, 0, toAdd);
+									inserted = true;
+									break;
+								}
+								else if (toAdd.start <= mergedRow[j].end && toAdd.end >= mergedRow[j].start) {
+									// should be merged with the current item
+									mergedRow[j] = {
+										start: Math.min(mergedRow[j].start, toAdd.start),
+										end: Math.max(mergedRow[j].end, toAdd.end)
+									};
+									inserted = true;
+									break;
+								}
+							}
+							if (!inserted) {
+								mergedRow.push(toAdd);
+							}
+						}
+					}
+				}
+
+				// the merged row has been created!
+				for(var i = 0; i < mergedRow.length; ++i) {
+					var miniYPos = Math.floor(r/rowsToMerge) * minItemHeight + minItemHeight / 2;
+					miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(mergedRow[i].start), -miniYPos,
+																			           this.miniChart.xScale(mergedRow[i].end));
+				}
 			}
+			this.miniChart.items.attr({
+				'stroke-width':   2.5,
+				transform:        sprintf('translate(0, %%)', condensedRows * minItemHeight)
+			});
+		} else {
+			var miniItemHeight = this.miniChartHeight / this.rows.length;
+			for(var r = 0; r < this.rows.length; ++r) {
+				for(var i = 0; i < this.rows[r].length; ++i) {
+					var d = this.rows[r][i].item;
+					var miniYPos = r * miniItemHeight + miniItemHeight / 2;
+					miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
+																			           this.miniChart.xScale(getEndTime(d)));
+				}
+			}
+			this.miniChart.items.attr({
+				'stroke-width':   miniItemHeight / 2,
+				transform: sprintf('translate(0, %%)', this.rows.length * miniItemHeight)
+			});
 		}
+
 		this.miniChart.items.attr({
-			d: miniItemsD,
-			'stroke-width': miniItemHeight,
-			transform: sprintf('translate(0, %%)', this.rows.length * miniItemHeight)
+			d:                miniItemsD,
+			class:            'items-path',
+			'stroke-linecap': 'square'
 		});
 
 		// Add anchors (where appropriate)
