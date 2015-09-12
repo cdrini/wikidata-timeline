@@ -31,17 +31,17 @@ function($scope, $http, $location, $wikidata) {
   $http({
     url: 'css/main.css'
   }).then(function(response) {
-    timelineStyle = $('<style>' + response.data + '</style>');
+    timelineStyle = $('<style>' + response.data.replace(/\.timeline-container/g, '') + '</style>');
   });
   $scope.downloadURL = '';
   $scope.createDownloadURL = function() {
-    var svgEl = $('svg.timeline');
+    var svgEl = $('svg.main-chart');
     if (svgEl.length == 0) {
       return;
     }
-    $('svg.timeline')
+    $('svg.main-chart')
       .prepend(timelineStyle);
-    var svg = $('.timeline-container').html();
+    var svg = $('.main-chart-container').html(); // get the 'outer' html
     timelineStyle.remove();
 
     var blob = new Blob([svg], {type: 'octet/stream'});
