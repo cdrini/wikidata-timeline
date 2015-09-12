@@ -2,13 +2,16 @@
   width: 100%;
   height: 100%;
   overflow: auto;
+  
+    background-color: #F0F0F0;
+}
 
-  background-color: #F0F0F0;
+.mini-timeline {
+  background-color: #F8F8F8;
 }
 
 .timeline {
   font-family: Roboto, sans-serif;
-  background-color: #F0F0F0;
 }
 
 .timeline .item rect {
