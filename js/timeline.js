@@ -315,202 +315,202 @@ Timeline.prototype._drawItems = function(items) {
     });
 
 	// Item text
-  groups.append('text')
-    .attr({
-      x: function(d) {return (_this.mainChart.xScale(getEndTime(d)) - _this.mainChart.xScale(d.start))/2 },
-      y: _this.itemHeight / 2
-    })
+	groups.append('text')
+		.attr({
+			x: function(d) {return (_this.mainChart.xScale(getEndTime(d)) - _this.mainChart.xScale(d.start))/2 },
+			y: _this.itemHeight / 2
+		})
 		.append('tspan')
 		.text(function(d) { return d.name; })
-    .style({
-      fill: '#000',
-      'text-anchor': 'middle',
-      'alignment-baseline': 'central',
-      opacity: 0
-    })
-    // .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
-    .style('opacity', 1);
+		.style({
+			fill: '#000',
+			'text-anchor': 'middle',
+			'alignment-baseline': 'central',
+			opacity: 0
+		})
+		// .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
+		.style('opacity', 1);
 
-		// position the items
-		groups.attr({
-      transform: function(d, i) {
-				var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
-				var finalY = defaultY;
-				var bbox = this.getBBox();
-				var xRange = {
-					start: _this.mainChart.xScale(d.start) + bbox.x,
-					end: _this.mainChart.xScale(d.start) + bbox.x + bbox.width,
-					item: d
-				};
+	// position the items
+	groups.attr({
+		transform: function(d, i) {
+			var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
+			var finalY = defaultY;
+			var bbox = this.getBBox();
+			var xRange = {
+				start: _this.mainChart.xScale(d.start) + bbox.x,
+				end: _this.mainChart.xScale(d.start) + bbox.x + bbox.width,
+				item: d
+			};
 
-				// first item; just add it
-				if (_this.nextRow === 0) {
+			// first item; just add it
+			if (_this.nextRow === 0) {
+				finalY = defaultY;
+				_this.rows[_this.nextRow] = [ xRange ];
+				_this.nextRow++;
+			} else {
+				var rowWithRoom = -1;
+				var indexInRow = -1;
+
+				// starting from row 0, check if there is room.
+				for(var i = 0; i < _this.nextRow; ++i) {
+					// check left
+					if (xRange.end < _this.rows[i][0].start) {
+						rowWithRoom = i;
+						indexInRow = 0;
+						break;
+					}
+					// check right
+					if (xRange.start > _this.rows[i][_this.rows[i].length - 1].end) {
+						rowWithRoom = i;
+						indexInRow = _this.rows[i].length;
+						break;
+					}
+					// check middle
+					for(var j = 0; j < _this.rows[i].length - 1; j++) {
+						if (_this.rows[i][j].end < xRange.start && _this.rows[i][j+1].start > xRange.end) {
+							rowWithRoom = i;
+							indexInRow = j+1;
+							break;
+						}
+					}
+
+					if (rowWithRoom !== -1) break;
+				}
+
+				if (rowWithRoom != -1) {
+					// success! put it here
+					finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
+
+					// add it to row (in correct position)
+					_this.rows[rowWithRoom] = _this.rows[rowWithRoom].slice(0, indexInRow)
+						.concat(xRange)
+						.concat(_this.rows[rowWithRoom].slice(indexInRow));
+				} else {
 					finalY = defaultY;
 					_this.rows[_this.nextRow] = [ xRange ];
 					_this.nextRow++;
-				} else {
-					var rowWithRoom = -1;
-					var indexInRow = -1;
+				}
+			}
 
-					// starting from row 0, check if there is room.
-					for(var i = 0; i < _this.nextRow; ++i) {
-						// check left
-						if (xRange.end < _this.rows[i][0].start) {
-							rowWithRoom = i;
-							indexInRow = 0;
-							break;
-						}
-						// check right
-						if (xRange.start > _this.rows[i][_this.rows[i].length - 1].end) {
-							rowWithRoom = i;
-							indexInRow = _this.rows[i].length;
-							break;
-						}
-						// check middle
-						for(var j = 0; j < _this.rows[i].length - 1; j++) {
-							if (_this.rows[i][j].end < xRange.start && _this.rows[i][j+1].start > xRange.end) {
-								rowWithRoom = i;
-								indexInRow = j+1;
+			return sprintf('translate(%%, %%)', _this.mainChart.xScale(d.start), finalY);
+		}
+  });
+
+	// mirror mini chart
+	if (this.miniChart.items) {
+		this.miniChart.items.remove();
+	}
+	this.miniChart.items = this.miniChart.svg.insert('path', ':first-child');
+	var miniItemsD = "";
+
+	var minItemHeight = 6;
+	var condensedRows = Math.floor(this.miniChartHeight / minItemHeight);
+	if (this.rows.length > condensedRows) {
+		var rowsToMerge = this.rows.length / condensedRows;
+		// don't want too many rows in the mini chart, so we'll merge them
+		var miniItemHeight = miniItemHeight;
+		for(var r = 0; r < this.rows.length; r += rowsToMerge) {
+			var mergedRow = [];
+			for(var r2 = Math.floor(r); r2 < Math.floor(r + rowsToMerge) && r2 < this.rows.length; r2++) {
+				for(var i = 0; i < this.rows[r2].length ; ++i) {
+					var d = this.rows[r2][i].item;
+					var toAdd = {
+						start: d.start.getTime(),
+						end: getEndTime(d)
+					};
+					if (r2 == Math.floor(r)) {
+						// first row to be merge; just place a copy in the mergedRow
+						mergedRow.push(toAdd);
+					} else {
+						// merge with the stuff in merged rows.
+						var inserted = false;
+						for(var j = 0; j < mergedRow.length; ++j) {
+							if (toAdd.end < mergedRow[j].start) {
+								// insert before current item
+								mergedRow = mergedRow.splice(j, 0, toAdd);
+								inserted = true;
+								break;
+							}
+							else if (toAdd.start <= mergedRow[j].end && toAdd.end >= mergedRow[j].start) {
+								// should be merged with the current item
+								mergedRow[j] = {
+									start: Math.min(mergedRow[j].start, toAdd.start),
+									end: Math.max(mergedRow[j].end, toAdd.end)
+								};
+								inserted = true;
 								break;
 							}
 						}
-
-						if (rowWithRoom !== -1) break;
-					}
-
-					if (rowWithRoom != -1) {
-						// success! put it here
-						finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
-
-						// add it to row (in correct position)
-						_this.rows[rowWithRoom] = _this.rows[rowWithRoom].slice(0, indexInRow)
-							.concat(xRange)
-							.concat(_this.rows[rowWithRoom].slice(indexInRow));
-					} else {
-						finalY = defaultY;
-						_this.rows[_this.nextRow] = [ xRange ];
-						_this.nextRow++;
-					}
-				}
-
-				return sprintf('translate(%%, %%)', _this.mainChart.xScale(d.start), finalY);
-			}
-    });
-
-		// mirror mini chart
-		if (this.miniChart.items) {
-			this.miniChart.items.remove();
-		}
-		this.miniChart.items = this.miniChart.svg.insert('path', ':first-child');
-		var miniItemsD = "";
-
-		var minItemHeight = 6;
-		var condensedRows = Math.floor(this.miniChartHeight / minItemHeight);
-		if (this.rows.length > condensedRows) {
-			var rowsToMerge = this.rows.length / condensedRows;
-			// don't want too many rows in the mini chart, so we'll merge them
-			var miniItemHeight = miniItemHeight;
-			for(var r = 0; r < this.rows.length; r += rowsToMerge) {
-				var mergedRow = [];
-				for(var r2 = Math.floor(r); r2 < Math.floor(r + rowsToMerge) && r2 < this.rows.length; r2++) {
-					for(var i = 0; i < this.rows[r2].length ; ++i) {
-						var d = this.rows[r2][i].item;
-						var toAdd = {
-							start: d.start.getTime(),
-							end: getEndTime(d)
-						};
-						if (r2 == Math.floor(r)) {
-							// first row to be merge; just place a copy in the mergedRow
+						if (!inserted) {
 							mergedRow.push(toAdd);
-						} else {
-							// merge with the stuff in merged rows.
-							var inserted = false;
-							for(var j = 0; j < mergedRow.length; ++j) {
-								if (toAdd.end < mergedRow[j].start) {
-									// insert before current item
-									mergedRow = mergedRow.splice(j, 0, toAdd);
-									inserted = true;
-									break;
-								}
-								else if (toAdd.start <= mergedRow[j].end && toAdd.end >= mergedRow[j].start) {
-									// should be merged with the current item
-									mergedRow[j] = {
-										start: Math.min(mergedRow[j].start, toAdd.start),
-										end: Math.max(mergedRow[j].end, toAdd.end)
-									};
-									inserted = true;
-									break;
-								}
-							}
-							if (!inserted) {
-								mergedRow.push(toAdd);
-							}
 						}
 					}
 				}
+			}
 
-				// the merged row has been created!
-				for(var i = 0; i < mergedRow.length; ++i) {
-					var miniYPos = Math.floor(r/rowsToMerge) * minItemHeight + minItemHeight / 2;
-					miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(mergedRow[i].start), -miniYPos,
-																			           this.miniChart.xScale(mergedRow[i].end));
-				}
+			// the merged row has been created!
+			for(var i = 0; i < mergedRow.length; ++i) {
+				var miniYPos = Math.floor(r/rowsToMerge) * minItemHeight + minItemHeight / 2;
+				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(mergedRow[i].start), -miniYPos,
+																		           this.miniChart.xScale(mergedRow[i].end));
 			}
-			this.miniChart.items.attr({
-				'stroke-width':   4.5,
-				transform:        sprintf('translate(0, %%) scale(1,1)', condensedRows * minItemHeight)
-			});
-		} else {
-			var miniItemHeight = this.miniChartHeight / this.rows.length;
-			for(var r = 0; r < this.rows.length; ++r) {
-				for(var i = 0; i < this.rows[r].length; ++i) {
-					var d = this.rows[r][i].item;
-					var miniYPos = r * miniItemHeight + miniItemHeight / 2;
-					miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
-																			           this.miniChart.xScale(getEndTime(d)));
-				}
-			}
-			this.miniChart.items.attr({
-				'stroke-width':   miniItemHeight / 2,
-				transform: sprintf('translate(0, %%) scale(1,1)', this.rows.length * miniItemHeight)
-			});
 		}
-
 		this.miniChart.items.attr({
-			d:                miniItemsD,
-			class:            'items-path',
-			'stroke-linecap': 'square'
+			'stroke-width':   4.5,
+			transform:        sprintf('translate(0, %%) scale(1,1)', condensedRows * minItemHeight)
 		});
-
-		// Add anchors (where appropriate)
-		groups.each(function(d) {
-			if (d.href) {
-				var group = d3.select(this);
-				// move all the groups children into the anchor
-				var anchor = group.append('a')
-				.attr({
-					'class': 'main-link',
-					'xlink:href': function(d) { return d.href; },
-					'xlink:show': 'new'
-				});
-
-				$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
+	} else {
+		var miniItemHeight = this.miniChartHeight / this.rows.length;
+		for(var r = 0; r < this.rows.length; ++r) {
+			for(var i = 0; i < this.rows[r].length; ++i) {
+				var d = this.rows[r][i].item;
+				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
+				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
+																		           this.miniChart.xScale(getEndTime(d)));
 			}
+		}
+		this.miniChart.items.attr({
+			'stroke-width':   miniItemHeight / 2,
+			transform: sprintf('translate(0, %%) scale(1,1)', this.rows.length * miniItemHeight)
 		});
+	}
 
-		// the height has probably changed because of stacking; should shrink doc
-		var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
-		var axisTicks = Math.floor(bbox.width / 100);
-		console.log(axisTicks);
-		this.gridHeight = bbox.height;
-		this.mainChart.gridAxis.innerTickSize(-1*this.gridHeight); // FIXME: put me in better place T_T
-		this._updateSVGSize();
-		this.mainChart.gridAxis.ticks(axisTicks);
-		this.mainChart.xAxis.ticks(axisTicks);
-		this.mainChart.gridGroup.call(this.mainChart.gridAxis);
-		this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+	this.miniChart.items.attr({
+		d:                miniItemsD,
+		class:            'items-path',
+		'stroke-linecap': 'square'
+	});
 
-		this.resizeHandler();
+	// Add anchors (where appropriate)
+	groups.each(function(d) {
+		if (d.href) {
+			var group = d3.select(this);
+			// move all the groups children into the anchor
+			var anchor = group.append('a')
+			.attr({
+				'class': 'main-link',
+				'xlink:href': function(d) { return d.href; },
+				'xlink:show': 'new'
+			});
+
+			$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
+		}
+	});
+
+	// the height has probably changed because of stacking; should shrink doc
+	var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
+	var axisTicks = Math.floor(bbox.width / 100);
+	console.log(axisTicks);
+	this.gridHeight = bbox.height;
+	this.mainChart.gridAxis.innerTickSize(-1*this.gridHeight); // FIXME: put me in better place T_T
+	this._updateSVGSize();
+	this.mainChart.gridAxis.ticks(axisTicks);
+	this.mainChart.xAxis.ticks(axisTicks);
+	this.mainChart.gridGroup.call(this.mainChart.gridAxis);
+	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+
+	this.resizeHandler();
 };
 
 /**
