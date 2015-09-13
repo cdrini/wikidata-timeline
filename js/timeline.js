@@ -110,7 +110,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	this.gridHeight = 0;
 
 	// scale
-	var timeMin = d3.min(this.items, this.getStartTime.bind(this) );
+	var timeMin = d3.min(this.items, this.itemStart.bind(this) );
 	var timeMax = d3.max(this.items, this.getEndTime.bind(this) );
 	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
 
@@ -378,8 +378,8 @@ Timeline.prototype.itemType = function(d) {
 Timeline.prototype.itemStart = function(d) {
 	var type = this.itemType(d);
 	switch(type) {
-		case Timeline.ItemTypes.Range: return this.mainChart.xScale(this.getStartTime(d));
-		case Timeline.ItemTypes.Point: return this.mainChart.xScale(this.getPointTime(d));
+		case Timeline.ItemTypes.Range: return this.getStartTime(d);
+		case Timeline.ItemTypes.Point: return this.getPointTime(d);
 	};
 };
 
@@ -412,7 +412,7 @@ Timeline.prototype._drawItems = function(items) {
 		var finalY = defaultY;
 		var bbox = this.getBBox();
 
-		var itemStart = _this.itemStart(d);
+		var itemStart = _this.mainChart.xScale(_this.itemStart(d));
 		var xRange = {
 			start: itemStart + bbox.x,
 			end:   itemStart + bbox.x + bbox.width,
@@ -469,7 +469,7 @@ Timeline.prototype._drawItems = function(items) {
 			}
 		}
 
-		return sprintf('translate(%%, %%)', _this.itemStart(d), finalY);
+		return sprintf('translate(%%, %%)', itemStart, finalY);
 	});
 
 	this._updateMiniChart();
@@ -581,9 +581,19 @@ Timeline.prototype._updateMiniChart = function() {
 		for(var r = 0; r < this.rows.length; ++r) {
 			for(var i = 0; i < this.rows[r].length; ++i) {
 				var d = this.rows[r][i].item;
+
+				var bounds = {
+					start: this.getStartTime(d),
+					end: this.getEndTime(d)
+				};
+
+				if (this.itemType(d) === Timeline.ItemTypes.Point) {
+					bounds.start = this.getPointTime(d);
+					bounds.end = bounds.start;
+				}
 				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
-				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(_this.getStartTime(d)), -miniYPos,
-																							 this.miniChart.xScale(_this.getEndTime(d)));
+				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(bounds.start), -miniYPos,
+																							 this.miniChart.xScale(bounds.end));
 			}
 		}
 		this.miniChart.items.attr({
@@ -681,7 +691,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 
 	var currentDomain = this.mainChart.xScale.domain();
 	var newItemsDomain = [
-		d3.min(itemsArr, this.getStartTime.bind(this)),
+		d3.min(itemsArr, this.itemStart.bind(this)),
 		d3.max(itemsArr, this.getEndTime.bind(this))
 	];
 
@@ -717,7 +727,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 			var currentTransform = this.getAttribute('transform');
 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
 
-			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStartTime(d)), translation[1]));
+			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
 		});
 
 		// update ranges in rows so that things stay correct
