@@ -5,25 +5,6 @@
       <textarea name="query" class="query-editor form-control"></textarea>
     </div>
     <div class="panel-footer">
-      <small style="float: right; margin-bottom:6px;">
-        powered by
-        <a target="blank" href="https://wdq.wmflabs.org/api_documentation.html">WDQ</a> and
-        <a target="blank" href="https://codemirror.net/">CodeMirror</a>
-      </small>
-
-      <div class="btn-group" role="group" aria-label="...">
-        <button type="button" class="btn btn-sm btn-default"
-          ng-class="{'btn-primary': !showAllWDQDocs && contextualDocsEnabled}"
-          ng-click="toggleContextualDocs();"
-          ng-disabled="showAllWDQDocs">
-          Contextual Docs
-        </button>
-        <button type="button" class="btn btn-sm btn-default"
-          ng-class="{'btn-primary': showAllWDQDocs}"
-          ng-click="showAllWDQDocs = !showAllWDQDocs">
-          Show all docs
-        </button>
-      </div>
 
       <div class="wdq-docs"
         ng-show="showAllDocs || contextualDocsEnabled"
@@ -171,6 +152,27 @@
           </p>
         </div>
       </div>
+
+      <div class="btn-group" role="group" aria-label="...">
+        <button type="button" class="btn btn-sm btn-default"
+          ng-class="{'btn-primary': !showAllWDQDocs && contextualDocsEnabled}"
+          ng-click="toggleContextualDocs();"
+          ng-disabled="showAllWDQDocs">
+          Contextual Docs
+        </button>
+        <button type="button" class="btn btn-sm btn-default"
+          ng-class="{'btn-primary': showAllWDQDocs}"
+          ng-click="showAllWDQDocs = !showAllWDQDocs">
+          Show all docs
+        </button>
+      </div>
+
+      <small style="float: right; margin-bottom:6px;">
+        powered by
+        <a target="blank" href="https://wdq.wmflabs.org/api_documentation.html">WDQ</a> and
+        <a target="blank" href="https://codemirror.net/">CodeMirror</a>
+      </small>
+
     </div>
   </div>
 
