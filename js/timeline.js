@@ -209,7 +209,54 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	d3.select(window).on('resize', Timeline.prototype.resizeHandler.bind(this));
 
-  this._drawItems();
+	this._setupViewfieldRectDrag();
+
+	this._drawItems();
+};
+
+/**
+ * Sets up viewfieldRect dragging logic
+ * @private
+ */
+Timeline.prototype._setupViewfieldRectDrag = function() {
+	var _this = this;
+
+	var startViewfieldRectDrag = function() {
+		viewfieldRectDragMain();
+
+		_this.miniChart.svg.on('mousemove', viewfieldRectDragMain);
+		_this.miniChart.svg.on('touchmove', viewfieldRectDragMain);
+
+		_this.miniChart.svg.on('mouseup', endViewfieldRectDrag);
+		_this.miniChart.svg.on('mouseleave', endViewfieldRectDrag);
+		_this.miniChart.svg.on('touchend', endViewfieldRectDrag);
+	};
+	var endViewfieldRectDrag = function() {
+		_this.miniChart.svg.on('mousemove', null);
+		_this.miniChart.svg.on('touchmove', null);
+	};
+	var viewfieldRectDragMain = function() {
+		var mousePos = d3.mouse(_this.miniChart.svg.node());
+
+		var boxPos = {
+			x: Math.max(mousePos[0] - 0.5 * _this.miniChart.viewfieldRect.attr('width'), 0),
+			y: Math.max(mousePos[1] - 0.5 * _this.miniChart.viewfieldRect.attr('height'), 0),
+		};
+
+		boxPos.x = Math.min(boxPos.x, _this.chartContainerRect.width - _this.miniChart.viewfieldRect.attr('width'));
+		boxPos.y = Math.min(boxPos.y, _this.miniChartHeight - _this.miniChart.viewfieldRect.attr('height'));
+
+		// move box
+		_this.miniChart.viewfieldRect.attr({
+			transform: sprintf('translate(%%, %%)', boxPos.x, boxPos.y)
+		});
+		// move view in mainChart
+		_this.chartContainer.scrollTop = (boxPos.y / _this.miniChartHeight) * _this.chartContainer.scrollHeight;
+		_this.chartContainer.scrollLeft = (boxPos.x / _this.chartContainerRect.width) * _this.chartContainer.scrollWidth;
+	};
+
+	this.miniChart.svg.on('mousedown', startViewfieldRectDrag);
+	this.miniChart.svg.on('touchstart', startViewfieldRectDrag);
 };
 
 /**
