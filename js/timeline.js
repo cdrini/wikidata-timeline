@@ -398,7 +398,7 @@ Timeline.prototype._drawItems = function(items) {
 			class: 'item'
 		});
 
-	groups.each(function(d) {
+	groups.each(function(d, i) {
 		var type = _this.itemType(d);
 		switch(type) {
 			case Timeline.ItemTypes.Range: _this._drawRangeItem(d3.select(this), d, i); break;
@@ -472,6 +472,41 @@ Timeline.prototype._drawItems = function(items) {
 		return sprintf('translate(%%, %%)', _this.itemStart(d), finalY);
 	});
 
+	this._updateMiniChart();
+
+	// Add anchors (where appropriate)
+	groups.each(function(d) {
+		if (d.href) {
+			var group = d3.select(this);
+			// move all the groups children into the anchor
+			var anchor = group.append('a')
+			.attr({
+				'class': 'main-link',
+				'xlink:href': function(d) { return d.href; },
+				'xlink:show': 'new'
+			});
+
+			$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
+		}
+	});
+
+	// the height has probably changed because of stacking; should shrink doc
+	var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
+	var axisTicks = Math.floor(bbox.width / 100);
+	console.log(axisTicks);
+	this.gridHeight = bbox.height;
+	this.mainChart.gridAxis.innerTickSize(-1*this.gridHeight); // FIXME: put me in better place T_T
+	this._updateSVGSize();
+	this.mainChart.gridAxis.ticks(axisTicks);
+	this.mainChart.xAxis.ticks(axisTicks);
+	this.mainChart.gridGroup.call(this.mainChart.gridAxis);
+	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+
+	this.resizeHandler();
+};
+
+Timeline.prototype._updateMiniChart = function() {
+	var _this = this;
 	// mirror mini chart
 	if (this.miniChart.items) {
 		this.miniChart.items.remove();
@@ -491,9 +526,14 @@ Timeline.prototype._drawItems = function(items) {
 				for(var i = 0; i < this.rows[r2].length ; ++i) {
 					var d = this.rows[r2][i].item;
 					var toAdd = {
-						start: _this.getStartTime(d),
-						end: _this.getEndTime(d)
+						start: this.getStartTime(d),
+						end: this.getEndTime(d)
 					};
+
+					if (this.itemType(d) === Timeline.ItemTypes.Point) {
+						toAdd.start = this.getPointTime(d);
+						toAdd.end = toAdd.start;
+					}
 					if (r2 == Math.floor(r)) {
 						// first row to be merge; just place a copy in the mergedRow
 						mergedRow.push(toAdd);
@@ -528,7 +568,7 @@ Timeline.prototype._drawItems = function(items) {
 			for(var i = 0; i < mergedRow.length; ++i) {
 				var miniYPos = Math.floor(r/rowsToMerge) * minItemHeight + minItemHeight / 2;
 				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(mergedRow[i].start), -miniYPos,
-																		           this.miniChart.xScale(mergedRow[i].end));
+																							 this.miniChart.xScale(mergedRow[i].end));
 			}
 		}
 		this.miniChart.items.attr({
@@ -543,7 +583,7 @@ Timeline.prototype._drawItems = function(items) {
 				var d = this.rows[r][i].item;
 				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
 				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(_this.getStartTime(d)), -miniYPos,
-																		           this.miniChart.xScale(_this.getEndTime(d)));
+																							 this.miniChart.xScale(_this.getEndTime(d)));
 			}
 		}
 		this.miniChart.items.attr({
@@ -557,36 +597,6 @@ Timeline.prototype._drawItems = function(items) {
 		class:            'items-path',
 		'stroke-linecap': 'square'
 	});
-
-	// Add anchors (where appropriate)
-	groups.each(function(d) {
-		if (d.href) {
-			var group = d3.select(this);
-			// move all the groups children into the anchor
-			var anchor = group.append('a')
-			.attr({
-				'class': 'main-link',
-				'xlink:href': function(d) { return d.href; },
-				'xlink:show': 'new'
-			});
-
-			$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
-		}
-	});
-
-	// the height has probably changed because of stacking; should shrink doc
-	var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
-	var axisTicks = Math.floor(bbox.width / 100);
-	console.log(axisTicks);
-	this.gridHeight = bbox.height;
-	this.mainChart.gridAxis.innerTickSize(-1*this.gridHeight); // FIXME: put me in better place T_T
-	this._updateSVGSize();
-	this.mainChart.gridAxis.ticks(axisTicks);
-	this.mainChart.xAxis.ticks(axisTicks);
-	this.mainChart.gridGroup.call(this.mainChart.gridAxis);
-	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
-
-	this.resizeHandler();
 };
 
 /**
@@ -707,7 +717,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 			var currentTransform = this.getAttribute('transform');
 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
 
-			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStarTime(d)), translation[1]));
+			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStartTime(d)), translation[1]));
 		});
 
 		// update ranges in rows so that things stay correct
