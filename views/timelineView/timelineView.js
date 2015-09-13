@@ -99,9 +99,9 @@ function($scope, $http, $location, $wikidata) {
         link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
 
         var tmpItem = {
-          start: ent.getFirstClaim('P580', 'P569'),
+          start: ent.getFirstClaim('P580', 'P569', 'P571'),
           end:   ent.getFirstClaim('P582', 'P570', 'P576'),
-          time:  ent.getFirstClaim('P577', 'P571')
+          time:  ent.getFirstClaim('P577')
         };
 
         var item = {
