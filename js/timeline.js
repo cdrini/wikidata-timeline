@@ -498,8 +498,6 @@ Timeline.prototype._drawItems = function(items) {
 			}
 		});
 
-		this.resizeHandler();
-
 		// the height has probably changed because of stacking; should shrink doc
 		var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
 		var axisTicks = Math.floor(bbox.width / 100);
@@ -511,6 +509,8 @@ Timeline.prototype._drawItems = function(items) {
 		this.mainChart.xAxis.ticks(axisTicks);
 		this.mainChart.gridGroup.call(this.mainChart.gridAxis);
 		this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+
+		this.resizeHandler();
 };
 
 /**
