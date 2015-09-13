@@ -12,6 +12,7 @@
   left: 0;
 
   background-color: #FCFCFC;
+  cursor: move;
 }
 
 .timeline-container .main-chart-container {
@@ -51,9 +52,10 @@
 }
 
 .timeline-container .mini-chart .viewfield {
-  stroke: #0000EE;
-  stroke-width: 1px;
-  shape-rendering: crispEdges;
-  fill: #0000DD;
+  fill: #08D;
   fill-opacity: 0.1;
+  stroke: #08E;
+  stroke-width: 1px;
+  
+  shape-rendering: crispEdges;
 }
