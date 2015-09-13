@@ -18,6 +18,11 @@ angular.module('wikidataTimeline.staticSampleView', ['ngRoute'])
   	  start: format.parse('17/12/1989'),
   	  end: format.parse('')
   	},
+    {
+  	  name: "The Simpsons Movie",
+  	  href: "https://en.wikipedia.org/wiki/" + "The Simpsons Movie",
+  	  time: format.parse('21/07/2007'),
+  	},
   	{
   	  name: "Two and a Half Men",
   	  href: "https://en.wikipedia.org/wiki/" + "Two and a Half Men",

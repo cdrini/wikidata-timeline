@@ -213,11 +213,14 @@ Timeline.prototype.draw = function(HTMLContainer) {
  * @returns {timestamp}
  */
 Timeline.prototype.getStartTime = function(d) {
+	var start;
 	if (this.customGetStartTime) {
-		return this.customGetStartTime(d).getTime();
+		start = this.customGetStartTime(d);
 	} else {
-		return d.start.getTime();
+		start = d.start;
 	}
+
+	return start && start.getTime();
 };
 
 /**
@@ -238,8 +241,25 @@ Timeline.prototype.getEndTime = function(d) {
 };
 
 /**
+ * @private
+ * returns the point timestamp if its defined
+ * @param {object} d
+ * @returns {timestamp}
+ */
+Timeline.prototype.getPointTime = function(d) {
+	var time;
+	if (this.customGetPointTime) {
+		time = this.customGetPointTime(d);
+	} else {
+		time = d.time;
+	}
+
+	return time && time.getTime();
+};
+
+/**
  * Define how to get the startime from a datum
- * @param {Function} given a datum, should return a Date
+ * @param {Function} given a datum, should return a Date object
  * @return {Timeline} this
  */
 Timeline.prototype.startTime = function(fn) {
@@ -249,11 +269,21 @@ Timeline.prototype.startTime = function(fn) {
 
 /**
  * Define how to get the endtime from a datum
- * @param {Function} given a datum, should return a timestamp
+ * @param {Function} given a datum, should return a Date object
  * @return {Timeline} this
  */
 Timeline.prototype.endTime = function(fn) {
 	this.customGetEndTime = fn;
+	return this;
+}
+
+/**
+ * Define how to get the pointTime from a datum
+ * @param {Function} given a datum, should return a Date object
+ * @return {Timeline} this
+ */
+Timeline.prototype.pointTime = function(fn) {
+	this.customGetPointTime = fn;
 	return this;
 }
 
@@ -327,6 +357,32 @@ Timeline.prototype.resizeHandler = function() {
 	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
 }
 
+Timeline.ItemTypes = {
+	Invalid: -1,
+	Range:    1,
+	Point:    2
+};
+
+Timeline.prototype.itemType = function(d) {
+	if (this.getStartTime(d)) {
+		return Timeline.ItemTypes.Range;
+	}
+	else if (this.getPointTime(d)) {
+		return Timeline.ItemTypes.Point;
+	}
+	else {
+		return Timeline.ItemTypes.Invalid;
+	}
+};
+
+Timeline.prototype.itemStart = function(d) {
+	var type = this.itemType(d);
+	switch(type) {
+		case Timeline.ItemTypes.Range: return this.mainChart.xScale(this.getStartTime(d));
+		case Timeline.ItemTypes.Point: return this.mainChart.xScale(this.getPointTime(d));
+	};
+};
+
 /**Draws the individual items
  * @private
  */
@@ -342,95 +398,79 @@ Timeline.prototype._drawItems = function(items) {
 			class: 'item'
 		});
 
-	// Rect
-	groups.append('rect')
-		.attr({
-			x:      0,
-			y:      1,
-			width: function(d) {return _this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d))},
-			height: _this.itemHeight -2,
-		});
-
-	// Item text
-	groups.append('text')
-		.attr({
-			x: function(d) {return (_this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)))/2 },
-			y: _this.itemHeight / 2
-		})
-		.append('tspan')
-			.text(function(d) { return d.name; })
-			.style({
-				fill: '#000',
-				'text-anchor': 'middle',
-				'alignment-baseline': 'central',
-				opacity: 1
-			});
+	groups.each(function(d) {
+		var type = _this.itemType(d);
+		switch(type) {
+			case Timeline.ItemTypes.Range: _this._drawRangeItem(d3.select(this), d, i); break;
+			case Timeline.ItemTypes.Point: _this._drawPointItem(d3.select(this), d, i); break;
+		};
+	});
 
 	// position the items
-	groups.attr({
-		transform: function(d, i) {
-			var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
-			var finalY = defaultY;
-			var bbox = this.getBBox();
-			var xRange = {
-				start: _this.mainChart.xScale(_this.getStartTime(d)) + bbox.x,
-				end: _this.mainChart.xScale(_this.getStartTime(d)) + bbox.x + bbox.width,
-				item: d
-			};
+	groups.attr('transform',  function(d, i) {
+		var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
+		var finalY = defaultY;
+		var bbox = this.getBBox();
 
-			// first item; just add it
-			if (_this.nextRow === 0) {
+		var itemStart = _this.itemStart(d);
+		var xRange = {
+			start: itemStart + bbox.x,
+			end:   itemStart + bbox.x + bbox.width,
+			item: d
+		};
+
+		// first item; just add it
+		if (_this.nextRow === 0) {
+			finalY = defaultY;
+			_this.rows[_this.nextRow] = [ xRange ];
+			_this.nextRow++;
+		} else {
+			var rowWithRoom = -1;
+			var indexInRow = -1;
+
+			// starting from row 0, check if there is room.
+			for(var i = 0; i < _this.nextRow; ++i) {
+				// check left
+				if (xRange.end < _this.rows[i][0].start) {
+					rowWithRoom = i;
+					indexInRow = 0;
+					break;
+				}
+				// check right
+				if (xRange.start > _this.rows[i][_this.rows[i].length - 1].end) {
+					rowWithRoom = i;
+					indexInRow = _this.rows[i].length;
+					break;
+				}
+				// check middle
+				for(var j = 0; j < _this.rows[i].length - 1; j++) {
+					if (_this.rows[i][j].end < xRange.start && _this.rows[i][j+1].start > xRange.end) {
+						rowWithRoom = i;
+						indexInRow = j+1;
+						break;
+					}
+				}
+
+				if (rowWithRoom !== -1) break;
+			}
+
+			if (rowWithRoom != -1) {
+				// success! put it here
+				finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
+
+				// add it to row (in correct position)
+				_this.rows[rowWithRoom] = _this.rows[rowWithRoom].slice(0, indexInRow)
+					.concat(xRange)
+					.concat(_this.rows[rowWithRoom].slice(indexInRow));
+			} else {
 				finalY = defaultY;
 				_this.rows[_this.nextRow] = [ xRange ];
 				_this.nextRow++;
-			} else {
-				var rowWithRoom = -1;
-				var indexInRow = -1;
-
-				// starting from row 0, check if there is room.
-				for(var i = 0; i < _this.nextRow; ++i) {
-					// check left
-					if (xRange.end < _this.rows[i][0].start) {
-						rowWithRoom = i;
-						indexInRow = 0;
-						break;
-					}
-					// check right
-					if (xRange.start > _this.rows[i][_this.rows[i].length - 1].end) {
-						rowWithRoom = i;
-						indexInRow = _this.rows[i].length;
-						break;
-					}
-					// check middle
-					for(var j = 0; j < _this.rows[i].length - 1; j++) {
-						if (_this.rows[i][j].end < xRange.start && _this.rows[i][j+1].start > xRange.end) {
-							rowWithRoom = i;
-							indexInRow = j+1;
-							break;
-						}
-					}
-
-					if (rowWithRoom !== -1) break;
-				}
-
-				if (rowWithRoom != -1) {
-					// success! put it here
-					finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
-
-					// add it to row (in correct position)
-					_this.rows[rowWithRoom] = _this.rows[rowWithRoom].slice(0, indexInRow)
-						.concat(xRange)
-						.concat(_this.rows[rowWithRoom].slice(indexInRow));
-				} else {
-					finalY = defaultY;
-					_this.rows[_this.nextRow] = [ xRange ];
-					_this.nextRow++;
-				}
 			}
-
-			return sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStartTime(d)), finalY);
 		}
-  });
+
+		return sprintf('translate(%%, %%)', _this.itemStart(d), finalY);
+	});
 
 	// mirror mini chart
 	if (this.miniChart.items) {
@@ -495,7 +535,8 @@ Timeline.prototype._drawItems = function(items) {
 			'stroke-width':   4.5,
 			transform:        sprintf('translate(0, %%) scale(1,1)', condensedRows * minItemHeight)
 		});
-	} else {
+	}
+	else {
 		var miniItemHeight = this.miniChartHeight / this.rows.length;
 		for(var r = 0; r < this.rows.length; ++r) {
 			for(var i = 0; i < this.rows[r].length; ++i) {
@@ -546,6 +587,71 @@ Timeline.prototype._drawItems = function(items) {
 	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
 
 	this.resizeHandler();
+};
+
+/**
+ * @param {d3.selection} group
+ * @param {object} d datum
+ * @param {integer} i index
+ */
+Timeline.prototype._drawRangeItem = function(group, d, i) {
+	var _this = this;
+
+	// Rect
+	group.append('rect')
+		.attr({
+			x:      0,
+			y:      1,
+			width:  _this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)),
+			height: _this.itemHeight -2,
+		});
+
+	// Item text
+	group.append('text')
+		.attr({
+			x: (_this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)))/2,
+			y: _this.itemHeight / 2
+		})
+		.append('tspan')
+			.text(d.name)
+			.style({
+				fill: '#000',
+				'text-anchor': 'middle',
+				'alignment-baseline': 'central'
+			});
+
+};
+
+/**
+ * @param {d3.selection} group
+ * @param {object} d datum
+ * @param {integer} i index
+ */
+Timeline.prototype._drawPointItem = function(group, d, i) {
+	var _this = this;
+
+	// Rect
+	group.append('circle')
+		.attr({
+			cx:      0,
+			cy:      _this.itemHeight / 2,
+			r:       _this.itemHeight / 3 - 3
+		});
+
+	// Item text
+	group.append('text')
+		.attr({
+			x: _this.itemHeight / 3, // mind the circle
+			y: _this.itemHeight / 2
+		})
+		.append('tspan')
+			.text(d.name)
+			.style({
+				fill: '#000',
+				'text-anchor': 'left',
+				'alignment-baseline': 'central'
+			});
+
 };
 
 /**
