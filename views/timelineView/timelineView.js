@@ -98,9 +98,10 @@ function($scope, $http, $location, $wikidata) {
         var link = ent.getWikipediaSitelink(undefined, true);
         link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
 
-        var tmpRange = {
-          start: ent.getFirstClaim('P580', 'P569', 'P571'),
-          end:   ent.getFirstClaim('P582', 'P570', 'P576')
+        var tmpItem = {
+          start: ent.getFirstClaim('P580', 'P569'),
+          end:   ent.getFirstClaim('P582', 'P570', 'P576'),
+          time:  ent.getFirstClaim('P577', 'P571')
         };
 
         var item = {
@@ -108,16 +109,16 @@ function($scope, $http, $location, $wikidata) {
           href:  link
         };
 
-        if (tmpRange.start) {
-          if (tmpRange.start[0].mainsnak.snaktype == 'value') {
-            item.start = $wikidata.parseDateTime(tmpRange.start[0].mainsnak.datavalue.value.time);
+        if (tmpItem.start) {
+          if (tmpItem.start[0].mainsnak.snaktype == 'value') {
+            item.start = $wikidata.parseDateTime(tmpItem.start[0].mainsnak.datavalue.value.time);
           }
         }
 
-        if (tmpRange.end) {
-          var snaktype = tmpRange.end[0].mainsnak.snaktype;
+        if (tmpItem.end) {
+          var snaktype = tmpItem.end[0].mainsnak.snaktype;
           if (snaktype == 'value') {
-            item.end = $wikidata.parseDateTime(tmpRange.end[0].mainsnak.datavalue.value.time);
+            item.end = $wikidata.parseDateTime(tmpItem.end[0].mainsnak.datavalue.value.time);
           } else if (snaktype == 'somevalue' && item.start) {
             // average lifespan is like 80, right?!
             // TODO: Add visual indicator (gradient? wavy line?)
@@ -125,14 +126,20 @@ function($scope, $http, $location, $wikidata) {
           }
         }
 
+        if (tmpItem.time) {
+          if (tmpItem.time[0].mainsnak.snaktype == 'value') {
+            item.time = $wikidata.parseDateTime(tmpItem.time[0].mainsnak.datavalue.value.time);
+          }
+        }
+
         ent.trimIncludeOnly({
-          claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576'],
+          claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576', 'P577'],
           labels:       defaultOpts.langs,
           descriptions: defaultOpts.langs,
           sitelinks:    defaultOpts.langs.map(function(l) { return l + "wiki"; })
         });
 
-        if (!item.start) {
+        if (!item.start && !item.time) {
           $scope.hiddenEntities.push(ent);
         } else {
           $scope.shownEntities.push(ent);
