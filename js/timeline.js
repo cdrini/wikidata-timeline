@@ -343,19 +343,13 @@ Timeline.prototype._drawItems = function(items) {
 		});
 
 	// Rect
-  groups.append('rect')
-    .attr({
-      x:      function(d) {return (_this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)))/2 },
-      y:      1,
-      width:  0,
-      height: _this.itemHeight -2,
-    })
-    // .transition().duration(80)
-    // .delay(function(d, i) { return 60*Math.log(i); })
-    .attr({
-      x: 0,
-      width: function(d) {return _this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d))}
-    });
+	groups.append('rect')
+		.attr({
+			x:      0,
+			y:      1,
+			width: function(d) {return _this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d))},
+			height: _this.itemHeight -2,
+		});
 
 	// Item text
 	groups.append('text')
@@ -364,15 +358,13 @@ Timeline.prototype._drawItems = function(items) {
 			y: _this.itemHeight / 2
 		})
 		.append('tspan')
-		.text(function(d) { return d.name; })
-		.style({
-			fill: '#000',
-			'text-anchor': 'middle',
-			'alignment-baseline': 'central',
-			opacity: 0
-		})
-		// .transition().duration(80).delay(function(d, i) { return 60*Math.log(i); })
-		.style('opacity', 1);
+			.text(function(d) { return d.name; })
+			.style({
+				fill: '#000',
+				'text-anchor': 'middle',
+				'alignment-baseline': 'central',
+				opacity: 1
+			});
 
 	// position the items
 	groups.attr({
