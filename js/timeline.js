@@ -39,16 +39,6 @@ function sprintf(str) {
   return str.replace(/%%/g, function() { return args[i++];});
 }
 
-/**
- * @private
- * returns the end timestamp, or, if its undefined, present timestamp
- * @param {object} item
- * @returns {timestamp}
- */
-function getEndTime(item) {
-	return !item.end && item.end !== 0 ? (new Date()).getTime() : item.end.getTime();
-}
-
 /******************************************
  ****** Main
  ******************************************/
@@ -79,6 +69,8 @@ function Timeline(items, opts) {
   setParam(this, opts, 'padding',                          5);
 	setParam(this, opts, 'axisLabelSize',                   20); //px
 	setParam(this, opts, 'miniChartHeight',                 80); //px
+
+	return this;
 }
 
 // getters/setters
@@ -118,8 +110,8 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	this.gridHeight = 0;
 
 	// scale
-	var timeMin = d3.min(this.items, function(d) { return d.start.getTime(); });
-	var timeMax = d3.max(this.items, function(d) { return getEndTime(d); });
+	var timeMin = d3.min(this.items, this.getStartTime.bind(this) );
+	var timeMax = d3.max(this.items, this.getEndTime.bind(this) );
 	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
 
 	this.mainChart = {};
@@ -215,6 +207,57 @@ Timeline.prototype.draw = function(HTMLContainer) {
 };
 
 /**
+ * @private
+ * returns the start timestamp if its defined
+ * @param {object} d
+ * @returns {timestamp}
+ */
+Timeline.prototype.getStartTime = function(d) {
+	if (this.customGetStartTime) {
+		return this.customGetStartTime(d).getTime();
+	} else {
+		return d.start.getTime();
+	}
+};
+
+/**
+ * @private
+ * returns the end timestamp, or, if its undefined, present timestamp
+ * @param {object} d
+ * @returns {timestamp}
+ */
+Timeline.prototype.getEndTime = function(d) {
+	var end;
+	if (this.customGetEndTime) {
+		end = this.customGetEndTime(d);
+	} else {
+		end = d.end;
+	}
+
+	return !end && end !== 0 ? (new Date()).getTime() : end.getTime();
+};
+
+/**
+ * Define how to get the startime from a datum
+ * @param {Function} given a datum, should return a Date
+ * @return {Timeline} this
+ */
+Timeline.prototype.startTime = function(fn) {
+	this.customGetStartTime = fn;
+	return this;
+}
+
+/**
+ * Define how to get the endtime from a datum
+ * @param {Function} given a datum, should return a timestamp
+ * @return {Timeline} this
+ */
+Timeline.prototype.endTime = function(fn) {
+	this.customGetEndTime = fn;
+	return this;
+}
+
+/**
  * Sets up viewfieldRect dragging logic
  * @private
  */
@@ -302,7 +345,7 @@ Timeline.prototype._drawItems = function(items) {
 	// Rect
   groups.append('rect')
     .attr({
-      x:      function(d) {return (_this.mainChart.xScale(getEndTime(d)) - _this.mainChart.xScale(d.start))/2 },
+      x:      function(d) {return (_this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)))/2 },
       y:      1,
       width:  0,
       height: _this.itemHeight -2,
@@ -311,13 +354,13 @@ Timeline.prototype._drawItems = function(items) {
     // .delay(function(d, i) { return 60*Math.log(i); })
     .attr({
       x: 0,
-      width: function(d) {return _this.mainChart.xScale(getEndTime(d)) - _this.mainChart.xScale(d.start)}
+      width: function(d) {return _this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d))}
     });
 
 	// Item text
 	groups.append('text')
 		.attr({
-			x: function(d) {return (_this.mainChart.xScale(getEndTime(d)) - _this.mainChart.xScale(d.start))/2 },
+			x: function(d) {return (_this.mainChart.xScale(_this.getEndTime(d)) - _this.mainChart.xScale(_this.getStartTime(d)))/2 },
 			y: _this.itemHeight / 2
 		})
 		.append('tspan')
@@ -338,8 +381,8 @@ Timeline.prototype._drawItems = function(items) {
 			var finalY = defaultY;
 			var bbox = this.getBBox();
 			var xRange = {
-				start: _this.mainChart.xScale(d.start) + bbox.x,
-				end: _this.mainChart.xScale(d.start) + bbox.x + bbox.width,
+				start: _this.mainChart.xScale(_this.getStartTime(d)) + bbox.x,
+				end: _this.mainChart.xScale(_this.getStartTime(d)) + bbox.x + bbox.width,
 				item: d
 			};
 
@@ -393,7 +436,7 @@ Timeline.prototype._drawItems = function(items) {
 				}
 			}
 
-			return sprintf('translate(%%, %%)', _this.mainChart.xScale(d.start), finalY);
+			return sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStartTime(d)), finalY);
 		}
   });
 
@@ -416,8 +459,8 @@ Timeline.prototype._drawItems = function(items) {
 				for(var i = 0; i < this.rows[r2].length ; ++i) {
 					var d = this.rows[r2][i].item;
 					var toAdd = {
-						start: d.start.getTime(),
-						end: getEndTime(d)
+						start: _this.getStartTime(d),
+						end: _this.getEndTime(d)
 					};
 					if (r2 == Math.floor(r)) {
 						// first row to be merge; just place a copy in the mergedRow
@@ -466,8 +509,8 @@ Timeline.prototype._drawItems = function(items) {
 			for(var i = 0; i < this.rows[r].length; ++i) {
 				var d = this.rows[r][i].item;
 				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
-				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(d.start), -miniYPos,
-																		           this.miniChart.xScale(getEndTime(d)));
+				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(_this.getStartTime(d)), -miniYPos,
+																		           this.miniChart.xScale(_this.getEndTime(d)));
 			}
 		}
 		this.miniChart.items.attr({
@@ -530,8 +573,8 @@ Timeline.prototype.addItems = function(itemsArr) {
 
 	var currentDomain = this.mainChart.xScale.domain();
 	var newItemsDomain = [
-		d3.min(itemsArr, function(d) { return d.start; }),
-		d3.max(itemsArr, function(d) { return getEndTime(d); })
+		d3.min(itemsArr, this.getStartTime.bind(this)),
+		d3.max(itemsArr, this.getEndTime.bind(this))
 	];
 
 	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
@@ -566,7 +609,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 			var currentTransform = this.getAttribute('transform');
 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
 
-			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(d.start), translation[1]));
+			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.getStarTime(d)), translation[1]));
 		});
 
 		// update ranges in rows so that things stay correct
