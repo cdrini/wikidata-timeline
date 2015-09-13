@@ -23,8 +23,12 @@ function($scope, $http, $location, $wikidata) {
 
   $scope.totalItemsToLoad = 0;
   $scope.itemsLoaded = 0;
-  $scope.percentLoaded = function() {
-    return Math.round(100*$scope.itemsLoaded / $scope.totalItemsToLoad);
+  $scope.percentLoaded = function(type) {
+    switch(type) {
+      case 'shown': return Math.round(100*$scope.shownEntities.length / $scope.totalItemsToLoad);
+      case 'hidden': return Math.round(100*$scope.hiddenEntities.length / $scope.totalItemsToLoad);
+      default: return Math.round(100*$scope.itemsLoaded / $scope.totalItemsToLoad);
+    }
   };
 
   var timelineStyle;
@@ -129,9 +133,9 @@ function($scope, $http, $location, $wikidata) {
         });
 
         if (!item.start) {
-          hiddenEntities[id] = ent;
+          $scope.hiddenEntities.push(ent);
         } else {
-          shownEntities[id] = ent;
+          $scope.shownEntities.push(ent);
           itemsChunk.push(item);
         }
       }
@@ -149,8 +153,8 @@ function($scope, $http, $location, $wikidata) {
     });
   });
 
-  var shownEntities = {};
-  var hiddenEntities = {};
+  $scope.shownEntities = [];
+  $scope.hiddenEntities = [];
 
   var items = [];
   var tl = new Timeline(items, {

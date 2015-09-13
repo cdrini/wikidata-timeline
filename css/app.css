@@ -55,6 +55,11 @@ body {
   box-shadow: 0 0 10px 0px #338BB7;
 }
 
+.notification-container > .alert > .progress > .progress-bar.hidden-items {
+  background-color: #5B5B5B;
+  box-shadow: 0 0 10px 0px #5B5B5B;
+}
+
 .notification-container button {
   background: none;
   border: none;

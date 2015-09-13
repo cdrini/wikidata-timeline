@@ -24,14 +24,25 @@
     ng-if="queryState == queryStates.Wikidata && wikidataQuery"
     style="padding-bottom: 0;">
     <div class="progress">
-      <div class="progress-bar progress-bar-striped active"
+      <div class="progress-bar progress-bar-striped shown-items"
       ng-class="{'active': wikidataQuery.getState() !== wdQueryStates.Paused }"
       role="progressbar"
-      aria-valuenow="{{percentLoaded()}}"
+      aria-valuenow="{{percentLoaded('shown')}}"
       aria-valuemin="0"
       aria-valuemax="100"
-      ng-style="{'width': percentLoaded() + '%' }">
-        <span class="sr-only">{{percentLoaded()}}% Complete</span>
+      ng-style="{'width': percentLoaded('shown') + '%' }"
+      title="{{shownEntities.length}} loaded and showing">
+        <span class="sr-only">{{shownEntities.length}} loaded and showing</span>
+      </div>
+      <div class="progress-bar progress-bar-striped hidden-items"
+      ng-class="{'active': wikidataQuery.getState() !== wdQueryStates.Paused }"
+      role="progressbar"
+      aria-valuenow="{{percentLoaded('hidden')}}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      ng-style="{'width': percentLoaded('hidden') + '%' }"
+      title="{{hiddenEntities.length}} missing date data">
+        <span class="sr-only">{{hiddenEntities.length}} missing date data</span>
       </div>
     </div>
     <div class="flex-row">
