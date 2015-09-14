@@ -26,8 +26,18 @@
   font-family: Roboto, sans-serif;
 }
 
-.timeline-container .main-chart .item rect {
-  fill: #FFDD55;
+.timeline-container .main-chart .item rect,
+.timeline-container .main-chart .item circle {
+  fill: #FD5;
+  /*stroke: #C92;*/
+}
+
+/*.timeline-container .main-chart .item rect {
+  shape-rendering: crispEdges;
+}*/
+
+.timeline-container .main-chart .item circle {
+  stroke: #C92;
 }
 
 .timeline-container .mini-chart .items-path {
@@ -56,6 +66,6 @@
   fill-opacity: 0.1;
   stroke: #08E;
   stroke-width: 1px;
-  
+
   shape-rendering: crispEdges;
 }
