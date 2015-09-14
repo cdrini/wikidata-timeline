@@ -103,7 +103,7 @@ Timeline.prototype.isDrawn = function() {
  	var currentDomain = this.mainChart.xScale.domain();
  	var newItemsDomain = [
  		d3.min(itemsArr, this.itemStart.bind(this)),
- 		d3.max(itemsArr, this.getEndTime.bind(this))
+ 		d3.max(itemsArr, this.itemEnd.bind(this))
  	];
 
  	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
@@ -198,6 +198,14 @@ Timeline.prototype.itemStart = function(d) {
 	};
 };
 
+Timeline.prototype.itemEnd = function(d) {
+	var type = this.itemType(d);
+	switch(type) {
+		case Timeline.ItemTypes.Range: return this.getEndTime(d);
+		case Timeline.ItemTypes.Point: return this.getPointTime(d);
+	};
+};
+
 /**
  * @private
  * returns the start timestamp if its defined
@@ -272,7 +280,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	// scale
 	var timeMin = d3.min(this.items, this.itemStart.bind(this) );
-	var timeMax = d3.max(this.items, this.getEndTime.bind(this) );
+	var timeMax = d3.max(this.items, this.itemEnd.bind(this) );
 	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
 
 	this.mainChart = {};
