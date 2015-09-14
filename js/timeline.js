@@ -73,137 +73,129 @@ function Timeline(items, opts) {
 	return this;
 }
 
-// getters/setters
-Object.defineProperty(Timeline.prototype, 'canvasWidth',
-  { get: function() { return this.gridWidth + 2*this.padding; }});
-Object.defineProperty(Timeline.prototype, 'canvasHeight',
-  { get: function() { return this.gridHeight +  2*this.padding + this.axisLabelSize; }});
-Object.defineProperty(Timeline.prototype, 'gridStartPoint',
-  { get: function() { return {
-    x: this.padding,
-    y: 0
-  }}});
+/*************************
+ ****** Public Methods
+ *************************/
 
-/**
- * Tells if the timeline has been drawn yet.
- * @return {Boolean}
- */
+ /**
+  * Tells if the timeline has been drawn yet.
+  * @return {Boolean}
+  */
 Timeline.prototype.isDrawn = function() {
 	return !!this.mainChart;
 };
 
-/** Creates the timeline and appends it to HTMLContainer
- * @param{HTMLElement} HTMLContainer
- */
-Timeline.prototype.draw = function(HTMLContainer) {
-  this.container = HTMLContainer;
-	this.chartContainer = document.createElement('div');
-	this.chartContainer.setAttribute('class', 'main-chart-container');
-	this.container.style.paddingBottom = this.miniChartHeight + 'px';
-	this.container.appendChild(this.chartContainer);
+ /**
+  * Adds the supplied items to the internal array and the chart. Updates chart's
+  * axes to ensure the items fit. Use if adding a large number of items, to avoid
+  * updating the axes a lot. Otherwise just add the array of items as per usual.
+  * @param {array<object>} itemsArr items to add
+  * @return {Timeline} @this
+  */
+ Timeline.prototype.addItems = function(itemsArr) {
+ 	var _this = this;
 
-	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
+   if (!this.isDrawn()) {
+     this.items = this.items.concat(itemsArr);
+     return this;
+   }
 
-	var _this = this;
+ 	var currentDomain = this.mainChart.xScale.domain();
+ 	var newItemsDomain = [
+ 		d3.min(itemsArr, this.itemStart.bind(this)),
+ 		d3.max(itemsArr, this.getEndTime.bind(this))
+ 	];
 
-	this.gridWidth = 0;
-	this.gridHeight = 0;
+ 	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
+ 		|| (newItemsDomain[1] > currentDomain[1]);
 
-	// scale
-	var timeMin = d3.min(this.items, this.itemStart.bind(this) );
-	var timeMax = d3.max(this.items, this.getEndTime.bind(this) );
-	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
+ 	if (mustChangeDomain) {
+ 		var newDomain = [
+ 			Math.min(newItemsDomain[0], currentDomain[0]),
+ 			Math.max(newItemsDomain[1], currentDomain[1])
+ 		];
+ 		var xTmp = this.mainChart.xScale(0);
+ 		this.mainChart.xScale.domain(newDomain);
+ 		this.miniChart.xScale.domain(newDomain);
+ 	}
 
-	this.mainChart = {};
-	// the svg
-  this.mainChart.svg = d3.select(this.chartContainer).append('svg')
-		.attr("version", 1.1)
-		.attr("xmlns", "http://www.w3.org/2000/svg")
-    .classed('main-chart', true);
+ 	this.items = this.items.concat(itemsArr);
 
-	// {svg, xScale, xAxis, xAxisGroup, gridAxis, gridGroup itemsGroup}
-	this.mainChart.xScale = d3.time.scale()
-		.domain([timeMin, timeMax])
-		.range([this.padding, this.padding + this.gridWidth]);
+   // update xScale Range
+   this.gridWidth = msToYears(this.mainChart.xScale.domain()[1] - this.mainChart.xScale.domain()[0]) * this.widthOfYear;
+   this.mainChart.xScale.range([this.padding, this.padding + this.gridWidth]);
 
-	// x axis
-	this.mainChart.xAxis = d3.svg.axis()
-		.scale(this.mainChart.xScale)
-		.ticks(100)
-    .orient("bottom")
-		.tickSize(8,4)
-		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
-	  .tickPadding(4);
-	this.mainChart.xAxisGroup = this.mainChart.svg.append('g')
-		.classed('x axis', true)
-		.call(this.mainChart.xAxis);
+   // update axes
+ 	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+   this.mainChart.gridGroup.call(this.mainChart.gridAxis);
+   this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
 
-	// grid
-	this.mainChart.gridAxis = d3.svg.axis()
-		.scale(this.mainChart.xScale)
-		.ticks(100)
-		.tickFormat('')
-    .orient("bottom")
-		.tickSize(-1*this.gridHeight, 0);
-	this.mainChart.gridGroup = this.mainChart.svg.append('g')
-		.classed('grid', true)
-		.call(this.mainChart.gridAxis);
+ 	if (mustChangeDomain) {
+ 		var xChange = this.mainChart.xScale(0) - xTmp;
+ 		// move all the existing items over
+ 		this.mainChart.svg.itemsGroup.selectAll('g.item')
+ 		.each(function(d, i) {
+ 			var currentTransform = this.getAttribute('transform');
+ 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
 
-	// the items
-	this.mainChart.svg.itemsGroup = this.mainChart.svg.append('g').classed('items', true);
+ 			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
+ 		});
 
-	// these rows store the items in each row of the timeline, sorted. Used to
-	// pack events in the _drawItems method.
-	this.rows = [];
-	this.nextRow = 0;
+ 		// update ranges in rows so that things stay correct
+ 		for (var i = 0; i < this.rows.length; ++i ) {
+ 			for (var j = 0; j < this.rows[i].length; ++j) {
+ 				this.rows[i][j].start += xChange;
+ 				this.rows[i][j].end += xChange;
+ 			}
+ 		}
+ 	}
 
-	// the brush control
-	this.miniChart = {};
-	this.miniChart.svg = d3.select(this.container).append('svg')
-		.classed('mini-chart', true)
-		.attr({
-			width: '100%',
-			height: _this.miniChartHeight
-		});
-	this.miniChart.svg.itemsGroup = this.miniChart.svg.append('g').classed('items', true);
+   // draw the new items
+   this._drawItems();
+ };
 
-	this.miniChart.xScale = d3.time.scale()
-		.domain([timeMin, timeMax])
-		.range([this.padding, this.container.clientWidth]);
-	this.miniChart.xAxis = d3.svg.axis()
-		.scale(this.miniChart.xScale)
-		.ticks(5)
-    .orient("bottom")
-		.tickSize(0,0)
-		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
-	  .tickPadding(0);
-	this.miniChart.xAxisGroup = this.miniChart.svg.append('g')
-		.classed('x axis', true)
-		.call(this.miniChart.xAxis)
-		.attr({
-			'transform': sprintf('translate(0, %%)', this.miniChartHeight / 2)
-		});
-	this.miniChart.viewfieldRect = this.miniChart.svg.append('rect')
-		.classed('viewfield', true)
-		.attr({
-			width: (this.chartContainerRect.width / this.chartContainer.scrollWidth) * this.chartContainerRect.width,
-			height: (this.chartContainerRect.height / this.chartContainer.scrollHeight) * this.miniChartHeight
-		});
+ /*************************
+  ****** Getters/setters
+  *************************/
+Object.defineProperty(Timeline.prototype, 'canvasWidth',
+ { get: function() { return this.gridWidth + 2*this.padding; }});
+Object.defineProperty(Timeline.prototype, 'canvasHeight',
+ { get: function() { return this.gridHeight +  2*this.padding + this.axisLabelSize; }});
+Object.defineProperty(Timeline.prototype, 'gridStartPoint',
+ { get: function() { return {
+   x: this.padding,
+   y: 0
+ }}});
 
-	// events
-	d3.select(this.chartContainer).on('scroll', function() {
-		_this.miniChart.viewfieldRect.attr({
-			transform: sprintf('translate(%%, %%)',
-				(this.scrollLeft / this.scrollWidth) * _this.chartContainerRect.width,
-				(this.scrollTop / this.scrollHeight) * _this.miniChartHeight)
-		});
-	});
 
-	d3.select(window).on('resize', Timeline.prototype.resizeHandler.bind(this));
+/*************************
+ ****** Timeline Items
+ *************************/
 
-	this._setupViewfieldRectDrag();
+Timeline.ItemTypes = {
+	Invalid: -1,
+	Range:    1,
+	Point:    2
+};
 
-	this._drawItems();
+Timeline.prototype.itemType = function(d) {
+	if (this.getStartTime(d)) {
+		return Timeline.ItemTypes.Range;
+	}
+	else if (this.getPointTime(d)) {
+		return Timeline.ItemTypes.Point;
+	}
+	else {
+		return Timeline.ItemTypes.Invalid;
+	}
+};
+
+Timeline.prototype.itemStart = function(d) {
+	var type = this.itemType(d);
+	switch(type) {
+		case Timeline.ItemTypes.Range: return this.getStartTime(d);
+		case Timeline.ItemTypes.Point: return this.getPointTime(d);
+	};
 };
 
 /**
@@ -257,130 +249,122 @@ Timeline.prototype.getPointTime = function(d) {
 	return time && time.getTime();
 };
 
-/**
- * Define how to get the startime from a datum
- * @param {Function} given a datum, should return a Date object
- * @return {Timeline} this
- */
-Timeline.prototype.startTime = function(fn) {
-	this.customGetStartTime = fn;
-	return this;
-}
+/*************************
+ ****** Drawing Methods
+ *************************/
 
-/**
- * Define how to get the endtime from a datum
- * @param {Function} given a datum, should return a Date object
- * @return {Timeline} this
- */
-Timeline.prototype.endTime = function(fn) {
-	this.customGetEndTime = fn;
-	return this;
-}
+/** Creates the timeline and appends it to HTMLContainer
+* @param{HTMLElement} HTMLContainer
+*/
+Timeline.prototype.draw = function(HTMLContainer) {
+ this.container = HTMLContainer;
+	this.chartContainer = document.createElement('div');
+	this.chartContainer.setAttribute('class', 'main-chart-container');
+	this.container.style.paddingBottom = this.miniChartHeight + 'px';
+	this.container.appendChild(this.chartContainer);
 
-/**
- * Define how to get the pointTime from a datum
- * @param {Function} given a datum, should return a Date object
- * @return {Timeline} this
- */
-Timeline.prototype.pointTime = function(fn) {
-	this.customGetPointTime = fn;
-	return this;
-}
+	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
 
-/**
- * Sets up viewfieldRect dragging logic
- * @private
- */
-Timeline.prototype._setupViewfieldRectDrag = function() {
 	var _this = this;
 
-	var startViewfieldRectDrag = function() {
-		viewfieldRectDragMain();
+	this.gridWidth = 0;
+	this.gridHeight = 0;
 
-		_this.miniChart.svg.on('mousemove', viewfieldRectDragMain);
-		_this.miniChart.svg.on('touchmove', viewfieldRectDragMain);
+	// scale
+	var timeMin = d3.min(this.items, this.itemStart.bind(this) );
+	var timeMax = d3.max(this.items, this.getEndTime.bind(this) );
+	this.gridWidth = msToYears(timeMax - timeMin) * this.widthOfYear;
 
-		_this.miniChart.svg.on('mouseup', endViewfieldRectDrag);
-		_this.miniChart.svg.on('mouseleave', endViewfieldRectDrag);
-		_this.miniChart.svg.on('touchend', endViewfieldRectDrag);
-	};
-	var endViewfieldRectDrag = function() {
-		_this.miniChart.svg.on('mousemove', null);
-		_this.miniChart.svg.on('touchmove', null);
-	};
-	var viewfieldRectDragMain = function() {
-		var mousePos = d3.mouse(_this.miniChart.svg.node());
+	this.mainChart = {};
+	// the svg
+ this.mainChart.svg = d3.select(this.chartContainer).append('svg')
+		.attr("version", 1.1)
+		.attr("xmlns", "http://www.w3.org/2000/svg")
+   .classed('main-chart', true);
 
-		var boxPos = {
-			x: Math.max(mousePos[0] - 0.5 * _this.miniChart.viewfieldRect.attr('width'), 0),
-			y: Math.max(mousePos[1] - 0.5 * _this.miniChart.viewfieldRect.attr('height'), 0),
-		};
+	// {svg, xScale, xAxis, xAxisGroup, gridAxis, gridGroup itemsGroup}
+	this.mainChart.xScale = d3.time.scale()
+		.domain([timeMin, timeMax])
+		.range([this.padding, this.padding + this.gridWidth]);
 
-		boxPos.x = Math.min(boxPos.x, _this.chartContainerRect.width - _this.miniChart.viewfieldRect.attr('width'));
-		boxPos.y = Math.min(boxPos.y, _this.miniChartHeight - _this.miniChart.viewfieldRect.attr('height'));
+	// x axis
+	this.mainChart.xAxis = d3.svg.axis()
+		.scale(this.mainChart.xScale)
+		.ticks(100)
+   .orient("bottom")
+		.tickSize(8,4)
+		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
+	  .tickPadding(4);
+	this.mainChart.xAxisGroup = this.mainChart.svg.append('g')
+		.classed('x axis', true)
+		.call(this.mainChart.xAxis);
 
-		// move box
-		_this.miniChart.viewfieldRect.attr({
-			transform: sprintf('translate(%%, %%)', boxPos.x, boxPos.y)
+	// grid
+	this.mainChart.gridAxis = d3.svg.axis()
+		.scale(this.mainChart.xScale)
+		.ticks(100)
+		.tickFormat('')
+   .orient("bottom")
+		.tickSize(-1*this.gridHeight, 0);
+	this.mainChart.gridGroup = this.mainChart.svg.append('g')
+		.classed('grid', true)
+		.call(this.mainChart.gridAxis);
+
+	// the items
+	this.mainChart.svg.itemsGroup = this.mainChart.svg.append('g').classed('items', true);
+
+	// these rows store the items in each row of the timeline, sorted. Used to
+	// pack events in the _drawItems method.
+	this.rows = [];
+	this.nextRow = 0;
+
+	// the brush control
+	this.miniChart = {};
+	this.miniChart.svg = d3.select(this.container).append('svg')
+		.classed('mini-chart', true)
+		.attr({
+			width: '100%',
+			height: _this.miniChartHeight
 		});
-		// move view in mainChart
-		_this.chartContainer.scrollTop = (boxPos.y / _this.miniChartHeight) * _this.chartContainer.scrollHeight;
-		_this.chartContainer.scrollLeft = (boxPos.x / _this.chartContainerRect.width) * _this.chartContainer.scrollWidth;
-	};
+	this.miniChart.svg.itemsGroup = this.miniChart.svg.append('g').classed('items', true);
 
-	this.miniChart.svg.on('mousedown', startViewfieldRectDrag);
-	this.miniChart.svg.on('touchstart', startViewfieldRectDrag);
-};
-
-/**
- * Call on resize / on scrollWidth/Height changes to keep variables accurate
- */
-Timeline.prototype.resizeHandler = function() {
-	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
-	this.miniChart.viewfieldRect
+	this.miniChart.xScale = d3.time.scale()
+		.domain([timeMin, timeMax])
+		.range([this.padding, this.container.clientWidth]);
+	this.miniChart.xAxis = d3.svg.axis()
+		.scale(this.miniChart.xScale)
+		.ticks(5)
+   .orient("bottom")
+		.tickSize(0,0)
+		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
+	  .tickPadding(0);
+	this.miniChart.xAxisGroup = this.miniChart.svg.append('g')
+		.classed('x axis', true)
+		.call(this.miniChart.xAxis)
+		.attr({
+			'transform': sprintf('translate(0, %%)', this.miniChartHeight / 2)
+		});
+	this.miniChart.viewfieldRect = this.miniChart.svg.append('rect')
+		.classed('viewfield', true)
 		.attr({
 			width: (this.chartContainerRect.width / this.chartContainer.scrollWidth) * this.chartContainerRect.width,
 			height: (this.chartContainerRect.height / this.chartContainer.scrollHeight) * this.miniChartHeight
 		});
 
-	// resize miniChart
-	var oldRange = this.miniChart.xScale.range();
-	var widthChangeRatio = this.chartContainerRect.width / oldRange[1];  //FIXME: padding :/
-	this.miniChart.items.attr({
-		transform: this.miniChart.items.attr('transform').replace(/scale\(([-+]?((\d*\.\d+)|\d+))/, function(match, $1) {
-			return 'scale(' + (parseFloat($1) * widthChangeRatio);
-		})
+	// events
+	d3.select(this.chartContainer).on('scroll', function() {
+		_this.miniChart.viewfieldRect.attr({
+			transform: sprintf('translate(%%, %%)',
+				(this.scrollLeft / this.scrollWidth) * _this.chartContainerRect.width,
+				(this.scrollTop / this.scrollHeight) * _this.miniChartHeight)
+		});
 	});
 
-	this.miniChart.xScale
-		.range([this.padding, this.chartContainerRect.width]);
-	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
-}
+	d3.select(window).on('resize', Timeline.prototype._resizeHandler.bind(this));
 
-Timeline.ItemTypes = {
-	Invalid: -1,
-	Range:    1,
-	Point:    2
-};
+	this._setupViewfieldRectDrag();
 
-Timeline.prototype.itemType = function(d) {
-	if (this.getStartTime(d)) {
-		return Timeline.ItemTypes.Range;
-	}
-	else if (this.getPointTime(d)) {
-		return Timeline.ItemTypes.Point;
-	}
-	else {
-		return Timeline.ItemTypes.Invalid;
-	}
-};
-
-Timeline.prototype.itemStart = function(d) {
-	var type = this.itemType(d);
-	switch(type) {
-		case Timeline.ItemTypes.Range: return this.getStartTime(d);
-		case Timeline.ItemTypes.Point: return this.getPointTime(d);
-	};
+	this._drawItems();
 };
 
 /**Draws the individual items
@@ -502,7 +486,7 @@ Timeline.prototype._drawItems = function(items) {
 	this.mainChart.gridGroup.call(this.mainChart.gridAxis);
 	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
 
-	this.resizeHandler();
+	this._resizeHandler();
 };
 
 Timeline.prototype._updateMiniChart = function() {
@@ -674,75 +658,6 @@ Timeline.prototype._drawPointItem = function(group, d, i) {
 
 };
 
-/**
- * Adds the supplied items to the internal array and the chart. Updates chart's
- * axes to ensure the items fit. Use if adding a large number of items, to avoid
- * updating the axes a lot. Otherwise just add the array of items as per usual.
- * @param {array<object>} itemsArr items to add
- * @return {Timeline} @this
- */
-Timeline.prototype.addItems = function(itemsArr) {
-	var _this = this;
-
-  if (!this.isDrawn()) {
-    this.items = this.items.concat(itemsArr);
-    return this;
-  }
-
-	var currentDomain = this.mainChart.xScale.domain();
-	var newItemsDomain = [
-		d3.min(itemsArr, this.itemStart.bind(this)),
-		d3.max(itemsArr, this.getEndTime.bind(this))
-	];
-
-	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
-		|| (newItemsDomain[1] > currentDomain[1]);
-
-	if (mustChangeDomain) {
-		var newDomain = [
-			Math.min(newItemsDomain[0], currentDomain[0]),
-			Math.max(newItemsDomain[1], currentDomain[1])
-		];
-		var xTmp = this.mainChart.xScale(0);
-		this.mainChart.xScale.domain(newDomain);
-		this.miniChart.xScale.domain(newDomain);
-	}
-
-	this.items = this.items.concat(itemsArr);
-
-  // update xScale Range
-  this.gridWidth = msToYears(this.mainChart.xScale.domain()[1] - this.mainChart.xScale.domain()[0]) * this.widthOfYear;
-  this.mainChart.xScale.range([this.padding, this.padding + this.gridWidth]);
-
-  // update axes
-	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
-  this.mainChart.gridGroup.call(this.mainChart.gridAxis);
-  this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
-
-	if (mustChangeDomain) {
-		var xChange = this.mainChart.xScale(0) - xTmp;
-		// move all the existing items over
-		this.mainChart.svg.itemsGroup.selectAll('g.item')
-		.each(function(d, i) {
-			var currentTransform = this.getAttribute('transform');
-			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
-
-			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
-		});
-
-		// update ranges in rows so that things stay correct
-		for (var i = 0; i < this.rows.length; ++i ) {
-			for (var j = 0; j < this.rows[i].length; ++j) {
-				this.rows[i][j].start += xChange;
-				this.rows[i][j].end += xChange;
-			}
-		}
-	}
-
-  // draw the new items
-  this._drawItems();
-};
-
 Timeline.prototype._updateSVGSize = function() {
   this.mainChart.svg.attr({
     width: this.canvasWidth,
@@ -750,3 +665,107 @@ Timeline.prototype._updateSVGSize = function() {
     viewBox: sprintf("0 %% %% %%", -1*this.gridHeight, this.canvasWidth, this.canvasHeight)
   });
 };
+
+/**
+ * Sets up viewfieldRect dragging logic
+ * @private
+ */
+Timeline.prototype._setupViewfieldRectDrag = function() {
+	var _this = this;
+
+	var startViewfieldRectDrag = function() {
+		viewfieldRectDragMain();
+
+		_this.miniChart.svg.on('mousemove', viewfieldRectDragMain);
+		_this.miniChart.svg.on('touchmove', viewfieldRectDragMain);
+
+		_this.miniChart.svg.on('mouseup', endViewfieldRectDrag);
+		_this.miniChart.svg.on('mouseleave', endViewfieldRectDrag);
+		_this.miniChart.svg.on('touchend', endViewfieldRectDrag);
+	};
+	var endViewfieldRectDrag = function() {
+		_this.miniChart.svg.on('mousemove', null);
+		_this.miniChart.svg.on('touchmove', null);
+	};
+	var viewfieldRectDragMain = function() {
+		var mousePos = d3.mouse(_this.miniChart.svg.node());
+
+		var boxPos = {
+			x: Math.max(mousePos[0] - 0.5 * _this.miniChart.viewfieldRect.attr('width'), 0),
+			y: Math.max(mousePos[1] - 0.5 * _this.miniChart.viewfieldRect.attr('height'), 0),
+		};
+
+		boxPos.x = Math.min(boxPos.x, _this.chartContainerRect.width - _this.miniChart.viewfieldRect.attr('width'));
+		boxPos.y = Math.min(boxPos.y, _this.miniChartHeight - _this.miniChart.viewfieldRect.attr('height'));
+
+		// move box
+		_this.miniChart.viewfieldRect.attr({
+			transform: sprintf('translate(%%, %%)', boxPos.x, boxPos.y)
+		});
+		// move view in mainChart
+		_this.chartContainer.scrollTop = (boxPos.y / _this.miniChartHeight) * _this.chartContainer.scrollHeight;
+		_this.chartContainer.scrollLeft = (boxPos.x / _this.chartContainerRect.width) * _this.chartContainer.scrollWidth;
+	};
+
+	this.miniChart.svg.on('mousedown', startViewfieldRectDrag);
+	this.miniChart.svg.on('touchstart', startViewfieldRectDrag);
+};
+
+/**
+ * Call on resize / on scrollWidth/Height changes to keep variables accurate
+ */
+Timeline.prototype._resizeHandler = function() {
+	this.chartContainerRect = this.chartContainer.getBoundingClientRect();
+	this.miniChart.viewfieldRect
+		.attr({
+			width: (this.chartContainerRect.width / this.chartContainer.scrollWidth) * this.chartContainerRect.width,
+			height: (this.chartContainerRect.height / this.chartContainer.scrollHeight) * this.miniChartHeight
+		});
+
+	// resize miniChart
+	var oldRange = this.miniChart.xScale.range();
+	var widthChangeRatio = this.chartContainerRect.width / oldRange[1];  //FIXME: padding :/
+	this.miniChart.items.attr({
+		transform: this.miniChart.items.attr('transform').replace(/scale\(([-+]?((\d*\.\d+)|\d+))/, function(match, $1) {
+			return 'scale(' + (parseFloat($1) * widthChangeRatio);
+		})
+	});
+
+	this.miniChart.xScale
+		.range([this.padding, this.chartContainerRect.width]);
+	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
+};
+
+/*************************
+ ****** Option Methods
+ *************************/
+
+/**
+ * Define how to get the startime from a datum
+ * @param {Function} given a datum, should return a Date object
+ * @return {Timeline} this
+ */
+Timeline.prototype.startTime = function(fn) {
+	this.customGetStartTime = fn;
+	return this;
+}
+
+/**
+ * Define how to get the endtime from a datum
+ * @param {Function} given a datum, should return a Date object
+ * @return {Timeline} this
+ */
+Timeline.prototype.endTime = function(fn) {
+	this.customGetEndTime = fn;
+	return this;
+}
+
+/**
+ * Define how to get the pointTime from a datum
+ * @param {Function} given a datum, should return a Date object
+ * @return {Timeline} this
+ */
+Timeline.prototype.pointTime = function(fn) {
+	this.customGetPointTime = fn;
+	return this;
+}
