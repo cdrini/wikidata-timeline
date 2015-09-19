@@ -11,6 +11,12 @@ angular.module('wikidataTimeline.timelineView', [])
 
 .controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager',
 function($scope, $http, $wikidata, $urlParamManager) {
+  var defaultOpts = {
+    query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
+    langs: ['en', 'fr'],
+    widthOfYear: 20,
+  };
+  var urlManager = $urlParamManager(defaultOpts);
 
   // scope variables
   $scope.queryStates = {
@@ -55,12 +61,7 @@ function($scope, $http, $wikidata, $urlParamManager) {
     $scope.downloadURL = window.URL.createObjectURL(blob);
   };
 
-  var defaultOpts = {
-    query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
-    langs: ['en', 'fr'],
-    widthOfYear: 20,
-  };
-  var urlManager = $urlParamManager(defaultOpts);
+
 
   var dateTimeFormat = d3.time.format("%Y-%m-%d");
 
