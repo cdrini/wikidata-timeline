@@ -5,6 +5,10 @@
     </div>
     <div class="right">
       <a role="button"
+        class="embed-link"
+        data-toggle="modal" data-target=".embed-modal"
+        href="javascript:;">Embed</a>
+      <a role="button"
         class="download-link"
         href-lang="image/svg+xml"
         target="blank"
@@ -67,5 +71,32 @@
   <div class="alert alert-info" role="alert"
     ng-if="queryState == queryStates.WDQ">
     Querying <a href="https://wdq.wmflabs.org/api_documentation.html" target="_blank">WikidataQuery</a>...
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal embed-modal fade" tabindex="-1" role="dialog" aria-labelledby="embedModalLabel" ng-controller="EmbedCtrl">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="embedModalLabel">Embed</h4>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-pills">
+          <li ng-repeat="$embedType in embedTypes track by $index"
+            role="presentation"
+            ng-click="setEmbedType($index)"
+            ng-class="{'active': isActive($index) }">
+            <a href="javascript:;">{{$embedType.name}}</a>
+          </li>
+        </ul>
+        <pre class="embed-code"><code></code></pre>
+        <div class="embed-preview"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-primary">Done</button>
+      </div>
+    </div>
   </div>
 </div>

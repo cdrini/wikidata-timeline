@@ -44,7 +44,7 @@ function($scope, $http, $wikidata, $urlParamManager) {
     timelineStyle = $('<style>' + response.data.replace(/\.timeline-container/g, '') + '</style>');
   });
   $scope.downloadURL = '';
-  $scope.createDownloadURL = function() {
+  $scope.getSVGCode = function() {
     var svgEl = $('svg.main-chart');
     if (svgEl.length == 0) {
       return;
@@ -54,7 +54,10 @@ function($scope, $http, $wikidata, $urlParamManager) {
     var svg = $('.main-chart-container').html(); // get the 'outer' html
     timelineStyle.remove();
 
-    var blob = new Blob([svg], {type: 'octet/stream'});
+    return svg;
+  };
+  $scope.createDownloadURL = function() {
+    var blob = new Blob([$scope.getSVGCode()], {type: 'octet/stream'});
     if ($scope.downloadURL != '') {
       window.URL.revokeObjectURL($scope.downloadURL);
     }
@@ -169,4 +172,46 @@ function($scope, $http, $wikidata, $urlParamManager) {
   var tl = new Timeline(items, {
   	widthOfYear: urlManager.get('widthOfYear')
   });
+}])
+
+.controller('EmbedCtrl', ['$scope', '$element',
+function($scope, $element) {
+  var embedPreview = $('.embed-preview');
+  var embedCode = $('.embed-code code');
+
+  $scope.embedTypes = [
+    {
+      name: 'Live <iframe>',
+      code: function() { return '<iframe style="width:100%; height: 400px; border: 0;" src="' + location.href + '&embed' + '"></iframe>'}
+    },
+    {
+      name: 'Static SVG',
+      code: function() { return '<div style="width:100%; max-height: 400px; overflow: auto;">' + $scope.$parent.getSVGCode() + '</div>'; }
+    }
+    // },
+    // {
+    //   name: 'Interactive SVG',
+    //   code: function() { return 'ho!'; }
+    // }
+  ];
+
+  $scope.activeEmbedType = -1;
+  $scope.setEmbedType = function (newEmbedType) {
+    if (newEmbedType !== $scope.activeEmbedType) {
+      $scope.activeEmbedType = newEmbedType;
+
+      var code = $scope.embedTypes[$scope.activeEmbedType].code();
+      embedCode.text(code);
+      embedPreview.html(code);
+    }
+  };
+  $scope.isActive = function (embedIndex) {
+    return $scope.activeEmbedType == embedIndex;
+  };
+
+  $('.embed-modal').on('shown.bs.modal', function () {
+    if ($scope.activeEmbedType == -1) {
+      $scope.setEmbedType(0);
+    }
+  })
 }]);

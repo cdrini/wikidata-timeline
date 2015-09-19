@@ -205,3 +205,11 @@ span.item {
   float: right;
   margin-right: 8px;
 }
+
+.embed-modal pre {
+  max-height: 140px;
+}
+
+.embed-modal .embed-preview {
+  overflow:auto;
+}
