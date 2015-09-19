@@ -15,8 +15,11 @@ function($scope, $http, $wikidata, $urlParamManager) {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     langs: ['en', 'fr'],
     widthOfYear: 20,
+    title: 'Untitled'
   };
   var urlManager = $urlParamManager(defaultOpts);
+
+  document.title = urlManager.get('title') + ' Timeline';
 
   // scope variables
   $scope.queryStates = {
