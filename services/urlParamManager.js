@@ -10,6 +10,8 @@ angular.module('wikidataTimeline')
   };
 
   /**
+   * @class
+   * @constructor
    * @param {object} defn mapping of urlParamNames to default values. Arrays will
    * be automatically read as CSV
    */
@@ -63,7 +65,13 @@ angular.module('wikidataTimeline')
     }
   };
 
-  return function(defn) {
+  var api = function(defn) {
     return new URLManager(defn);
   };
+
+  api.isDefined = function(name) {
+    return !(typeof $location.search()[name] == 'undefined');
+  };
+
+  return api;
 }]);
