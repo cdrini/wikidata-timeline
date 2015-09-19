@@ -20,6 +20,7 @@ function($scope, $http, $wikidata, $urlParamManager) {
   var urlManager = $urlParamManager(defaultOpts);
 
   document.title = urlManager.get('title') + ' Timeline';
+  $wikidata.langs = urlManager.get('langs');
 
   // scope variables
   $scope.queryStates = {
