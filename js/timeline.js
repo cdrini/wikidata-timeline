@@ -22,7 +22,7 @@ function setParam(principal, secondary, key, defaultValue) {
  * @return {Integer} years
  */
 function msToYears(ms) {
-  return ms / 3.15569e10;
+	return ms / 3.15569e10;
 }
 
 /**
@@ -34,9 +34,9 @@ function msToYears(ms) {
  * @return {String}
  */
 function sprintf(str) {
-  var args = arguments;
-  var i = 1;
-  return str.replace(/%%/g, function() { return args[i++];});
+	var args = arguments;
+	var i = 1;
+	return str.replace(/%%/g, function() { return args[i++];});
 }
 
 /******************************************
@@ -57,16 +57,16 @@ function sprintf(str) {
  *   @config {Integer}   [axisLabelSize] @todo
  */
 function Timeline(items, opts) {
-  this.items = items;
-  opts = opts || {};
+	this.items = items;
+	opts = opts || {};
 
 	                     // param name                      // default value
-  setParam(this, opts, 'widthOfYear',                     20); //px
-  setParam(this, opts, 'itemHeight',                      20); //px
-  setParam(this, opts, 'itemSpacing',                      2); //px
-  setParam(this, opts, 'startDate',                        0);
-  setParam(this, opts, 'endDate',     (new Date()).getTime()); // present
-  setParam(this, opts, 'padding',                          5);
+	setParam(this, opts, 'widthOfYear',                     20); //px
+	setParam(this, opts, 'itemHeight',                      20); //px
+	setParam(this, opts, 'itemSpacing',                      2); //px
+	setParam(this, opts, 'startDate',                        0);
+	setParam(this, opts, 'endDate',     (new Date()).getTime()); // present
+	setParam(this, opts, 'padding',                          5);
 	setParam(this, opts, 'axisLabelSize',                   20); //px
 	setParam(this, opts, 'miniChartHeight',                 80); //px
 
@@ -92,80 +92,80 @@ Timeline.prototype.isDrawn = function() {
   * @param {array<object>} itemsArr items to add
   * @return {Timeline} @this
   */
- Timeline.prototype.addItems = function(itemsArr) {
- 	var _this = this;
+Timeline.prototype.addItems = function(itemsArr) {
+	var _this = this;
 
-   if (!this.isDrawn()) {
-     this.items = this.items.concat(itemsArr);
-     return this;
-   }
+	if (!this.isDrawn()) {
+		this.items = this.items.concat(itemsArr);
+		return this;
+	}
 
- 	var currentDomain = this.mainChart.xScale.domain();
- 	var newItemsDomain = [
- 		d3.min(itemsArr, this.itemStart.bind(this)),
- 		d3.max(itemsArr, this.itemEnd.bind(this))
- 	];
+	var currentDomain = this.mainChart.xScale.domain();
+	var newItemsDomain = [
+		d3.min(itemsArr, this.itemStart.bind(this)),
+		d3.max(itemsArr, this.itemEnd.bind(this))
+	];
 
- 	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
- 		|| (newItemsDomain[1] > currentDomain[1]);
+	var mustChangeDomain = (newItemsDomain[0] < currentDomain[0])
+		|| (newItemsDomain[1] > currentDomain[1]);
 
- 	if (mustChangeDomain) {
- 		var newDomain = [
- 			Math.min(newItemsDomain[0], currentDomain[0]),
- 			Math.max(newItemsDomain[1], currentDomain[1])
- 		];
- 		var xTmp = this.mainChart.xScale(0);
- 		this.mainChart.xScale.domain(newDomain);
- 		this.miniChart.xScale.domain(newDomain);
- 	}
+	if (mustChangeDomain) {
+		var newDomain = [
+			Math.min(newItemsDomain[0], currentDomain[0]),
+			Math.max(newItemsDomain[1], currentDomain[1])
+		];
+		var xTmp = this.mainChart.xScale(0);
+		this.mainChart.xScale.domain(newDomain);
+		this.miniChart.xScale.domain(newDomain);
+	}
 
- 	this.items = this.items.concat(itemsArr);
+	this.items = this.items.concat(itemsArr);
 
-   // update xScale Range
-   this.gridWidth = msToYears(this.mainChart.xScale.domain()[1] - this.mainChart.xScale.domain()[0]) * this.widthOfYear;
-   this.mainChart.xScale.range([this.padding, this.padding + this.gridWidth]);
+	// update xScale Range
+	this.gridWidth = msToYears(this.mainChart.xScale.domain()[1] - this.mainChart.xScale.domain()[0]) * this.widthOfYear;
+	this.mainChart.xScale.range([this.padding, this.padding + this.gridWidth]);
 
-   // update axes
- 	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
-   this.mainChart.gridGroup.call(this.mainChart.gridAxis);
-   this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
+	// update axes
+	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
+	this.mainChart.gridGroup.call(this.mainChart.gridAxis);
+	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
 
- 	if (mustChangeDomain) {
- 		var xChange = this.mainChart.xScale(0) - xTmp;
- 		// move all the existing items over
- 		this.mainChart.svg.itemsGroup.selectAll('g.item')
- 		.each(function(d, i) {
- 			var currentTransform = this.getAttribute('transform');
- 			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
+	if (mustChangeDomain) {
+		var xChange = this.mainChart.xScale(0) - xTmp;
+		// move all the existing items over
+		this.mainChart.svg.itemsGroup.selectAll('g.item')
+		.each(function(d, i) {
+			var currentTransform = this.getAttribute('transform');
+			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
 
- 			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
- 		});
+			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
+		});
 
- 		// update ranges in rows so that things stay correct
- 		for (var i = 0; i < this.rows.length; ++i ) {
- 			for (var j = 0; j < this.rows[i].length; ++j) {
- 				this.rows[i][j].start += xChange;
- 				this.rows[i][j].end += xChange;
- 			}
- 		}
- 	}
+		// update ranges in rows so that things stay correct
+		for (var i = 0; i < this.rows.length; ++i ) {
+			for (var j = 0; j < this.rows[i].length; ++j) {
+				this.rows[i][j].start += xChange;
+				this.rows[i][j].end += xChange;
+			}
+		}
+	}
 
-   // draw the new items
-   this._drawItems();
- };
+	// draw the new items
+	this._drawItems();
+};
 
  /*************************
   ****** Getters/setters
   *************************/
 Object.defineProperty(Timeline.prototype, 'canvasWidth',
- { get: function() { return this.gridWidth + 2*this.padding; }});
+	{ get: function() { return this.gridWidth + 2*this.padding; }});
 Object.defineProperty(Timeline.prototype, 'canvasHeight',
- { get: function() { return this.gridHeight +  2*this.padding + this.axisLabelSize; }});
+	{ get: function() { return this.gridHeight +  2*this.padding + this.axisLabelSize; }});
 Object.defineProperty(Timeline.prototype, 'gridStartPoint',
- { get: function() { return {
-   x: this.padding,
-   y: 0
- }}});
+	{ get: function() { return {
+		x: this.padding,
+		y: 0
+}}});
 
 
 /*************************
@@ -265,7 +265,7 @@ Timeline.prototype.getPointTime = function(d) {
 * @param{HTMLElement} HTMLContainer
 */
 Timeline.prototype.draw = function(HTMLContainer) {
- this.container = HTMLContainer;
+	this.container = HTMLContainer;
 	this.chartContainer = document.createElement('div');
 	this.chartContainer.setAttribute('class', 'main-chart-container');
 	this.container.style.paddingBottom = this.miniChartHeight + 'px';
@@ -285,10 +285,10 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	this.mainChart = {};
 	// the svg
- this.mainChart.svg = d3.select(this.chartContainer).append('svg')
+	this.mainChart.svg = d3.select(this.chartContainer).append('svg')
 		.attr("version", 1.1)
 		.attr("xmlns", "http://www.w3.org/2000/svg")
-   .classed('main-chart', true);
+		.classed('main-chart', true);
 
 	// {svg, xScale, xAxis, xAxisGroup, gridAxis, gridGroup itemsGroup}
 	this.mainChart.xScale = d3.time.scale()
@@ -299,7 +299,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	this.mainChart.xAxis = d3.svg.axis()
 		.scale(this.mainChart.xScale)
 		.ticks(100)
-   .orient("bottom")
+		.orient("bottom")
 		.tickSize(8,4)
 		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
 	  .tickPadding(4);
@@ -312,7 +312,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 		.scale(this.mainChart.xScale)
 		.ticks(100)
 		.tickFormat('')
-   .orient("bottom")
+		.orient("bottom")
 		.tickSize(-1*this.gridHeight, 0);
 	this.mainChart.gridGroup = this.mainChart.svg.append('g')
 		.classed('grid', true)
@@ -342,7 +342,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	this.miniChart.xAxis = d3.svg.axis()
 		.scale(this.miniChart.xScale)
 		.ticks(5)
-   .orient("bottom")
+		.orient("bottom")
 		.tickSize(0,0)
 		.tickFormat(function (d) { return d.getUTCFullYear(); }) // avoid things like -0800
 	  .tickPadding(0);
@@ -379,14 +379,14 @@ Timeline.prototype.draw = function(HTMLContainer) {
  * @private
  */
 Timeline.prototype._drawItems = function(items) {
-  var _this = this;
+	var _this = this;
 
 	// Group
-  var groups = this.mainChart.svg.itemsGroup.selectAll('g')
-    .data(this.items)
-    .enter()
-    .append('g')
-    .attr({
+	var groups = this.mainChart.svg.itemsGroup.selectAll('g')
+		.data(this.items)
+		.enter()
+		.append('g')
+		.attr({
 			class: 'item'
 		});
 
@@ -676,11 +676,11 @@ Timeline.prototype._updateSVGSize = function() {
 	this.mainChart.gridXOffset = xStart;
 
 	width -= xStart; // must be negative, so can only get larger
-  this.mainChart.svg.attr({
-    width: width,
-    height: this.canvasHeight,
-    viewBox: sprintf("%% %% %% %%", xStart, -1*this.gridHeight, width, this.canvasHeight)
-  });
+	this.mainChart.svg.attr({
+		width: width,
+		height: this.canvasHeight,
+		viewBox: sprintf("%% %% %% %%", xStart, -1*this.gridHeight, width, this.canvasHeight)
+	});
 };
 
 /**
