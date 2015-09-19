@@ -9,8 +9,8 @@ angular.module('wikidataTimeline.timelineView', [])
   });
 }])
 
-.controller('TimelineViewCtrl', ['$scope', '$http', '$location', '$wikidata',
-function($scope, $http, $location, $wikidata) {
+.controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager',
+function($scope, $http, $wikidata, $urlParamManager) {
 
   // scope variables
   $scope.queryStates = {
@@ -58,13 +58,14 @@ function($scope, $http, $location, $wikidata) {
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     langs: ['en', 'fr'],
-    widthOfYear: 20
+    widthOfYear: 20,
   };
+  var urlManager = $urlParamManager(defaultOpts);
 
   var dateTimeFormat = d3.time.format("%Y-%m-%d");
 
   // read in URL params
-  var wdq = $location.search().query;
+  var wdq = urlManager.get('query');
   $scope.queryState = $scope.queryStates.WDQ;
 
   $wikidata.WDQ(wdq)
@@ -134,9 +135,9 @@ function($scope, $http, $location, $wikidata) {
 
         ent.trimIncludeOnly({
           claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576', 'P577'],
-          labels:       defaultOpts.langs,
-          descriptions: defaultOpts.langs,
-          sitelinks:    defaultOpts.langs.map(function(l) { return l + "wiki"; })
+          labels:       urlManager.get('langs'),
+          descriptions: urlManager.get('langs'),
+          sitelinks:    urlManager.get('langs').map(function(l) { return l + "wiki"; })
         });
 
         if (!item.start && !item.time) {
@@ -165,6 +166,6 @@ function($scope, $http, $location, $wikidata) {
 
   var items = [];
   var tl = new Timeline(items, {
-  	widthOfYear: $location.search().widthOfYear || 20
+  	widthOfYear: urlManager.get('widthOfYear')
   });
 }]);
