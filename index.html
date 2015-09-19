@@ -2,7 +2,7 @@
 <!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="wikidataTimeline" class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="wikidataTimeline" ng-controller="AppController" class="no-js"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,8 +22,8 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
-<body>
-  <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<body ng-class="{'embedded': embedded}">
+  <nav ng-hide="embedded" class="navbar navbar-default navbar-fixed-top navbar-inverse">
     <div class="container-fluid">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">

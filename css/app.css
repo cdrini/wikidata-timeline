@@ -10,6 +10,10 @@ body {
   padding-top: 50px; /* fixed header */
 }
 
+body.embedded {
+  padding-top: 0;
+}
+
 #main-content, div[ng-view] {
   height: 100%;
   overflow: auto;

@@ -16,4 +16,13 @@ angular.module('wikidataTimeline', [
 
 .config(['$compileProvider', function($compileProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob):/);
+}])
+
+.controller('AppController', ['$scope', '$urlParamManager',
+function($scope, $urlParamManager) {
+  var paramManager = $urlParamManager({
+    embed: false
+  });
+
+  $scope.embedded = paramManager.get('embed');
 }]);
