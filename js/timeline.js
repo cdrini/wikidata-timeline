@@ -667,10 +667,19 @@ Timeline.prototype._drawPointItem = function(group, d, i) {
 };
 
 Timeline.prototype._updateSVGSize = function() {
+	var itemsGroupBBox = this.mainChart.svg.itemsGroup.node().getBBox();
+	var xAxisBBox = this.mainChart.xAxisGroup.node().getBBox();
+
+	var width = Math.max(this.canvasWidth, itemsGroupBBox.width, xAxisBBox.width);
+	var xStart = Math.min(0, itemsGroupBBox.x, xAxisBBox.x);
+
+	this.mainChart.gridXOffset = xStart;
+
+	width -= xStart; // must be negative, so can only get larger
   this.mainChart.svg.attr({
-    width: this.canvasWidth,
+    width: width,
     height: this.canvasHeight,
-    viewBox: sprintf("0 %% %% %%", -1*this.gridHeight, this.canvasWidth, this.canvasHeight)
+    viewBox: sprintf("%% %% %% %%", xStart, -1*this.gridHeight, width, this.canvasHeight)
   });
 };
 
