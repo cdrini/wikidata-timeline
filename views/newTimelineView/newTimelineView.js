@@ -43,6 +43,7 @@ function($scope, $timeout, $location, $wikidata) {
       } else {
         $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
         $location.path('timeline').search({
+          title: $scope.title,
           query: wdq
         });
       }
