@@ -43,7 +43,7 @@ angular.module('wikidataTimeline')
     var val = $location.search()[name];
     var result = val;
 
-    if (val) {
+    if (typeof val != 'undefined') {
       switch(this.types[name]) {
         case ParamTypes.String: return val;
         case ParamTypes.Array: return val.split(',');
