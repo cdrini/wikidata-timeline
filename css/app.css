@@ -102,6 +102,25 @@ body.embedded {
   align-items: center;
 }
 
+.wdt-banner {
+  position: relative;
+  margin: 10px auto;
+}
+.wdt-banner .bg-holder {
+  background: url("../imgs/banner.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.wdt-banner .bg-holder img {
+  width: 100%;
+  min-width: 506px;
+  visibility: hidden;
+  max-width: inherit;
+}
+
 form {
   padding: 14px;
 }
