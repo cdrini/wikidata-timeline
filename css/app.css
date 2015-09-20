@@ -108,7 +108,7 @@ body.embedded {
 }
 .wdt-banner .bg-holder {
   background: url("../imgs/banner.svg");
-  background-size: cover;
+  background-size: auto 100%;
   background-repeat: no-repeat;
   background-position: center;
   max-width: 800px;
