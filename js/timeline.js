@@ -135,10 +135,9 @@ Timeline.prototype.addItems = function(itemsArr) {
 		// move all the existing items over
 		this.mainChart.svg.itemsGroup.selectAll('g.item')
 		.each(function(d, i) {
-			var currentTransform = this.getAttribute('transform');
-			var translation = currentTransform.match(/[-+]?((\d*\.\d+)|\d+)/g);
-
-			this.setAttribute('transform', sprintf('translate(%%, %%)', _this.mainChart.xScale(_this.itemStart(d)), translation[1]));
+			var transform = d3.transform(this.getAttribute('transform'));
+			transform.translate = [_this.mainChart.xScale(_this.itemStart(d)), transform.translate[1]];
+			this.setAttribute('transform', transform.toString());
 		});
 
 		// update ranges in rows so that things stay correct
@@ -745,11 +744,10 @@ Timeline.prototype._resizeHandler = function() {
 	// resize miniChart
 	var oldRange = this.miniChart.xScale.range();
 	var widthChangeRatio = this.mainChart.container.rect.width / oldRange[1];  //FIXME: padding :/
-	this.miniChart.items.attr({
-		transform: this.miniChart.items.attr('transform').replace(/scale\(([-+]?((\d*\.\d+)|\d+))/, function(match, $1) {
-			return 'scale(' + (parseFloat($1) * widthChangeRatio);
-		})
-	});
+
+	var transform = d3.transform(this.miniChart.items.attr('transform'));
+	transform.scale = [transform.scale[0] * widthChangeRatio, 1];
+	this.miniChart.items.attr('transform', transform.toString());
 
 	this.miniChart.xScale
 		.range([this.padding, this.mainChart.container.rect.width]);
