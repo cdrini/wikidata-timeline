@@ -188,7 +188,6 @@ span.item {
 }
 
 /** timeline view **/
-
 .options-bar {
   height: 32px;
   line-height: 32px;
@@ -197,6 +196,14 @@ span.item {
   position: absolute;
   top: 0;
 }
+body.embedded .options-bar {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+body.embedded:hover .options-bar {
+  opacity: 1;
+}
+
 .left-right-bar > .left {
   float: left;
   margin-left: 8px;

@@ -1,6 +1,10 @@
 <div class="timeline-container" style="padding-top: 32px;">
   <div class="options-bar left-right-bar">
     <div class="left">
+      <a ng-show="embedded"
+        target="blank"
+        title="View this timeline at Wikidata Timeline"
+        ng-href="{{unembeddedUrl()}}">Wikidata Timeline</a>
       <!-- <a href="javascript:;">Settings</a> -->
     </div>
     <div class="right">
@@ -8,6 +12,7 @@
         class="embed-link"
         data-toggle="modal" data-target=".embed-modal"
         href="javascript:;">Embed</a>
+      |
       <a role="button"
         class="download-link"
         href-lang="image/svg+xml"

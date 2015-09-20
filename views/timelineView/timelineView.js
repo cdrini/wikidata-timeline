@@ -21,6 +21,11 @@ function($scope, $http, $wikidata, $urlParamManager) {
 
   document.title = urlManager.get('title') + ' Timeline';
   $wikidata.langs = urlManager.get('langs');
+  $scope.unembeddedUrl = function() {
+    return location.href.replace(/([\?\&])embed/, function(match, $1) {
+      return $1 + 'noembed'; // just in case someone did embed=true
+    });
+  };
 
   // scope variables
   $scope.queryStates = {
