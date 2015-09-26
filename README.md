@@ -1,4 +1,4 @@
-![alt text](imgs/banner.svg)
+![banner image](https://rawgit.com/cdrini/wikidata-timeline/master/imgs/banner.svg)
 
 Web app for visualizing Wikidata items in the form of a timeline.
 
