@@ -1,8 +1,8 @@
 # MVP
-* Complete README
+## Done:
 * Available on WD tools for easy access
 * Add to the directory of WD tools
-## Done:
+* Complete README
 * Add license
 * Allow users to embed timeline in their own sites iframes/svg
 * Allow users to download an SVG copy of the timeline
