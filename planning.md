@@ -1,53 +1,55 @@
 # MVP
-* Allow users to embed timeline in their own sites using iframes
-* Allow users to download an SVG copy of the timeline
-* Add license
+* Complete README
 * Available on WD tools for easy access
 * Add to the directory of WD tools
-* Add "Powered by Wikidata" icon
-* Complete README
 ## Done:
+* Add license
+* Allow users to embed timeline in their own sites iframes/svg
+* Allow users to download an SVG copy of the timeline
 * Dynamically load content using WDQ which the user can enter
 * Display a timeline using data from wikidata
 
 # Current Sprint
+* Add option for 'interactive SVG' timeline embed
 ## Done:
+* Smarter item label positioning (not off screen, if possible)
+* Add embed option
+* Add title URL param
+
+# Backlog
+* Add WDQ API examples
+* Add Samples to New page
+* Add UI page to change timeline settings in-place
+* Make progress notification appear as bar instead of hovering overtop. Blocks a considerable chunk of the screen.
+* Visual indicator for 'somevalue' (i.e. unknown end date)
+* Visual indicator for date precision
+* cleanup timeline.js:285
+* Let user choose how pick start/end times (somehow)
+  * example: show US presidents office time :/
+  * maybe `claim[39:11696]{claim[580]}` ? Would have to write a parser though...
+  * maybe `item.claim('39:11696').qualifier(580)` ? This would be easy! Harder for users to pick up, but not *that* hard.
+* Add tooltips
+* Add SPARQL support
+
+## Done:
+* Stack the items so they take less vertical space
+
+# Past Sprints
+
+## 20150907
+* Add point events
+* Add brush control
+  * Timeline example: http://bl.ocks.org/bunkat/2338034
+  * General example: http://bl.ocks.org/mbostock/1667367
+  * Docs: https://github.com/mbostock/d3/wiki/SVG-Controls
+  * Great example on codepen: http://codepen.io/techniq/pen/QbdpmB?editors=001
 * Restructure angular routes (home; no samples)
 * Smarter Axis appearance
 * Add UI page for query entry
 * Trim Wikidata items so we use less memory
 * Better date formatting for BCE years
 * Added toolinfo.json
-
-# Backlog
-* Restructure timeline.js to be more d3-y (i.e. .data())
-* Add WDQ API examples
-* Add Samples to New page
-* Add UI page to change timeline settings in-place
-* Make progress notification appear as bar instead of hovering overtop. Blocks a considerable chunk of the screen.
 * bug: fix shrinking API field in newView causing button to be difficult to press.
-* Visual indicator for 'somevalue' (i.e. unknown end date)
-* Visual indicator for date precision
-* cleanup timeline.js:285
-* Add point events
-* Let user choose how pick start/end times (somehow)
-  * example: show US presidents office time :/
-  * maybe `claim[39:11696]{claim[580]}` ? Would have to write a parser though...
-  * maybe `item.claim('39:11696').qualifier(580)` ? This would be easy! Harder for users to pick up, but not *that* hard.
-* Add embed option (using /:embed route)
-* Add tooltips
-* Add SPARQL support
-* Add title URL param
-* Add brush control
-  * Timeline example: http://bl.ocks.org/bunkat/2338034
-  * General example: http://bl.ocks.org/mbostock/1667367
-  * Docs: https://github.com/mbostock/d3/wiki/SVG-Controls
-  * Great example on codepen: http://codepen.io/techniq/pen/QbdpmB?editors=001
-
-## Done:
-* Stack the items so they take less vertical space
-
-# Past Sprints
 ## 20150831
 * Add visual indicator (with pause/cancel options) as pages loaded from Wikidata
 * Use bootstrap
