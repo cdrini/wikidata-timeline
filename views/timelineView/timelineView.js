@@ -19,7 +19,8 @@ function($scope, $http, $wikidata, $urlParamManager) {
   };
   var urlManager = $urlParamManager(defaultOpts);
 
-  document.title = urlManager.get('title') + ' Timeline';
+  $scope.title = urlManager.get('title') + ' Timeline'
+  document.title = $scope.title;
   $wikidata.langs = urlManager.get('langs');
   $scope.unembeddedUrl = function() {
     return location.href.replace(/([\?\&])embed/, function(match, $1) {
