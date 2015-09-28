@@ -22,6 +22,7 @@ angular.module('wikidataTimeline', [
 .config(['AnalyticsProvider', function ($analyticsProvider) {
   $analyticsProvider.setAccount('UA-12233698-3');
 }])
+.run(['Analytics', function (Analytics) {}])
 
 .controller('AppController', ['$scope', '$urlParamManager',
 function($scope, $urlParamManager) {
