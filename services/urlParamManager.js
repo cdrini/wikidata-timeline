@@ -41,28 +41,49 @@ angular.module('wikidataTimeline')
     }
   }
 
+  /**
+   * @param {string} val the unparsed value of the urlParam
+   * @param {ParamTypes} type the type of the param
+   * @return {string|array<string>|Boolean|Object}
+   */
+  URLManager._parseParam = function(val, type) {
+    switch(type) {
+      case ParamTypes.String: return val;
+      case ParamTypes.Array: return val.split(',');
+      case ParamTypes.Boolean: return val;
+      case ParamTypes.Object: {
+        try {
+          return JSON.parse(val)
+        } catch(e) {
+          throw "ERROR: invalid JSON as URL Param Object";
+        }
+      }
+      case ParamTypes.Float: return parseFloat(val);
+    }
+  };
+
   URLManager.prototype.get = function(name) {
     var val = $location.search()[name];
     var result = val;
 
     if (typeof val != 'undefined') {
-      switch(this.types[name]) {
-        case ParamTypes.String: return val;
-        case ParamTypes.Array: return val.split(',');
-        case ParamTypes.Boolean: return val;
-        case ParamTypes.Object: {
-          try {
-            return JSON.parse(val)
-          } catch(e) {
-            throw "ERROR: invalid JSON as URL Param Object";
-          }
-        }
-        case ParamTypes.Float: return parseFloat(val);
-      }
+      return URLManager._parseParam(val, this.types[name]);
     }
     else {
       return this.definedParams[name];
     }
+  };
+
+  URLManager.prototype.getUserSpecified = function() {
+    var params = $location.search();
+    var result = {};
+    for(var name in params) {
+      if (angular.isDefined(this.definedParams[name])) {
+        result[name] = URLManager._parseParam(params[name], this.types[name]);
+      }
+    }
+
+    return result;
   };
 
   var api = function(defn) {
