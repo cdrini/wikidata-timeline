@@ -20,7 +20,9 @@ angular.module('wikidataTimeline', [
 }])
 
 .config(['AnalyticsProvider', function ($analyticsProvider) {
-  $analyticsProvider.setAccount('UA-12233698-3');
+  $analyticsProvider
+    .setAccount('UA-12233698-3')
+    .trackPages(false);
 }])
 .run(['Analytics', function (Analytics) {}])
 

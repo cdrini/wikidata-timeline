@@ -9,8 +9,8 @@ angular.module('wikidataTimeline.timelineView', [])
   });
 }])
 
-.controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager',
-function($scope, $http, $wikidata, $urlParamManager) {
+.controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager', 'Analytics',
+function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     langs: ['en', 'fr'],
@@ -18,9 +18,14 @@ function($scope, $http, $wikidata, $urlParamManager) {
     title: 'Untitled'
   };
   var urlManager = $urlParamManager(defaultOpts);
-
   $scope.title = urlManager.get('title') + ' Timeline'
   document.title = $scope.title;
+
+  $analytics
+    .trackPage('/timeline', document.title, {
+      dimension1: urlManager.get('query')
+  });
+
   $wikidata.langs = urlManager.get('langs');
   $scope.unembeddedUrl = function() {
     return location.href.replace(/([\?\&])embed/, function(match, $1) {

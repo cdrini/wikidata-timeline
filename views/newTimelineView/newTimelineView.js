@@ -9,8 +9,10 @@ angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
   });
 }])
 
-.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata',
-function($scope, $timeout, $location, $wikidata) {
+.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics',
+function($scope, $timeout, $location, $wikidata, $analytics) {
+  $analytics.trackPage('/new', document.title);
+
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
   $scope.contextualDocsEnabled = true;
