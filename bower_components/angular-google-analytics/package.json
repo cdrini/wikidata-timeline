@@ -1,0 +1,44 @@
+{
+  "name": "angular-google-analytics",
+  "description": "Angular Google Analytics - Easy tracking for your AngularJS application",
+  "version": "1.1.0",
+  "homepage": "http://github.com/revolunet/angular-google-analytics",
+  "author": "Julien Bouquillon <julien@revolunet.com> (https://github.com/revolunet)",
+  "contributors": [
+    "Julien Bouquillon (https://github.com/revolunet)",
+    "Justin Saunders (https://github.com/justinsa)",
+    "Chris Esplin (https://github.com/deltaepsilon)",
+    "Adam Misiorny (https://github.com/adam187)"
+  ],
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/revolunet/angular-google-analytics.git"
+  },
+  "engines": {
+    "node": ">= 0.8"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://revolunet.mit-license.org"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "*",
+    "karma": "*",
+    "karma-chrome-launcher": "*",
+    "karma-jasmine": "*",
+    "grunt": ">=0.4.0",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-release": "~0.3.3",
+    "grunt-conventional-changelog": "0.0.12"
+  },
+  "scripts": {
+    "test": "karma start test/karma.conf.js --single-run --browsers Chrome",
+    "test-server": "karma start test/karma.conf.js --browsers Chrome"
+  }
+}

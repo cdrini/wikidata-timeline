@@ -5,7 +5,8 @@ angular.module('wikidataTimeline', [
   'ngRoute',
   'wikidataTimeline.newTimelineView',
   'wikidataTimeline.timelineView',
-  'wikidataTimeline.staticSampleView'
+  'wikidataTimeline.staticSampleView',
+  'angular-google-analytics'
 ])
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({
@@ -16,6 +17,10 @@ angular.module('wikidataTimeline', [
 
 .config(['$compileProvider', function($compileProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob):/);
+}])
+
+.config(['AnalyticsProvider', function ($analyticsProvider) {
+  $analyticsProvider.setAccount('UA-12233698-3');
 }])
 
 .controller('AppController', ['$scope', '$urlParamManager',
