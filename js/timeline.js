@@ -60,13 +60,13 @@ function Timeline(items, opts) {
 	this.items = items;
 	opts = opts || {};
 
-	                     // param name                      // default value
+	                     // param name                   // default value
 	setParam(this, opts, 'widthOfYear',                     20); //px
 	setParam(this, opts, 'itemHeight',                      20); //px
 	setParam(this, opts, 'itemSpacing',                      2); //px
 	setParam(this, opts, 'startDate',                        0);
-	setParam(this, opts, 'endDate',     (new Date()).getTime()); // present
-	setParam(this, opts, 'padding',                          5);
+	setParam(this, opts, 'endDate',     (new Date()).getTime()); //present
+	setParam(this, opts, 'padding',                         10); //px
 	setParam(this, opts, 'axisLabelSize',                   20); //px
 	setParam(this, opts, 'miniChartHeight',                 80); //px
 
@@ -123,7 +123,7 @@ Timeline.prototype.addItems = function(itemsArr) {
 
 	// update xScale Range
 	this.mainChart.grid.width = msToYears(this.mainChart.xScale.domain()[1] - this.mainChart.xScale.domain()[0]) * this.widthOfYear;
-	this.mainChart.xScale.range([this.padding, this.padding + this.mainChart.grid.width]);
+	this.mainChart.xScale.range([0, this.mainChart.grid.width]);
 
 	// update axes
 	this.mainChart.xAxisGroup.call(this.mainChart.xAxis);
@@ -152,16 +152,6 @@ Timeline.prototype.addItems = function(itemsArr) {
 	// draw the new items
 	this._drawItems();
 };
-
- /*************************
-  ****** Getters/setters
-  *************************/
-Object.defineProperty(Timeline.prototype, 'gridStartPoint',
-	{ get: function() { return {
-		x: this.padding,
-		y: 0
-}}});
-
 
 /*************************
  ****** Timeline Items
@@ -275,12 +265,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 	// { axis, width, height }
 	this.mainChart.grid = {};
 	this.mainChart.grid.width = msToYears(timeMax - timeMin) * this.widthOfYear;
-	Object.defineProperty(this.mainChart, 'width', { get: function() {
-		return this.grid.width + 2*_this.padding; }});
-
 	this.mainChart.grid.height = 0;
-	Object.defineProperty(this.mainChart, 'height', { get: function() {
-		return this.grid.height +  2*_this.padding + _this.axisLabelSize; }});
 
 	// chart container
 	this.mainChart.container = d3.select(this.container).append('div')
@@ -295,7 +280,7 @@ Timeline.prototype.draw = function(HTMLContainer) {
 
 	this.mainChart.xScale = d3.time.scale()
 		.domain([timeMin, timeMax])
-		.range([this.padding, this.padding + this.mainChart.grid.width]);
+		.range([0, this.mainChart.grid.width]);
 
 	// x axis
 	this.mainChart.xAxis = d3.svg.axis()
@@ -336,7 +321,6 @@ Timeline.prototype.draw = function(HTMLContainer) {
 			width: '100%',
 			height: _this.miniChartHeight
 		});
-	this.miniChart.svg.itemsGroup = this.miniChart.svg.append('g').classed('items', true);
 
 	this.miniChart.xScale = d3.time.scale()
 		.domain([timeMin, timeMax])
@@ -402,7 +386,7 @@ Timeline.prototype._drawItems = function(items) {
 
 	// position the items
 	groups.attr('transform',  function(d, i) {
-		var defaultY = _this.gridStartPoint.y - (_this.nextRow+1) * _this.itemHeight;
+		var defaultY = - (_this.nextRow+1) * _this.itemHeight;
 		var finalY = defaultY;
 		var bbox = this.getBBox();
 
@@ -450,7 +434,7 @@ Timeline.prototype._drawItems = function(items) {
 
 			if (rowWithRoom != -1) {
 				// success! put it here
-				finalY = _this.gridStartPoint.y - (rowWithRoom+1) * _this.itemHeight;
+				finalY = - (rowWithRoom+1) * _this.itemHeight;
 
 				// add it to row (in correct position)
 				_this.rows[rowWithRoom] = _this.rows[rowWithRoom].slice(0, indexInRow)
@@ -487,7 +471,6 @@ Timeline.prototype._drawItems = function(items) {
 	// the height has probably changed because of stacking; should shrink doc
 	var bbox = this.mainChart.svg.itemsGroup.node().getBBox();
 	var axisTicks = Math.floor(bbox.width / 100);
-	console.log(axisTicks);
 	this.mainChart.grid.height = bbox.height;
 	this.mainChart.grid.axis.innerTickSize(-1*this.mainChart.grid.height); // FIXME: put me in better place T_T
 	this._updateSVGSize();
@@ -669,19 +652,36 @@ Timeline.prototype._drawPointItem = function(group, d, i) {
 };
 
 Timeline.prototype._updateSVGSize = function() {
-	var itemsGroupBBox = this.mainChart.svg.itemsGroup.node().getBBox();
-	var xAxisBBox = this.mainChart.xAxisGroup.node().getBBox();
+	var componentBBoxes = [
+		this.mainChart.svg.itemsGroup.node().getBBox(),
+		this.mainChart.xAxisGroup.node().getBBox()
+	];
 
-	var width = Math.max(this.mainChart.width, itemsGroupBBox.width, xAxisBBox.width);
-	var xStart = Math.min(0, itemsGroupBBox.x, xAxisBBox.x);
+	var bounds = {
+		left:   Infinity,
+		right:  -Infinity,
+		top:    Infinity,
+		bottom: -Infinity
+	};
+	for(var i = 0; i < componentBBoxes.length; ++i) {
+		var bbox = componentBBoxes[i];
+		bounds.left   = Math.min(bounds.left, bbox.x);
+		bounds.right  = Math.max(bounds.right, bbox.x + bbox.width);
+		bounds.top    = Math.min(bounds.top, bbox.y);
+		bounds.bottom = Math.max(bounds.bottom, bbox.y + bbox.height);
+	}
 
-	this.mainChart.gridXOffset = xStart;
+	var width  = bounds.right - bounds.left + 2*this.padding;
+	var height = bounds.bottom - bounds.top + 2*this.padding;
 
-	width -= xStart; // must be negative, so can only get larger
 	this.mainChart.svg.attr({
 		width: width,
-		height: this.mainChart.height,
-		viewBox: sprintf("%% %% %% %%", xStart, -1*this.mainChart.grid.height, width, this.mainChart.height)
+		height: height,
+		viewBox: sprintf("%% %% %% %%",
+			bounds.left - this.padding,
+			bounds.top - this.padding,
+			width,
+			height)
 	});
 };
 
@@ -698,9 +698,9 @@ Timeline.prototype._setupViewfieldRectDrag = function() {
 		_this.miniChart.svg.on('mousemove', viewfieldRectDragMain);
 		_this.miniChart.svg.on('touchmove', viewfieldRectDragMain);
 
-		_this.miniChart.svg.on('mouseup', endViewfieldRectDrag);
+		_this.miniChart.svg.on('mouseup',    endViewfieldRectDrag);
 		_this.miniChart.svg.on('mouseleave', endViewfieldRectDrag);
-		_this.miniChart.svg.on('touchend', endViewfieldRectDrag);
+		_this.miniChart.svg.on('touchend',   endViewfieldRectDrag);
 	};
 	var endViewfieldRectDrag = function() {
 		_this.miniChart.svg.on('mousemove', null);
@@ -750,7 +750,7 @@ Timeline.prototype._resizeHandler = function() {
 	this.miniChart.items.attr('transform', transform.toString());
 
 	this.miniChart.xScale
-		.range([this.padding, this.mainChart.container.rect.width]);
+		.range([0, this.mainChart.container.rect.width]);
 	this.miniChart.xAxisGroup.call(this.miniChart.xAxis);
 };
 
