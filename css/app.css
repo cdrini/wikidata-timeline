@@ -158,6 +158,10 @@ form.new-view {
   margin: 0 auto;
 }
 
+.wdq-docs {
+  max-height: 280px;
+  overflow: auto;
+}
 .wdq-docs tt {
 	margin:2px;
 	padding:1px;

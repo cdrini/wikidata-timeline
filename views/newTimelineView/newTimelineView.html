@@ -16,9 +16,9 @@
     <div class="panel-footer">
 
       <div class="wdq-docs"
-        ng-show="showAllDocs || contextualDocsEnabled"
+        ng-show="showAllDocs || (contextualDocsEnabled && activeToken != '')"
         ng-class="{'contextual-only': !showAllWDQDocs && contextualDocsEnabled }"
-        style="margin-top: 6px;">
+        style="margin-bottom: 6px;">
 
         <ul>
           <li ng-show="showAllWDQDocs || activeToken == 'claim'">
