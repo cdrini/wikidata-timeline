@@ -9,12 +9,15 @@ angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
   });
 }])
 
-.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics',
-function($scope, $timeout, $location, $wikidata, $analytics) {
+.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics', '$userSettings',
+function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
   $analytics.trackPage('/new', document.title);
 
   // initialize bootstrap tooltips :/
   $('[data-toggle="tooltip"]').tooltip()
+
+  // disclaimer
+  $scope.$userSettings = $userSettings;
 
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;

@@ -30,6 +30,12 @@ body.embedded {
   border-color: #3A3A3A;
 }
 
+.alert-info.plain {
+  background-color: #F7F7F7;
+  border: 1px solid #DDD;
+  color: #555;
+}
+
 .notification-container {
   position: fixed;
   width: 100%;

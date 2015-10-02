@@ -200,6 +200,13 @@
   </button>
 </form>
 
-<small class="disclaimer">
-  This site was made by <a href="https://github.com/cdrini">Drini Cami</a>. It uses <a href="https://www.google.com/intl/en/analytics/learn/privacy.html">Google Analytics</a> to find out how many people visit it and <span data-toggle="tooltip" title="Outside of Google Analytics' default stuff, I also keep track of the queries used and how often features such as 'embed' or 'download' are used.">some related information</span>. You can opt out of Google Analytics by <a href="https://tools.google.com/dlpage/gaoptout">installing a browser add-on</a>.
-</small>
+<div class="disclaimer alert alert-info alert-dismissible plain" role="alert"
+  ng-hide="$userSettings.getItem('disclaimerDismissed')">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+    ng-click="$userSettings.setItem('disclaimerDismissed', true)">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <small>
+    This site was made by <a href="https://github.com/cdrini">Drini Cami</a>. It uses <a href="https://www.google.com/intl/en/analytics/learn/privacy.html">Google Analytics</a> to find out how many people visit it and <span data-toggle="tooltip" title="Outside of Google Analytics' default stuff, I also keep track of the queries used and how often features such as 'embed' or 'download' are used.">some related information</span>. You can opt out of Google Analytics by <a href="https://tools.google.com/dlpage/gaoptout">installing a browser add-on</a>.
+  </small>
+</div>
