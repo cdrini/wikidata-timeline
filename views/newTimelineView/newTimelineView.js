@@ -66,8 +66,8 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
     matchBrackets: true
   });
 
-  var updateTokenOnChange = function(cm, changeObj) {
-    var token = cm.getTokenAt(changeObj.to);
+  var getTokenUnderCursor = function(cm) {
+    var token = cm.getTokenAt(cm.getCursor());
 
     if (token.type == 'keyword') {
       $scope.activeToken = token.string.toLowerCase();
@@ -78,7 +78,8 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
     }
   };
 
-  queryEditor.on('change', updateTokenOnChange);
+  queryEditor.on('change', getTokenUnderCursor);
+  queryEditor.on('cursorActivity', getTokenUnderCursor);
 
   $('form.new-view').on('keyup', function(ev) {
     // submit on ctrl enter
