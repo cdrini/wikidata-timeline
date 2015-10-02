@@ -10,9 +10,26 @@
   <input name="title" class="form-control" placeholder="Untitled" ng-model="title" ng-value="urlManager.get('title')"/>
 
   <label for="query">Query:</label>
-  <div class="panel panel-default">
+  <div class="panel panel-default query-panel">
     <div class="panel-body">
       <div class="query-editor"></div>
+      <div class="dropdown sample-queries">
+        <a class="collapse-toggle"
+           data-toggle="collapse"
+           data-target=".sample-queries > .collapse"
+           href="javascript:;"
+           role="button"
+           aria-haspopup="true"
+           aria-expanded="false">
+          Samples <span class="caret"></span>
+        </a>
+        <div class="collapse items">
+          <a ng-repeat="s in samples" ng-href="#new?{{s.urlComponents}}">
+            {{s.title}}
+            <code>{{s.query}}</code>
+          </a>
+        </div>
+      </div>
     </div>
     <div class="panel-footer">
 

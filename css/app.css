@@ -162,6 +162,50 @@ button[type="submit"] {
   height: auto;
 }
 
+.query-panel .panel-body {
+  padding: 5px;
+}
+
+.query-panel .query-editor {
+  margin: 5px;
+  margin-bottom: -14px;
+}
+
+.query-panel .sample-queries {
+  text-align: right;
+}
+
+.query-panel .sample-queries .collapse-toggle {
+  font-size: 80%;
+}
+
+.query-panel .sample-queries .items {
+  text-align: left;
+  
+  border-top: 1px solid #ddd;
+}
+
+.query-panel .sample-queries .items a {
+  display: block;
+  color: #555;
+  
+  border-bottom: 1px solid #ddd;
+  padding: 2px 8px;
+  font-size: 90%;
+}
+
+.query-panel .sample-queries .items a:hover {
+  text-decoration: none;
+  background-color: #EEE;
+}
+
+.query-panel .sample-queries .items a code {
+  color: #555;
+  display: block;
+  background: none;
+  padding: 0;
+}
+
 form.new-view {
   width:100%;
   max-width: 600px;
