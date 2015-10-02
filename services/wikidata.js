@@ -2,7 +2,7 @@ angular.module('wikidataTimeline')
 
 .factory('$wikidata', ['$http', '$q', function($http, $q) {
   var WD = {};
-  WD.langs = ['en', 'fr'];
+  WD.languages = ['en', 'fr'];
 
   /**
    * converts a wikidata datetime to a JS Date
@@ -84,7 +84,7 @@ angular.module('wikidataTimeline')
    */
   WD.Entity.prototype.getLabel = function(langs, returnObject) {
     if (typeof langs == 'undefined') {
-      langs = WD.langs;
+      langs = WD.languages;
     }
     if(langs instanceof String) {
   		langs = [ langs ];
@@ -127,7 +127,7 @@ angular.module('wikidataTimeline')
    */
   WD.Entity.prototype.getWikipediaSitelink = function(langs, returnObject) {
     if (typeof langs == 'undefined') {
-      langs = WD.langs;
+      langs = WD.languages;
     }
     if (langs instanceof String) {
   		langs = [ langs ];
@@ -209,7 +209,7 @@ angular.module('wikidataTimeline')
    */
   WD.WDQ = function(query, opts) {
     opts = opts || {};
-    
+
   	return $http({
       url: 'https://wdq.wmflabs.org/api',
       params: angular.extend({
@@ -301,7 +301,7 @@ angular.module('wikidataTimeline')
           params: {
             action: 'wbgetentities',
             ids: idChunks.shift().join('|'),
-            languages: WD.langs.join('|'),
+            languages: WD.languages.join('|'),
             props: props.join('|'),
             callback: 'JSON_CALLBACK',
             format: 'json',

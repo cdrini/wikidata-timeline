@@ -18,7 +18,7 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
 
   // disclaimer
   $scope.$userSettings = $userSettings;
-  $scope.langs = 'en,fr';
+  $scope.languages = 'en,fr';
 
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
@@ -54,7 +54,7 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
         $location.path('timeline').search({
           title: $scope.title,
           query: wdq,
-          langs: $scope.langs
+          languages: $scope.languages
         });
       }
     });

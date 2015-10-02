@@ -13,7 +13,7 @@ angular.module('wikidataTimeline.timelineView', [])
 function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
-    langs: ['en', 'fr'],
+    languages: ['en', 'fr'],
     widthOfYear: 20,
     title: 'Untitled'
   };
@@ -26,7 +26,7 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
       dimension1: urlManager.get('query')
   });
 
-  $wikidata.langs = urlManager.get('langs');
+  $wikidata.languages = urlManager.get('languages');
   $scope.unembeddedUrl = function() {
     return location.href.replace(/([\?\&])embed/, function(match, $1) {
       return $1 + 'noembed'; // just in case someone did embed=true
@@ -154,9 +154,9 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
 
         ent.trimIncludeOnly({
           claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576', 'P577'],
-          labels:       urlManager.get('langs'),
-          descriptions: urlManager.get('langs'),
-          sitelinks:    urlManager.get('langs').map(function(l) { return l + "wiki"; })
+          labels:       urlManager.get('languages'),
+          descriptions: urlManager.get('languages'),
+          sitelinks:    urlManager.get('languages').map(function(l) { return l + "wiki"; })
         });
 
         if (!item.start && !item.time) {
