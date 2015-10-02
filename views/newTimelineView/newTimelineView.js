@@ -13,6 +13,9 @@ angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
 function($scope, $timeout, $location, $wikidata, $analytics) {
   $analytics.trackPage('/new', document.title);
 
+  // initialize bootstrap tooltips :/
+  $('[data-toggle="tooltip"]').tooltip()
+
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
   $scope.contextualDocsEnabled = true;

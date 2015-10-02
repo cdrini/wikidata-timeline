@@ -20,7 +20,11 @@ body.embedded {
   position: relative;
 }
 
-.alert-info {
+.alert {
+  margin: 10px;
+}
+
+.alert-info.dark {
   color: #B5B5B5;
   background-color: rgba(20, 20, 20, 0.95);
   border-color: #3A3A3A;
@@ -223,4 +227,16 @@ body.embedded:hover .options-bar {
 
 .embed-modal .embed-preview {
   overflow:auto;
+}
+
+.disclaimer {
+  display: block;
+  max-width: 660px;
+  margin: 10px auto;
+  text-align: center;
+}
+
+span[data-toggle="tooltip"] {
+  border-bottom: 1px dotted #999;
+  transition: border-style 0.2s;
 }
