@@ -1,0 +1,6 @@
+<button
+  type="button"
+  class="help-icon btn btn-default"
+  ng-class="{'active': quickHelpActive}"
+  ng-click="quickHelpActive = !quickHelpActive">?</button>
+<div class="help-message" ng-show="quickHelpActive" ng-transclude></div>

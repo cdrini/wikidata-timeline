@@ -246,3 +246,15 @@ span[data-toggle="tooltip"] {
   border-bottom: 1px dotted #999;
   transition: border-style 0.2s;
 }
+
+wdt-help {
+
+}
+.help-icon {
+  display: inline-block;
+
+  padding: 0 4px;
+  font-size: 14px;
+  line-height: 15px;
+  border-radius: 20px;
+}
