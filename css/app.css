@@ -171,6 +171,7 @@ form.new-view {
 .wdq-docs {
   max-height: 280px;
   overflow: auto;
+  margin-top: 6px;
 }
 .wdq-docs tt {
 	margin:2px;
@@ -195,7 +196,6 @@ span.item {
 
 .wdq-docs.contextual-only > ul {
   padding: 0;
-  margin-top: 10px;
 }
 .wdq-docs.contextual-only > ul > li {
   list-style: none;
