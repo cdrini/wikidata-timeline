@@ -158,7 +158,7 @@ button[type="submit"] {
 
 /* NEW VIEW */
 
-.query-editor+.CodeMirror {
+.query-editor .CodeMirror {
   height: auto;
 }
 

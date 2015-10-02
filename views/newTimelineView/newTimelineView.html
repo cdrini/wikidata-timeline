@@ -7,12 +7,12 @@
 <form role="form" class="new-view">
   <label for="title">Title:</label>
   <wdt-help>Adding a title makes it easier to recognize old timeline's in your browser's history.</wdt-help>
-  <input name="title" class="form-control" placeholder="Untitled" ng-model="title"/>
+  <input name="title" class="form-control" placeholder="Untitled" ng-model="title" ng-value="urlManager.get('title')"/>
 
   <label for="query">Query:</label>
   <div class="panel panel-default">
     <div class="panel-body">
-      <textarea name="query" class="query-editor form-control"></textarea>
+      <div class="query-editor"></div>
     </div>
     <div class="panel-footer">
 

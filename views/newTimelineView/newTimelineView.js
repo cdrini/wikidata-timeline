@@ -9,8 +9,8 @@ angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
   });
 }])
 
-.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics', '$userSettings',
-function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
+.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics', '$userSettings', '$urlParamManager',
+function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $urlParamManager) {
   $analytics.trackPage('/new', document.title);
 
   // initialize bootstrap tooltips :/
@@ -18,7 +18,17 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
 
   // disclaimer
   $scope.$userSettings = $userSettings;
-  $scope.languages = 'en,fr';
+
+  // URLParam setup
+  var defaultValues = {
+    query: '',
+    languages:   ['en', 'fr'],
+    widthOfYear: 20,
+    title:       ''
+  };
+  var urlManager = $urlParamManager(defaultValues);
+  $scope.urlManager = urlManager;
+  $scope.languages = urlManager.get('languages') ? urlManager.get('languages').join(',') : 'en,fr';
 
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
@@ -60,10 +70,11 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
     });
   }
 
-  var queryEditor = CodeMirror.fromTextArea($('.query-editor')[0], {
+  var queryEditor = CodeMirror($('.query-editor')[0], {
     viewportMargin: Infinity,
     lineWrapping: true,
-    matchBrackets: true
+    matchBrackets: true,
+    value: urlManager.get('query')
   });
 
   var getTokenUnderCursor = function(cm) {
