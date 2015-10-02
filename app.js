@@ -26,11 +26,13 @@ angular.module('wikidataTimeline', [
 }])
 .run(['Analytics', function (Analytics) {}])
 
-.controller('AppController', ['$scope', '$urlParamManager',
-function($scope, $urlParamManager) {
+.controller('AppController', ['$scope', '$urlParamManager', '$wdqSamples',
+function($scope, $urlParamManager, $wdqSamples) {
   var paramManager = $urlParamManager({
     embed: false
   });
 
   $scope.embedded = paramManager.get('embed');
+
+  $scope.samples = $wdqSamples.getSamples();
 }]);
