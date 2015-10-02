@@ -18,6 +18,7 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
 
   // disclaimer
   $scope.$userSettings = $userSettings;
+  $scope.langs = 'en,fr';
 
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
@@ -52,7 +53,8 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings) {
         $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
         $location.path('timeline').search({
           title: $scope.title,
-          query: wdq
+          query: wdq,
+          langs: $scope.langs
         });
       }
     });
