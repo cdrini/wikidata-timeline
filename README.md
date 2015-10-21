@@ -10,6 +10,7 @@ Developed on Chrome 44+. Firefox/IE also tested to be stable, but might have som
 It uses the following properties for determining time:
 * startTime: 'P577', 'P580', 'P569', 'P571'
 * endTime: 'P577', 'P582', 'P570', 'P576'
+
 If a startTime is present without an endTime, assumes endTime is the present or start (see URL Params). If startTime = endTime, displayed as a point
 Performs rounding when endtime is 'someValue'.
 
