@@ -67,7 +67,8 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
         $location.path('timeline').search({
           title: $scope.title,
           query: wdq,
-          languages: $scope.languages
+          languages: $scope.languages,
+          defaultEndTime: $scope.defaultEndTime
         });
       }
     });
