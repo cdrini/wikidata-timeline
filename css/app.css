@@ -135,6 +135,11 @@ form {
   padding: 14px;
 }
 
+label {
+  margin-top: 16px;
+  margin-bottom: 3px;
+}
+
 a:not([disabled]) {
   cursor: pointer;
 }
@@ -181,14 +186,14 @@ button[type="submit"] {
 
 .query-panel .sample-queries .items {
   text-align: left;
-  
+
   border-top: 1px solid #ddd;
 }
 
 .query-panel .sample-queries .items a {
   display: block;
   color: #555;
-  
+
   border-bottom: 1px solid #ddd;
   padding: 2px 8px;
   font-size: 90%;
