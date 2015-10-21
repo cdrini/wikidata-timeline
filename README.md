@@ -8,10 +8,9 @@ Developed on Chrome 44+. Firefox/IE also tested to be stable, but might have som
 
 
 It uses the following properties for determining time:
-* startTime: 'P580', 'P569', 'P571'
-* endTime: 'P582', 'P570', 'P576'
-* pointInTime: 'P577'
-If a startTime is present without an endTime, assumes endTime is the present.
+* startTime: 'P577', 'P580', 'P569', 'P571'
+* endTime: 'P577', 'P582', 'P570', 'P576'
+If a startTime is present without an endTime, assumes endTime is the present or start (see URL Params). If startTime = endTime, displayed as a point
 Performs rounding when endtime is 'someValue'.
 
 
@@ -21,7 +20,7 @@ Valid on the [timeline view](https://tools.wmflabs.org/wikidata-timeline/#/timel
 
 Name                 | Type        | Default         | Description
 -------------------- | ----------- | --------------- | -------------
-defaultEndtime       | String      | present         | One of "present" or "start".<br>(useful for resolving ``P571(inception)`` ambiguity)
+defaultEndTime       | String      | now             | One of "now" or "start".<br>(useful for resolving ``P571(inception)`` ambiguity)
 embed                | Boolean     | true            | If true, optimizes view for embedding in an iframe
 languages            | CSV         | en,fr           | The languages to use. If no label in the given lang(s), stays blank
 query                | WDQ         |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help

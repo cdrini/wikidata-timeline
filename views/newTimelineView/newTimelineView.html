@@ -204,7 +204,7 @@
   <wdt-help>A CSV list of language codes. If first fails, tries next ones. Click <a target="blank" href="https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities">here</a> for a list of all languages.</wdt-help>
   <input name="languages" class="form-control" ng-model="languages" />
 
-  <label for="defaultEndtime">Default Endtime:</label>
+  <label for="defaultEndTime">Default EndTime:</label>
   <wdt-help>
     What to do if no endtime is present.
     <ul>
@@ -212,7 +212,7 @@
       <li>Item start: defaualt to the item's start. This will display the item as a point.</li>
     </ul>
   </wdt-help>
-  <select class="form-control" name="defaultEndtime" ng-value="urlManager.get('defaultEndtime')" ng-model="defaultEndtime">
+  <select class="form-control" name="defaultEndTime" ng-value="urlManager.get('defaultEndTime')" ng-model="defaultEndTime">
     <option value="now">Now</option>
     <option value="start">Item Start</option>
   </select>

@@ -45,8 +45,7 @@ function sprintf(str) {
 
 /**
  * @class
- * @param {Array<Object>} items items to plot on timeline. Objects must have name, and
- * start, defined. 'end' is optional; if undefined, assumed the present.
+ * @param {Array<Object>} items items to plot on timeline. Objects must have name, start, and end defined.
  * @param {Object} opts config object
  *   @config {Integer}   [widthOfYear]
  *   @config {Integer}   [itemHeight]
@@ -203,7 +202,7 @@ Timeline.prototype.getStartTime = function(d) {
 
 /**
  * @private
- * returns the end timestamp, or, if its undefined, present timestamp
+ * returns the end timestamp
  * @param {object} d
  * @returns {timestamp}
  */
