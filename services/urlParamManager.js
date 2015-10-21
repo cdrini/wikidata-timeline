@@ -27,7 +27,7 @@ angular.module('wikidataTimeline')
       if (val instanceof Array) {
         type = ParamTypes.Array;
       }
-      else if (val instanceof Boolean) {
+      else if (typeof val == "boolean") {
         type = ParamTypes.Boolean;
       }
       else if (val instanceof Object) {
@@ -50,7 +50,7 @@ angular.module('wikidataTimeline')
     switch(type) {
       case ParamTypes.String: return val;
       case ParamTypes.Array: return val.split(',');
-      case ParamTypes.Boolean: return val;
+      case ParamTypes.Boolean: return val !== 'false';
       case ParamTypes.Object: {
         try {
           return JSON.parse(val)
