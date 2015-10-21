@@ -119,9 +119,8 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
         link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
 
         var tmpItem = {
-          start: ent.getFirstClaim('P580', 'P569', 'P571'),
-          end:   ent.getFirstClaim('P582', 'P570', 'P576'),
-          time:  ent.getFirstClaim('P577')
+          start: ent.getFirstClaim('P577', 'P580', 'P569', 'P571'),
+          end:   ent.getFirstClaim('P577', 'P582', 'P570', 'P576')
         };
 
         var item = {
@@ -146,10 +145,9 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
           }
         }
 
-        if (tmpItem.time) {
-          if (tmpItem.time[0].mainsnak.snaktype == 'value') {
-            item.time = $wikidata.parseDateTime(tmpItem.time[0].mainsnak.datavalue.value.time);
-          }
+        if(item.start && !item.end) {
+          // set to current date
+          item.end = new Date();
         }
 
         ent.trimIncludeOnly({
@@ -159,7 +157,7 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
           sitelinks:    urlManager.get('languages').map(function(l) { return l + "wiki"; })
         });
 
-        if (!item.start && !item.time) {
+        if (!item.start || !item.end) {
           $scope.hiddenEntities.push(ent);
         } else {
           $scope.shownEntities.push(ent);

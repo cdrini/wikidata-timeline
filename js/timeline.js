@@ -164,31 +164,20 @@ Timeline.ItemTypes = {
 };
 
 Timeline.prototype.itemType = function(d) {
-	if (this.getStartTime(d)) {
+	if (this.getStartTime(d) !== this.getEndTime(d)) {
 		return Timeline.ItemTypes.Range;
 	}
-	else if (this.getPointTime(d)) {
-		return Timeline.ItemTypes.Point;
-	}
 	else {
-		return Timeline.ItemTypes.Invalid;
+		return Timeline.ItemTypes.Point;
 	}
 };
 
 Timeline.prototype.itemStart = function(d) {
-	var type = this.itemType(d);
-	switch(type) {
-		case Timeline.ItemTypes.Range: return this.getStartTime(d);
-		case Timeline.ItemTypes.Point: return this.getPointTime(d);
-	};
+	return this.getStartTime(d);
 };
 
 Timeline.prototype.itemEnd = function(d) {
-	var type = this.itemType(d);
-	switch(type) {
-		case Timeline.ItemTypes.Range: return this.getEndTime(d);
-		case Timeline.ItemTypes.Point: return this.getPointTime(d);
-	};
+	return this.getEndTime(d);
 };
 
 /**
@@ -205,7 +194,11 @@ Timeline.prototype.getStartTime = function(d) {
 		start = d.start;
 	}
 
-	return start && start.getTime();
+	if (!start && start !== 0) {
+		throw "ERR: Unable to find starttime";
+	}
+
+	return start.getTime();
 };
 
 /**
@@ -222,24 +215,10 @@ Timeline.prototype.getEndTime = function(d) {
 		end = d.end;
 	}
 
-	return !end && end !== 0 ? (new Date()).getTime() : end.getTime();
-};
-
-/**
- * @private
- * returns the point timestamp if its defined
- * @param {object} d
- * @returns {timestamp}
- */
-Timeline.prototype.getPointTime = function(d) {
-	var time;
-	if (this.customGetPointTime) {
-		time = this.customGetPointTime(d);
-	} else {
-		time = d.time;
+	if (!end && end !== 0) {
+		throw "ERR: Unable to find endtime";
 	}
-
-	return time && time.getTime();
+	return end.getTime();
 };
 
 /*************************
@@ -507,10 +486,6 @@ Timeline.prototype._updateMiniChart = function() {
 						end: this.getEndTime(d)
 					};
 
-					if (this.itemType(d) === Timeline.ItemTypes.Point) {
-						toAdd.start = this.getPointTime(d);
-						toAdd.end = toAdd.start;
-					}
 					if (r2 == Math.floor(r)) {
 						// first row to be merge; just place a copy in the mergedRow
 						mergedRow.push(toAdd);
@@ -564,10 +539,6 @@ Timeline.prototype._updateMiniChart = function() {
 					end: this.getEndTime(d)
 				};
 
-				if (this.itemType(d) === Timeline.ItemTypes.Point) {
-					bounds.start = this.getPointTime(d);
-					bounds.end = bounds.start;
-				}
 				var miniYPos = r * miniItemHeight + miniItemHeight / 2;
 				miniItemsD += sprintf(' M %%,%% H %%', this.miniChart.xScale(bounds.start), -miniYPos,
 																							 this.miniChart.xScale(bounds.end));
@@ -755,7 +726,7 @@ Timeline.prototype._resizeHandler = function() {
 };
 
 /*************************
- ****** Option Methods
+ ****** Setup Methods
  *************************/
 
 /**
