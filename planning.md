@@ -10,15 +10,10 @@
 * Display a timeline using data from wikidata
 
 # Current Sprint
-* Add option for 'interactive SVG' timeline embed
 ## Done:
-* Smarter item label positioning (not off screen, if possible)
-* Add embed option
-* Add title URL param
 
 # Backlog
-* Add WDQ API examples
-* Add Samples to New page
+* Add option for 'interactive SVG' timeline embed
 * Add UI page to change timeline settings in-place
 * Make progress notification appear as bar instead of hovering overtop. Blocks a considerable chunk of the screen.
 * Visual indicator for 'somevalue' (i.e. unknown end date)
@@ -30,9 +25,15 @@
   * maybe `item.claim('39:11696').qualifier(580)` ? This would be easy! Harder for users to pick up, but not *that* hard.
 * Add tooltips
 * Add SPARQL support
+* Let user choose where to link
 
 ## Done:
 * Stack the items so they take less vertical space
+* Add WDQ API examples
+* Add Samples to New page
+* Smarter item label positioning (not off screen, if possible)
+* Add embed option
+* Add title URL param
 
 # Past Sprints
 
