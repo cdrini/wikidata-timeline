@@ -15,6 +15,7 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
     languages: ['en', 'fr'],
     widthOfYear: 20,
+    defaultEndtime: 'present',
     title: 'Untitled'
   };
   var urlManager = $urlParamManager(defaultOpts);
@@ -147,7 +148,7 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
 
         if(item.start && !item.end) {
           // set to current date
-          item.end = new Date();
+          item.end = urlManager.get('defaultEndtime') !== 'start' ? new Date() : item.start;
         }
 
         ent.trimIncludeOnly({
