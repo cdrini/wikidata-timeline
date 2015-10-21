@@ -24,12 +24,15 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
     query: '',
     languages:   ['en', 'fr'],
     widthOfYear: 20,
+    defaultEndtime: 'now',
     title:       ''
   };
   var urlManager = $urlParamManager(defaultValues);
   $scope.urlManager = urlManager;
   $scope.languages = urlManager.get('languages') ? urlManager.get('languages').join(',') : 'en,fr';
 
+  $scope.title = urlManager.get('title');
+  $scope.defaultEndtime = urlManager.get('defaultEndtime');
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
   $scope.contextualDocsEnabled = true;
