@@ -33,6 +33,12 @@ angular.module('wikidataTimeline')
     {
       title: 'Charlie Chaplin',
       query: 'claim[161:882] or items[882]'
+    },
+    {
+      title: 'Jules Verne',
+      query: 'items[33977] OR claim[50:33977]',
+      widthOfYear: 10,
+      sitelink: 'wikisource'
     }
   ];
 
