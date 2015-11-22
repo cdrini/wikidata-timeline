@@ -25,6 +25,8 @@ defaultEndTime       | String      | now             | One of "now" or "start".<
 embed                | Boolean     | true            | If true, optimizes view for embedding in an iframe
 languages            | CSV         | en,fr           | The languages to use. If no label in the given lang(s), stays blank
 query                | WDQ         |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help
+sitelink             | String      | wikidata        | What an item links to when clicked. Language determined by ``languages``. Possible values: ``[ 'wikisource', 'commonswiki', 'wikibooks', 'wikiquote', 'wiki', 'wikinews', 'wikidata' ]``
+sitelinkFallback     | Boolean     | true            | If true, when the desired sitelink is not available, links to wikidata. If false, links to nothing.
 title                | String      | Untitled        | Timeline's title. Useful so that your browser's history doesn't display the same thing for different timelines.
 widthOfYear          | Number      | widthOfYear     | How many pixels wide a years should be on the timeline
 

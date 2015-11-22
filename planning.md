@@ -23,11 +23,11 @@
   * example: show US presidents office time :/
   * maybe `claim[39:11696]{claim[580]}` ? Would have to write a parser though...
   * maybe `item.claim('39:11696').qualifier(580)` ? This would be easy! Harder for users to pick up, but not *that* hard.
-* Add tooltips
+* Add item tooltips
 * Add SPARQL support
-* Let user choose where to link
 
 ## Done:
+* Let user choose where to link
 * Stack the items so they take less vertical space
 * Add WDQ API examples
 * Add Samples to New page
