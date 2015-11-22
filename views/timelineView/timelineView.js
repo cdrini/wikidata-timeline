@@ -13,7 +13,9 @@ angular.module('wikidataTimeline.timelineView', [])
 function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   var defaultOpts = {
     query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
-    languages: ['en', 'fr'],
+    languages:   ['en', 'fr'],
+    sitelink: 'wikidata',
+    sitelinkFallback: true,
     widthOfYear: 20,
     defaultEndTime: 'now',
     title: 'Untitled'
@@ -116,8 +118,15 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
 
         var ent = new $wikidata.Entity(entities[id]);
 
-        var link = ent.getWikipediaSitelink(undefined, true);
-        link = link && 'https://' + link.site.slice(0,2) + '.wikipedia.org/wiki/' + link.title;
+        var link;
+        if(urlManager.get('sitelink') == 'wikidata') {
+          link = ent.url()
+        } else {
+          link = ent.getSitelink(urlManager.get('sitelink'))
+        }
+        if (!link && urlManager.get('sitelinkFallback')) {
+          link = ent.url();
+        }
 
         var tmpItem = {
           start: ent.getFirstClaim('P577', 'P580', 'P569', 'P571'),

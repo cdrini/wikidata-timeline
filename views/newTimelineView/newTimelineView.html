@@ -217,6 +217,22 @@
     <option value="start">Item Start</option>
   </select>
 
+  <label for="sitelink">Sitelink:</label>
+  <wdt-help>
+    What should open when you click on an item. Ex: wiki, wikisource, wikidata, etc.
+    Languages determined by the above field.
+  </wdt-help>
+  <input name="sitelink" class="form-control" ng-model="sitelink" list="validSitelinks" />
+  <datalist id="validSitelinks">
+    <option ng-repeat="sl in validSitelinks" ng-value="sl">
+  </datalist>
+  <div class="checkbox" style="margin-top:0">
+    <label style="margin-top:0">
+      <input type="checkbox" ng-model="sitelinkFallback"> Fallback to Wikidata
+      <wdt-help>If true, will link to Wikidata if the desired sitelink is missing.</wdt-help>
+    </label>
+  </div>
+
   <div ng-show="wdqError"
     class="alert alert-danger" role="alert">
       WDQ Error: {{wdqError}}

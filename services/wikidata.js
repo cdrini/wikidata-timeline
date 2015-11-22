@@ -3,6 +3,7 @@ angular.module('wikidataTimeline')
 .factory('$wikidata', ['$http', '$q', function($http, $q) {
   var WD = {};
   WD.languages = ['en', 'fr'];
+  WD.sitelinks = [ 'wikisource', 'commonswiki', 'wikibooks', 'wikiquote', 'wiki', 'wikinews' ];
 
   /**
    * converts a wikidata datetime to a JS Date
@@ -18,6 +19,22 @@ angular.module('wikidataTimeline')
       return result;
     } else {
       return undefined;
+    }
+  };
+  /**
+   * Creates a sitelink's url from the given params
+   * @param {string} lang the lang
+   * @param {string} sitelink the sitelink suffix
+   * @return {string} string the url
+   */
+  WD.makeSitelinkUrl = function(lang, sitelink, title) {
+    switch(sitelink) {
+      case 'wiki':
+        return "https://" + lang + ".wikipedia.org/w/index.php?title=" + title;
+      case 'commonswiki':
+        return "https://commons.wikimedia.org/w/index.php?title=" + title;
+      default:
+        return "https://" + lang + "." + sitelink + ".org/w/index.php?title=" + title;
     }
   };
 
@@ -36,6 +53,14 @@ angular.module('wikidataTimeline')
    */
   WD.Entity.prototype.getClaim = function(prop) {
   	return this.entity.claims[prop];
+  };
+  /**
+   * Returns wikidata url
+   *
+   * @return {string} wikidata url
+   */
+  WD.Entity.prototype.url = function(prop) {
+  	return "https://www.wikidata.org/wiki/" + this.entity.id;
   };
   /**
    * Get's a claim's value. Uses the first statement.
@@ -86,7 +111,7 @@ angular.module('wikidataTimeline')
     if (typeof langs == 'undefined') {
       langs = WD.languages;
     }
-    if(langs instanceof String) {
+    if(typeof langs == "string") {
   		langs = [ langs ];
   	}
 
@@ -121,46 +146,37 @@ angular.module('wikidataTimeline')
   /**
    * Returns an entity's sitelink. If langs provided, finds langs, otherwise uses
    * APIs defaults.
-   * @param {array<string>} [langs] langs to look for label. Defaults to WD params
-   * @param {Boolean} [returnObject=false] if true, returns an object ({site, title, badges})
-   * @return {string|object} string if !returnObject, else {site, title, badges} object
+   * @param {string|array<string>} sitelinks the sitelinks to get. See WD.sitelinks for valid options.
+   * @param {string|array<string>} [langs] langs to look for label. Defaults to WD params
+   * @return {string} string the url
    */
-  WD.Entity.prototype.getWikipediaSitelink = function(langs, returnObject) {
+  WD.Entity.prototype.getSitelink = function(sitelinks, langs) {
     if (typeof langs == 'undefined') {
       langs = WD.languages;
     }
-    if (langs instanceof String) {
+    if (typeof langs == "string") {
   		langs = [ langs ];
   	}
+    if (typeof sitelinks == "string") {
+      sitelinks = [ sitelinks ]
+    }
 
     if (!this.entity.sitelinks) {
       return null;
     }
 
-  	// iterate through langs until we find one we have
-  	for(var i = 0; i < langs.length; ++i) {
-  		var obj = this.entity.sitelinks[langs[i] + 'wiki'];
-  		if(obj) {
-  			if (returnObject) {
-  				return obj;
-  			} else {
-  				return obj.title;
-  			}
-  		}
-  	}
+  	// iterate through langs/sitelink pairs
+    for(var i = 0; i < sitelinks.length; ++i) {
 
-  	// no luck. Try to return any label.
-  	for (var sitelink in this.entity.sitelinks) {
-      if (/wiki/.test(sitelink)) {
-    		if (returnObject) {
-    			return this.entity.sitelinks[sitelink];
-    		} else {
-    			return this.entity.sitelinks[sitelink].title;
-    		}
+    	for(var j = 0; j < langs.length; ++j) {
+        var sl = this.entity.sitelinks[sitelinks[i]] || this.entity.sitelinks[langs[j].replace(/\-/g, '_') + sitelinks[i]];
+        if (sl) {
+          return WD.makeSitelinkUrl(langs[j], sitelinks[i], sl.title);
+        }
       }
   	}
 
-  	// still nothing?!? return null
+  	// no luck. Return null
   	return null;
   };
   /**

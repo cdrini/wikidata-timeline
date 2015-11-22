@@ -23,6 +23,8 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
   var defaultValues = {
     query: '',
     languages:   ['en', 'fr'],
+    sitelink: 'wikidata',
+    sitelinkFallback: true,
     widthOfYear: 20,
     defaultEndTime: 'now',
     title:       ''
@@ -33,6 +35,10 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
 
   $scope.title = urlManager.get('title');
   $scope.defaultEndTime = urlManager.get('defaultEndTime');
+  $scope.sitelink = urlManager.get('sitelink');
+  debugger;
+  $scope.validSitelinks = $wikidata.sitelinks.concat('wikidata');
+  $scope.sitelinkFallback = urlManager.get('sitelinkFallback');
   $scope.activeToken = '';
   $scope.showAllWDQDocs = false;
   $scope.contextualDocsEnabled = true;
@@ -68,7 +74,9 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
           title: $scope.title,
           query: wdq,
           languages: $scope.languages,
-          defaultEndTime: $scope.defaultEndTime
+          defaultEndTime: $scope.defaultEndTime,
+          sitelink: $scope.sitelink,
+          sitelinkFallback: $scope.sitelinkFallback
         });
       }
     });
