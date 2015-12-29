@@ -220,6 +220,27 @@ Timeline.prototype.getEndTime = function(d) {
 	return end.getTime();
 };
 
+/**
+ * @private
+ * returns the name
+ * @param {object} d
+ * @returns {string}
+ */
+Timeline.prototype.getName = function(d) {
+	if (this.customGetName) return this.customGetName(d);
+	else return d.name;
+};
+
+/**
+ * @private
+ * returns the url
+ * @param {object} d
+ * @returns {string}
+ */
+Timeline.prototype.getUrl = function(d) {
+	if (this.customGetUrl) return this.customGetUrl(d);
+	else return d.url || d.href;
+};
 /*************************
  ****** Drawing Methods
  *************************/
@@ -432,13 +453,13 @@ Timeline.prototype._drawItems = function(items) {
 
 	// Add anchors (where appropriate)
 	groups.each(function(d) {
-		if (d.href) {
+		if (_this.getUrl(d)) {
 			var group = d3.select(this);
 			// move all the groups children into the anchor
 			var anchor = group.append('a')
 			.attr({
 				'class': 'main-link',
-				'xlink:href': function(d) { return d.href; },
+				'xlink:href': function(d) { return _this.getUrl(d); },
 				'xlink:show': 'new'
 			});
 
@@ -580,7 +601,7 @@ Timeline.prototype._drawRangeItem = function(group, d, i) {
 			y: _this.itemHeight / 2
 		})
 		.append('tspan')
-			.text(d.name)
+			.text(this.getName(d))
 			.style({
 				fill: '#000',
 				'text-anchor': 'middle',
@@ -612,7 +633,7 @@ Timeline.prototype._drawPointItem = function(group, d, i) {
 			y: _this.itemHeight / 2
 		})
 		.append('tspan')
-			.text(d.name)
+			.text(this.getName(d))
 			.style({
 				fill: '#000',
 				'text-anchor': 'left',
@@ -736,7 +757,7 @@ Timeline.prototype._resizeHandler = function() {
 Timeline.prototype.startTime = function(fn) {
 	this.customGetStartTime = fn;
 	return this;
-}
+};
 
 /**
  * Define how to get the endtime from a datum
@@ -746,14 +767,24 @@ Timeline.prototype.startTime = function(fn) {
 Timeline.prototype.endTime = function(fn) {
 	this.customGetEndTime = fn;
 	return this;
-}
+};
 
 /**
- * Define how to get the pointTime from a datum
- * @param {Function} given a datum, should return a Date object
+ * Define how to get the name from a datum
+ * @param {Function} given a datum, should return a string
  * @return {Timeline} this
  */
-Timeline.prototype.pointTime = function(fn) {
-	this.customGetPointTime = fn;
+Timeline.prototype.name = function(fn) {
+	this.customGetName = fn;
 	return this;
-}
+};
+
+/**
+ * Define how to get the url from a datum
+ * @param {Function} given a datum, should return a URL string
+ * @return {Timeline} this
+ */
+Timeline.prototype.url = function(fn) {
+	this.customGetUrl = fn;
+	return this;
+};
