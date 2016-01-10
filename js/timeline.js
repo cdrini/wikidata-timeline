@@ -463,8 +463,9 @@ Timeline.prototype._drawItems = function(items) {
 				'xlink:show': 'new'
 			});
 
-			while(this.children.length > 1) {
-				anchor.node().appendChild(this.children[0]);
+			var a = anchor.node();
+			while(this.firstChild != this.lastChild) {
+				a.appendChild(this.firstChild);
 			}
 		}
 	});
