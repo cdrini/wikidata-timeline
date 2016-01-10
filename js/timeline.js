@@ -463,7 +463,9 @@ Timeline.prototype._drawItems = function(items) {
 				'xlink:show': 'new'
 			});
 
-			$(anchor.node()).append($(this).children()); // FIXME: no jQuery dependancy
+			while(this.children.length > 1) {
+				anchor.node().appendChild(this.children[0]);
+			}
 		}
 	});
 
