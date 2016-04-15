@@ -14,22 +14,26 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
   $analytics.trackPage('/new', document.title);
 
   // initialize bootstrap tooltips :/
-  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="tooltip"]').tooltip();
 
   // disclaimer
   $scope.$userSettings = $userSettings;
 
   // URLParam setup
   var defaultValues = {
-    query: '',
-    languages:   ['en', 'fr'],
+    wdq: '',
+
+    languages: ['en', 'fr'],
     sitelink: 'wikidata',
     sitelinkFallback: true,
+
     widthOfYear: 20,
     defaultEndTime: 'now',
-    title:       ''
+    title: ''
   };
   var urlManager = $urlParamManager(defaultValues);
+  urlManager.addAlias('wdq', 'query');
+
   $scope.urlManager = urlManager;
   $scope.languages = urlManager.get('languages') ? urlManager.get('languages').join(',') : 'en,fr';
 
@@ -72,7 +76,7 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
         $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
         $location.path('timeline').search({
           title: $scope.title,
-          query: wdq,
+          wdq: wdq,
           languages: $scope.languages,
           defaultEndTime: $scope.defaultEndTime,
           sitelink: $scope.sitelink,
@@ -80,13 +84,13 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
         });
       }
     });
-  }
+  };
 
   var queryEditor = CodeMirror($('.query-editor')[0], {
     viewportMargin: Infinity,
     lineWrapping: true,
     matchBrackets: true,
-    value: urlManager.get('query')
+    value: urlManager.get('wdq')
   });
 
   var getTokenUnderCursor = function(cm) {
@@ -106,8 +110,6 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
 
   $('form.new-view').on('keyup', function(ev) {
     // submit on ctrl enter
-    if(ev.keyCode == 13 && ev.ctrlKey) {
-      $(this).find('button[type="submit"]').click();
-    }
-  })
+    if(ev.keyCode == 13 && ev.ctrlKey) $(this).find('[type="submit"]').click();
+  });
 }]);

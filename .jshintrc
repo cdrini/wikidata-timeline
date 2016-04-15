@@ -1,4 +1,4 @@
 {
   "browser": true,
-  "predef": [ "angular", "d3", "$", "console" ]
+  "predef": [ "angular", "d3", "$", "console", "CodeMirror" ]
 }
