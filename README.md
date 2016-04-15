@@ -21,19 +21,25 @@ Note: Boolean parameters are true for any value which is not "false".
 
 Name                 | Type        | Default         | Description
 -------------------- | ----------- | --------------- | -------------
+title                | String      | Untitled        | Timeline's title. Useful so that your browser's history doesn't display the same thing for different timelines.
+sparql               | String      |                 | The SPARQL Query to use for the visualization. Expects the 1st variable to be items, 2nd to be labels, 3rd to be start time, and 4th to be end time (optional; see `defaultEndTime` parameter)). Try it/learn more at [Wikidata Query Service](https://query.wikidata.org).
+wdq                  | String      |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help.
 defaultEndTime       | String      | now             | One of "now" or "start".<br>(also useful for resolving ``P571(inception)`` ambiguity).
 embed                | Boolean     | false           | If true, optimizes view for embedding in an iframe.
-title                | String      | Untitled        | Timeline's title. Useful so that your browser's history doesn't display the same thing for different timelines.
-wdq                  | String      |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help.
-sparql               | String      |                 | The SPARQL Query to use for the visualization. Expects the 1st variable to be items, 2nd to be labels, 3rd to be start time, and 4th to be end time (optional; see `defaultEndTime` parameter)). Try it/learn more at [Wikidata Query Service](https://query.wikidata.org).
 widthOfYear          | Number      | widthOfYear     | How many pixels wide a year should be on the timeline
 
-## WDQ Params
+## WDQ URL Params
+The url parameters work if the `wdq` is present.
+
 Name                 | Type        | Default         | Description
 -------------------- | ----------- | --------------- | -------------
 languages            | CSV         | en,fr           | The languages to use, ordered by preference. If no label in the given lang(s), stays blank
 sitelink             | String      | wikidata        | What an item links to when clicked. Language determined by ``languages``. Possible values: ``[ 'wikisource', 'commonswiki', 'wikibooks', 'wikiquote', 'wiki', 'wikinews', 'wikidata' ]``
 sitelinkFallback     | Boolean     | true            | If true, when the desired sitelink is not available, links to wikidata. If false, links to nothing.
+
+## Deprecated URL Params
+Please do not use these parameters.
+- `query`: Now an alias for `wdq`
 
 # Credits
 
