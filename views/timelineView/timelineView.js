@@ -15,10 +15,10 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
     wdq: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
 
     sparql: '',
-    itemCol: '',
-    labelCol: '',
-    startCol: '',
-    endCol: '',
+    itemVar: '',
+    labelVar: '',
+    startVar: '',
+    endVar: '',
 
     languages:   ['en', 'fr'],
     sitelink: 'wikidata',
@@ -107,10 +107,10 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
     .then(function(response) {
       var data = response.data;
       var accessors = {
-        item: urlManager.get('itemCol') || data.head.vars[0],
-        label: urlManager.get('labelCol') || data.head.vars[1],
-        start: urlManager.get('startCol') || data.head.vars[2],
-        end: urlManager.get('endCol') || data.head.vars[3]
+        item: urlManager.get('itemVar') || data.head.vars[0],
+        label: urlManager.get('labelVar') || data.head.vars[1],
+        start: urlManager.get('startVar') || data.head.vars[2],
+        end: urlManager.get('endVar') || data.head.vars[3]
       };
 
       items = data.results.bindings;
