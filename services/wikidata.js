@@ -12,7 +12,7 @@ angular.module('wikidataTimeline')
    * @return {Date}
    */
   WD.parseDateTime = function(dateTimeStr) {
-    var match = dateTimeStr.match(/^([+-]\d+)-(\d\d)-(\d\d)/);
+    var match = dateTimeStr.match(/^([+-]?\d+)-(\d\d)-(\d\d)/);
     if (match && match.length == 4) {
       var result = new Date(match[1], match[2] - 1, match[3]);
       result.setFullYear(match[1]); // 30 != 1930, javascript!
@@ -233,6 +233,16 @@ angular.module('wikidataTimeline')
         callback: 'JSON_CALLBACK' // -_-
       }, opts),
       method: 'jsonp'
+    });
+  };
+
+  WD.wdqs = function(sparql) {
+    return $http({
+      url: 'https://query.wikidata.org/sparql',
+      params: {
+        query: sparql,
+        format: 'json'
+      }
     });
   };
 

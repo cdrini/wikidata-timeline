@@ -12,7 +12,14 @@ angular.module('wikidataTimeline.timelineView', [])
 .controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager', 'Analytics',
 function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   var defaultOpts = {
-    query: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
+    wdq: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
+
+    sparql: '',
+    itemCol: '',
+    labelCol: '',
+    startCol: '',
+    endCol: '',
+
     languages:   ['en', 'fr'],
     sitelink: 'wikidata',
     sitelinkFallback: true,
@@ -21,12 +28,13 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
     title: 'Untitled'
   };
   var urlManager = $urlParamManager(defaultOpts);
-  $scope.title = urlManager.get('title') + ' Timeline'
+  urlManager.addAlias('wdq', 'query');
+  $scope.title = urlManager.get('title') + ' Timeline';
   document.title = $scope.title;
 
   $analytics
     .trackPage('/timeline', document.title, {
-      dimension1: urlManager.get('query')
+      dimension1: urlManager.getFirst('sparql', 'wdq')
   });
 
   $wikidata.languages = urlManager.get('languages');
@@ -39,7 +47,8 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   // scope variables
   $scope.queryStates = {
     WDQ:      1,
-    Wikidata: 2
+    Wikidata: 2,
+    wdqs:     3
   };
   $scope.queryState = null;
 
@@ -64,9 +73,8 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   $scope.downloadURL = '';
   $scope.getSVGCode = function() {
     var svgEl = $('svg.main-chart');
-    if (svgEl.length == 0) {
-      return;
-    }
+    if (svgEl.length === 0) return;
+
     $('svg.main-chart')
       .prepend(timelineStyle);
     var svg = $('.main-chart-container').html(); // get the 'outer' html
@@ -76,125 +84,150 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   };
   $scope.createDownloadURL = function() {
     var blob = new Blob([$scope.getSVGCode()], {type: 'octet/stream'});
-    if ($scope.downloadURL != '') {
+    if ($scope.downloadURL !== '') {
       window.URL.revokeObjectURL($scope.downloadURL);
     }
     $scope.downloadURL = window.URL.createObjectURL(blob);
   };
 
-
-
-  var dateTimeFormat = d3.time.format("%Y-%m-%d");
-
-  // read in URL params
-  var wdq = urlManager.get('query');
-  $scope.queryState = $scope.queryStates.WDQ;
-
-  $wikidata.WDQ(wdq)
-  .then(function(response) {
-    $scope.queryState = null;
-
-    if (response.data.status.error !== 'OK') {
-      throw response.data.status.error;
-      return;
-    }
-    console.log(response);
-    var ids = response.data.items;
-    $scope.totalItemsToLoad = ids.length;
-
-    $scope.queryState = $scope.queryStates.Wikidata;
-    $scope.wikidataQuery = $wikidata.api.wbgetentities(ids, ['labels', 'sitelinks', 'claims'])
-    .onChunkCompletion(function(response) {
-      console.log('chunk!');
-      if (response.error) {
-        throw response.error.info;
-        return;
-      }
-
-      var itemsChunk = [];
-      var entities = response.data.entities;
-      for (var id in entities) {
-        $scope.itemsLoaded++;
-
-        var ent = new $wikidata.Entity(entities[id]);
-
-        var link;
-        if(urlManager.get('sitelink') == 'wikidata') {
-          link = ent.url()
-        } else {
-          link = ent.getSitelink(urlManager.get('sitelink'))
-        }
-        if (!link && urlManager.get('sitelinkFallback')) {
-          link = ent.url();
-        }
-
-        var tmpItem = {
-          start: ent.getFirstClaim('P577', 'P580', 'P569', 'P571'),
-          end:   ent.getFirstClaim('P577', 'P582', 'P570', 'P576')
-        };
-
-        var item = {
-          name: ent.getLabel(),
-          href:  link
-        };
-
-        if (tmpItem.start) {
-          if (tmpItem.start[0].mainsnak.snaktype == 'value') {
-            item.start = $wikidata.parseDateTime(tmpItem.start[0].mainsnak.datavalue.value.time);
-          }
-        }
-
-        if (tmpItem.end) {
-          var snaktype = tmpItem.end[0].mainsnak.snaktype;
-          if (snaktype == 'value') {
-            item.end = $wikidata.parseDateTime(tmpItem.end[0].mainsnak.datavalue.value.time);
-          } else if (snaktype == 'somevalue' && item.start) {
-            // average lifespan is like 80, right?!
-            // TODO: Add visual indicator (gradient? wavy line?)
-            item.end = new Date(item.start.getTime() + 3.15569e10 * 80);
-          }
-        }
-
-        if(item.start && !item.end) {
-          // set to current date
-          item.end = urlManager.get('defaultEndTime') !== 'start' ? new Date() : item.start;
-        }
-
-        ent.trimIncludeOnly({
-          claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576', 'P577'],
-          labels:       urlManager.get('languages'),
-          descriptions: urlManager.get('languages'),
-          sitelinks:    urlManager.get('languages').map(function(l) { return l + "wiki"; })
-        });
-
-        if (!item.start || !item.end) {
-          $scope.hiddenEntities.push(ent);
-        } else {
-          $scope.shownEntities.push(ent);
-          itemsChunk.push(item);
-        }
-      }
-
-      if (!tl.isDrawn()) {
-        Array.prototype.push.apply(items, itemsChunk);
-        tl.draw(d3.select('.timeline-container')[0][0]);
-      } else {
-        tl.addItems(itemsChunk);
-      }
-    })
-    .onFullCompletion(function() {
-      $scope.queryState = null;
-      console.log('done!');
-    });
-  });
+  if (urlManager.isUserSpecified('sparql')) _buildFromSPARQL(urlManager.get('sparql'));
+  else if (urlManager.isUserSpecified('wdq')) _buildFromWDQ(urlManager.get('wdq'));
 
   $scope.shownEntities = [];
   $scope.hiddenEntities = [];
 
-  var items = [];
-  var tl = new Timeline(items, {
-  	widthOfYear: urlManager.get('widthOfYear')
-  });
+  var items, tl;
+  var tlOpts = {
+    widthOfYear: urlManager.get('widthOfYear')
+  };
+
+  function _buildFromSPARQL(query) {
+    $scope.queryState = $scope.queryStates.wdqs;
+    $wikidata.wdqs(query)
+    .then(function(response) {
+      var data = response.data;
+      var accessors = {
+        item: urlManager.get('itemCol') || data.head.vars[0],
+        label: urlManager.get('labelCol') || data.head.vars[1],
+        start: urlManager.get('startCol') || data.head.vars[2],
+        end: urlManager.get('endCol') || data.head.vars[3]
+      };
+
+      items = data.results.bindings;
+      tl = new Timeline(items, tlOpts)
+      .startTime(function(b) { return $wikidata.parseDateTime(b[accessors.start].value); })
+      .endTime(function(b) {
+        return b[accessors.end] ?
+          $wikidata.parseDateTime(b[accessors.end].value) :
+          (urlManager.get('defaultEndTime') == 'start' ?
+            $wikidata.parseDateTime(b[accessors.start].value) :
+            new Date());
+        })
+      .name(function(b) { return b[accessors.label].value; })
+      .url(function(b) { return b[accessors.item].value; })
+      .draw(d3.select('.timeline-container')[0][0]);
+    });
+  }
+
+  function _buildFromWDQ(wdq) {
+    items = [];
+    tl = new Timeline(items, tlOpts);
+
+    $scope.queryState = $scope.queryStates.WDQ;
+    $wikidata.WDQ(wdq)
+    .then(function(response) {
+      $scope.queryState = null;
+
+      if (response.data.status.error !== 'OK') throw response.data.status.error;
+
+      console.log(response);
+      var ids = response.data.items;
+      $scope.totalItemsToLoad = ids.length;
+
+      $scope.queryState = $scope.queryStates.Wikidata;
+      $scope.wikidataQuery = $wikidata.api.wbgetentities(ids, ['labels', 'sitelinks', 'claims'])
+      .onChunkCompletion(function(response) {
+        console.log('chunk!');
+
+        if (response.error) throw response.error.info;
+
+        var itemsChunk = [];
+        var entities = response.data.entities;
+        for (var id in entities) {
+          $scope.itemsLoaded++;
+
+          var ent = new $wikidata.Entity(entities[id]);
+
+          var link;
+          if(urlManager.get('sitelink') == 'wikidata') {
+            link = ent.url();
+          } else {
+            link = ent.getSitelink(urlManager.get('sitelink'));
+          }
+          if (!link && urlManager.get('sitelinkFallback')) {
+            link = ent.url();
+          }
+
+          var tmpItem = {
+            start: ent.getFirstClaim('P577', 'P580', 'P569', 'P571'),
+            end:   ent.getFirstClaim('P577', 'P582', 'P570', 'P576')
+          };
+
+          var item = {
+            name: ent.getLabel(),
+            href:  link
+          };
+
+          if (tmpItem.start) {
+            if (tmpItem.start[0].mainsnak.snaktype == 'value') {
+              item.start = $wikidata.parseDateTime(tmpItem.start[0].mainsnak.datavalue.value.time);
+            }
+          }
+
+          if (tmpItem.end) {
+            var snaktype = tmpItem.end[0].mainsnak.snaktype;
+            if (snaktype == 'value') {
+              item.end = $wikidata.parseDateTime(tmpItem.end[0].mainsnak.datavalue.value.time);
+            } else if (snaktype == 'somevalue' && item.start) {
+              // average lifespan is like 80, right?!
+              // TODO: Add visual indicator (gradient? wavy line?)
+              item.end = new Date(item.start.getTime() + 3.15569e10 * 80);
+            }
+          }
+
+          if(item.start && !item.end) {
+            // set to current date
+            item.end = urlManager.get('defaultEndTime') !== 'start' ? new Date() : item.start;
+          }
+
+          ent.trimIncludeOnly({
+            claims:       ['P580', 'P569', 'P571', 'P582', 'P570', 'P576', 'P577'],
+            labels:       urlManager.get('languages'),
+            descriptions: urlManager.get('languages'),
+            sitelinks:    urlManager.get('languages').map(function(l) { return l + "wiki"; })
+          });
+
+          if (!item.start || !item.end) {
+            $scope.hiddenEntities.push(ent);
+          } else {
+            $scope.shownEntities.push(ent);
+            itemsChunk.push(item);
+          }
+        }
+
+        if (!tl.isDrawn()) {
+          Array.prototype.push.apply(items, itemsChunk);
+          tl.draw(d3.select('.timeline-container')[0][0]);
+        } else {
+          tl.addItems(itemsChunk);
+        }
+      })
+      .onFullCompletion(function() {
+        $scope.queryState = null;
+        console.log('done!');
+      });
+    });
+  }
 }])
 
 .controller('EmbedCtrl', ['$scope', '$element',
@@ -205,7 +238,7 @@ function($scope, $element) {
   $scope.embedTypes = [
     {
       name: 'Live <iframe>',
-      code: function() { return '<iframe style="width:100%; height: 400px; border: 0;" src="' + location.href + '&embed' + '"></iframe>'}
+      code: function() { return '<iframe style="width:100%; height: 400px; border: 0;" src="' + location.href + '&embed' + '"></iframe>'; }
     },
     {
       name: 'Static SVG',
@@ -236,5 +269,5 @@ function($scope, $element) {
     if ($scope.activeEmbedType == -1) {
       $scope.setEmbedType(0);
     }
-  })
+  });
 }]);
