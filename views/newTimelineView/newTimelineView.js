@@ -57,22 +57,16 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
     PreparingToDraw: 4
   };
   $scope.saveButtonState = $scope.saveButtonStates.Def;
-  $scope.wdqError = '';
+  $scope.wdqError = false;
 
   $scope.drawTimeline = function() {
     var wdq = queryEditor.getValue();
-    $scope.wdqError = '';
+    $scope.wdqError = false;
 
     $scope.saveButtonState = $scope.saveButtonStates.ValidatingWDQ;
-    $wikidata.WDQ(wdq, {noitems: 1})
-    .then(function(response) {
-      if (response.data.status.error !== 'OK') {
-        $scope.wdqError = response.data.status.error;
-        $scope.saveButtonState = $scope.saveButtonStates.InvalidWDQ;
-        $timeout(function() {
-          $scope.saveButtonState = $scope.saveButtonStates.Def;
-        }, 1000);
-      } else {
+    $wikidata.WDQ(wdq)
+    .then(
+      function success(qids) {
         $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
         $location.path('timeline').search({
           title: $scope.title,
@@ -82,8 +76,15 @@ function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $url
           sitelink: $scope.sitelink,
           sitelinkFallback: $scope.sitelinkFallback
         });
+      },
+      function error() {
+        $scope.wdqError = true;
+        $scope.saveButtonState = $scope.saveButtonStates.InvalidWDQ;
+        $timeout(function() {
+          $scope.saveButtonState = $scope.saveButtonStates.Def;
+        }, 1000);
       }
-    });
+    );
   };
 
   var queryEditor = CodeMirror($('.query-editor')[0], {

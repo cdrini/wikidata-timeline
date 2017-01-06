@@ -33,6 +33,5 @@ function($scope, $urlParamManager, $wdqSamples) {
   });
 
   $scope.embedded = paramManager.get('embed');
-
   $scope.samples = $wdqSamples.getSamples();
 }]);

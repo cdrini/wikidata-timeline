@@ -221,21 +221,39 @@ angular.module('wikidataTimeline')
 
   /**
    * @param {string} wikidata query
-   * @returns {Promise}
+   * @returns {Promise<QID[]>}
    */
-  WD.WDQ = function(query, opts) {
-    opts = opts || {};
-
-  	return $http({
-      url: 'https://wdq.wmflabs.org/api',
-      params: angular.extend({
-        q: query,
-        callback: 'JSON_CALLBACK' // -_-
-      }, opts),
-      method: 'jsonp'
+  WD.WDQ = function(query) {
+    // first convert to a SPARQL query
+    return $http({
+      url: '//tools.wmflabs.org/wdq2sparql/w2s.php',
+      params: {
+        wdq: query
+      }
+    }).then(function (response) {
+      var contentType = response.headers()['content-type'];
+      if (contentType.indexOf('text/plain') != -1) {
+        // avoid duplicate items; replace the outermost SELECT with DISTINCT
+        var sparql = response.data
+        .replace(/^SELECT (\S+)/i, function($0, $1) {
+          return $1.toLowerCase() == 'distinct' ? $0 : 'SELECT DISTINCT ' + $1;
+        });
+        return WD.wdqs(sparql);
+      } else {
+        return $q.reject();
+      }
+    }).then(function (response) {
+      return response.data.results.bindings.map(function (o) {
+        return o.item.value.replace('http://www.wikidata.org/entity/', '');
+      });
     });
   };
 
+  /**
+   * Query the Wikidata Query Service
+   * @param  {string} sparql the SPARQL query
+   * @return {Promise}
+   */
   WD.wdqs = function(sparql) {
     return $http({
       url: 'https://query.wikidata.org/sparql',

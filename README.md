@@ -23,7 +23,7 @@ Name                 | Type        | Default         | Description
 -------------------- | ----------- | --------------- | -------------
 title                | String      | Untitled        | Timeline's title. Useful so that your browser's history doesn't display the same thing for different timelines.
 sparql               | String      |                 | The SPARQL Query to use for the visualization. Expects the 1st variable to be items, 2nd to be labels, 3rd to be start time, and 4th to be end time (optional; see `defaultEndTime` parameter)). Try it/learn more at [Wikidata Query Service](https://query.wikidata.org).
-wdq                  | String      |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help.
+wdq                  | String      |                 | The Wikidata Query from which to get items. See [WDQ's Documentation](https://wdq.wmflabs.org/api_documentation.html) for help. Note this is translated to SPARQL using [WDQ2SPARQL](http://tools.wmflabs.org/wdq2sparql/w2s.php), so some features might not be available.
 defaultEndTime       | String      | now             | One of "now" or "start".<br>(also useful for resolving ``P571(inception)`` ambiguity).
 embed                | Boolean     | false           | If true, optimizes view for embedding in an iframe.
 widthOfYear          | Number      | widthOfYear     | How many pixels wide a year should be on the timeline
@@ -44,8 +44,9 @@ Please do not use these parameters.
 # Credits
 
 ## Services/APIs
+* [WDQ2SPARQL](http://tools.wmflabs.org/wdq2sparql/w2s.php)
 * [Wikidata API](https://www.wikidata.org/w/api.php)
-* [WikidataQuery API](https://wdq.wmflabs.org/api_documentation.html)
+* [Wikidata Query](https://wdq.wmflabs.org/api_documentation.html)
 * [Wikidata Query Service SPARQL Endpoint](https://www.mediawiki.org/wiki/Wikidata_query_service/User_Manual#SPARQL_endpoint)
 
 ## Libraries

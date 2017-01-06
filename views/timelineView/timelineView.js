@@ -135,13 +135,10 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
 
     $scope.queryState = $scope.queryStates.WDQ;
     $wikidata.WDQ(wdq)
-    .then(function(response) {
+    .then(function(qids) {
       $scope.queryState = null;
 
-      if (response.data.status.error !== 'OK') throw response.data.status.error;
-
-      console.log(response);
-      var ids = response.data.items;
+      var ids = qids.map(function(qid) { return parseInt(qid.slice(1), 10); });
       $scope.totalItemsToLoad = ids.length;
 
       $scope.queryState = $scope.queryStates.Wikidata;
