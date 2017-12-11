@@ -11,7 +11,6 @@
       <a role="button"
         class="embed-link"
         data-toggle="modal" data-target=".embed-modal"
-        ga-track-event="['timeline', 'embed']"
         href="javascript:;">Embed</a>
       |
       <a role="button"
@@ -21,7 +20,6 @@
         ng-mouseenter="createDownloadURL()"
         ng-focus="createDownloadURL()"
         download="{{title}}.svg"
-        ga-track-event="['timeline', 'download']"
         ng-href="{{downloadURL || ''}}">Download</a>
     </div>
   </div>
@@ -59,7 +57,6 @@
 
       <button
         ng-show="wikidataQuery.getState() == wdQueryStates.Active"
-        ga-track-event="['timeline', 'pause']"
         ng-click="wikidataQuery.pause()">
         Pause
       </button>
@@ -70,7 +67,6 @@
       </button>
       <button
         ng-show="wikidataQuery.getState() == wdQueryStates.Paused"
-        ga-track-event="['timeline', 'resume']"
         ng-click="wikidataQuery.resume()">
         Resume
       </button>

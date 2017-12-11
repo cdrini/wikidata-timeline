@@ -9,14 +9,11 @@ angular.module('wikidataTimeline.newTimelineView', ['ngRoute'])
   });
 }])
 
-.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', 'Analytics', '$userSettings', '$urlParamManager',
-function($scope, $timeout, $location, $wikidata, $analytics, $userSettings, $urlParamManager) {
-  $analytics.trackPage('/new', document.title);
-
+.controller('NewTimelineViewCtrl', ['$scope', '$timeout', '$location', '$wikidata', '$userSettings', '$urlParamManager',
+function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager) {
   // initialize bootstrap tooltips :/
   $('[data-toggle="tooltip"]').tooltip();
 
-  // disclaimer
   $scope.$userSettings = $userSettings;
 
   // URLParam setup

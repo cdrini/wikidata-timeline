@@ -51,7 +51,6 @@ Please do not use these parameters.
 
 ## Libraries
 * [AngularJS](https://github.com/angular/angular.js)
-* [Angular Google Analytics](https://github.com/revolunet/angular-google-analytics)
 * [Bootstrap](https://github.com/twbs/bootstrap)
 * [Codemirror](https://github.com/codemirror/CodeMirror)
 * [D3](https://github.com/mbostock/d3)

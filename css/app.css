@@ -284,13 +284,6 @@ body.embedded:hover .options-bar {
   overflow:auto;
 }
 
-.disclaimer {
-  display: block;
-  max-width: 660px;
-  margin: 10px auto;
-  text-align: center;
-}
-
 span[data-toggle="tooltip"] {
   border-bottom: 1px dotted #999;
   transition: border-style 0.2s;

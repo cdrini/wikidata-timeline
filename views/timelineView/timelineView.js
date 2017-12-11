@@ -9,8 +9,8 @@ angular.module('wikidataTimeline.timelineView', [])
   });
 }])
 
-.controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager', 'Analytics',
-function($scope, $http, $wikidata, $urlParamManager, $analytics) {
+.controller('TimelineViewCtrl', ['$scope', '$http', '$wikidata', '$urlParamManager',
+function($scope, $http, $wikidata, $urlParamManager) {
   var defaultOpts = {
     wdq: 'claim[31:(tree[5398426][][279])] AND claim[495:30] AND claim[136:170238]',
 
@@ -31,11 +31,6 @@ function($scope, $http, $wikidata, $urlParamManager, $analytics) {
   urlManager.addAlias('wdq', 'query');
   $scope.title = urlManager.get('title') + ' Timeline';
   document.title = $scope.title;
-
-  $analytics
-    .trackPage('/timeline', document.title, {
-      dimension1: urlManager.getFirst('sparql', 'wdq')
-  });
 
   $wikidata.languages = urlManager.get('languages');
   $scope.unembeddedUrl = function() {
