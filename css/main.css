@@ -53,6 +53,7 @@
 .timeline-container .mini-chart .items-path {
   stroke: #FD5;
   shape-rendering: crispEdges;
+  fill: transparent;
 }
 
 .timeline-container .main-chart .item text {
