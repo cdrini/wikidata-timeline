@@ -18,6 +18,17 @@ angular.module('wikidataTimeline', [
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob):/);
 }])
 
+.config(['$sceDelegateProvider', function($sceDelegateProvider) {
+  $sceDelegateProvider.resourceUrlWhitelist([
+    'self', // Allow same origin resource loads.
+    'https://www.wikidata.org/w/api.php' // Allow JSONP calls that match this pattern
+  ]);
+}])
+
+.config(['$locationProvider', function($locationProvider) {
+  $locationProvider.hashPrefix('');
+}])
+
 .controller('AppController', ['$scope', '$urlParamManager', '$wdqSamples',
 function($scope, $urlParamManager, $wdqSamples) {
   var paramManager = $urlParamManager({

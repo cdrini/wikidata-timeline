@@ -37,7 +37,6 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   $scope.title = urlManager.get('title');
   $scope.defaultEndTime = urlManager.get('defaultEndTime');
   $scope.sitelink = urlManager.get('sitelink');
-  debugger;
   $scope.validSitelinks = $wikidata.sitelinks.concat('wikidata');
   $scope.sitelinkFallback = urlManager.get('sitelinkFallback');
   $scope.activeToken = '';

@@ -1,2 +1,4 @@
+1.2.1: Update dependencies
+       Switch from bower to node for dependency management
 1.2.0: SPARQL url parameter support
 1.0.0: First release

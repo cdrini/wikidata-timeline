@@ -347,7 +347,6 @@ angular.module('wikidataTimeline')
             ids: idChunks.shift().join('|'),
             languages: WD.languages.join('|'),
             props: props.join('|'),
-            callback: 'JSON_CALLBACK',
             format: 'json',
             cache: true
           }

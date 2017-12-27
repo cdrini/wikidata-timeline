@@ -1,6 +1,6 @@
 {
   "name": "wikidata-timeline",
-  "version": "0.0.0",
+  "version": "1.2.1",
   "description": "App for viewing live Wikidata info as a timeline",
   "main": "index.html",
   "scripts": {
@@ -21,11 +21,11 @@
   },
   "homepage": "https://tools.wmflabs.org/wikidata-timeline",
   "dependencies": {
-    "angular": "^1.4.4",
-    "angular-route": "^1.4.4",
-    "bootstrap": "^3.3.5",
+    "angular": "^1.6.8",
+    "angular-route": "^1.6.8",
+    "bootstrap": "^3.3.7",
     "codemirror": "^5.33.0",
-    "d3": "^3.5.6",
-    "jquery": "^2.1.4"
+    "d3": "^3.5.17",
+    "jquery": "^3.2.1"
   }
 }
