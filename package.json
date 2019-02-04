@@ -21,11 +21,11 @@
   },
   "homepage": "https://tools.wmflabs.org/wikidata-timeline",
   "dependencies": {
-    "angular": "^1.6.8",
-    "angular-route": "^1.6.8",
+    "angular": "^1.7.6",
+    "angular-route": "^1.7.6",
     "bootstrap": "^3.3.7",
-    "codemirror": "^5.33.0",
+    "codemirror": "^5.43.0",
     "d3": "^3.5.17",
-    "jquery": "^3.2.1"
+    "jquery": "^3.3.1"
   }
 }
