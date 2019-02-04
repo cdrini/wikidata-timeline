@@ -5,48 +5,57 @@
   </div>
 </div>
 <form role="form" class="new-view">
+  <div ng-if="wdqQuery" class="alert alert-danger">
+    Wikidata Query is no longer being maintained and is unrecommended. Consider using SPARQL instead.
+  </div>
   <label for="title">Title:</label>
   <wdt-help>Adding a title makes it easier to recognize old timelines in your browser's history.</wdt-help>
   <input name="title" class="form-control" placeholder="Untitled" ng-model="title" ng-value="urlManager.get('title')"/>
 
   <label for="query">Query:</label>
-  <wdt-wdq-ide model="wdqQuery"></wdt-wdq-ide>
+  <wdt-sparql-ide model="sparqlQuery"></wdt-sparql-ide>
 
-  <label for="languages">Languages:</label>
-  <wdt-help>A CSV list of language codes. If first fails, tries next ones. Click <a target="blank" href="https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities">here</a> for a list of all languages.</wdt-help>
-  <input name="languages" class="form-control" ng-model="languages" />
+  <div ng-if="wdqQuery">
+    <h3>WDQ Options</h3>
 
-  <label for="defaultEndTime">Default EndTime:</label>
-  <wdt-help>
-    What to do if no endtime is present.
-    <ul>
-      <li>Now: default to current datetime.</li>
-      <li>Item start: default to the item's start. This will display the item as a point.</li>
-    </ul>
-  </wdt-help>
-  <select class="form-control" name="defaultEndTime" ng-value="urlManager.get('defaultEndTime')" ng-model="defaultEndTime">
-    <option value="now">Now</option>
-    <option value="start">Item Start</option>
-  </select>
+    <wdt-wdq-ide ng-show="wdqQuery" model="wdqQuery"></wdt-wdq-ide>
 
-  <label for="sitelink">Sitelink:</label>
-  <wdt-help>
-    What should open when you click on an item. Ex: wiki, wikisource, wikidata, etc.
-    Languages determined by the above field.
-  </wdt-help>
-  <input name="sitelink" class="form-control" ng-model="sitelink" list="validSitelinks" />
-  <datalist id="validSitelinks">
-    <option ng-repeat="sl in validSitelinks" ng-value="sl">
-  </datalist>
-  <div class="checkbox" style="margin-top:0">
-    <label style="margin-top:0">
-      <input type="checkbox" ng-model="sitelinkFallback"> Fallback to Wikidata
-      <wdt-help>If true, will link to Wikidata if the desired sitelink is missing.</wdt-help>
-    </label>
-  </div>
+    <label for="languages">Languages:</label>
+    <wdt-help>A CSV list of language codes. If first fails, tries next ones. Click <a target="blank" href="https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities">here</a> for a list of all languages.</wdt-help>
+    <input name="languages" class="form-control" ng-model="languages" />
 
-  <div ng-show="wdqError" class="alert alert-danger" role="alert">
-    Unable to convert WDQ to SPARQL. See <a href="https://tools.wmflabs.org/wdq2sparql/w2s.php">wdq2sparql</a> to see what is and isn't supported.
+    <label for="defaultEndTime">Default EndTime:</label>
+    <wdt-help>
+      What to do if no endtime is present.
+      <ul>
+        <li>Now: default to current datetime.</li>
+        <li>Item start: default to the item's start. This will display the item as a point.</li>
+      </ul>
+    </wdt-help>
+    <select class="form-control" name="defaultEndTime" ng-value="urlManager.get('defaultEndTime')" ng-model="defaultEndTime">
+      <option value="now">Now</option>
+      <option value="start">Item Start</option>
+    </select>
+
+    <label for="sitelink">Sitelink:</label>
+    <wdt-help>
+      What should open when you click on an item. Ex: wiki, wikisource, wikidata, etc.
+      Languages determined by the above field.
+    </wdt-help>
+    <input name="sitelink" class="form-control" ng-model="sitelink" list="validSitelinks" />
+    <datalist id="validSitelinks">
+      <option ng-repeat="sl in validSitelinks" ng-value="sl">
+    </datalist>
+    <div class="checkbox" style="margin-top:0">
+      <label style="margin-top:0">
+        <input type="checkbox" ng-model="sitelinkFallback"> Fallback to Wikidata
+        <wdt-help>If true, will link to Wikidata if the desired sitelink is missing.</wdt-help>
+      </label>
+    </div>
+
+    <div ng-show="wdqError" class="alert alert-danger" role="alert">
+      Unable to convert WDQ to SPARQL. See <a href="https://tools.wmflabs.org/wdq2sparql/w2s.php">wdq2sparql</a> to see what is and isn't supported.
+    </div>
   </div>
 
   <button type="submit" class="btn btn-primary"

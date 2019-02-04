@@ -1,0 +1,51 @@
+<div></div>Expects the 1st variable to be items, 2nd to be labels, 3rd to be start time, and 4th to be the 
+end time.</div>
+
+<div class="panel panel-default query-panel">
+  <div class="panel-body">
+    <div class="query-editor"></div>
+    <div class="dropdown sample-queries">
+      <a class="collapse-toggle"
+         data-toggle="collapse"
+         data-target=".sample-queries > .collapse"
+         href="javascript:;"
+         role="button"
+         aria-haspopup="true"
+         aria-expanded="false">
+        Samples <span class="caret"></span>
+      </a>
+      <div class="collapse items">
+        <a ng-repeat="s in samples" ng-href="#new?{{s.urlComponents}}">
+          {{s.title}}
+          <code>{{s.query}}</code>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <small style="float: right; margin-bottom:6px;">
+      powered by
+      <a target="blank" href="https://query.wikidata.org/" title="Wikidata Query Service">WDQS</a> and
+      <a target="blank" href="https://codemirror.net/">CodeMirror</a>
+    </small>
+    <div class="btn-group" role="group" aria-label="Query editor docs options">
+      <button type="button" class="btn btn-sm btn-default"
+        ng-class="{'btn-primary': !showAllWDQDocs && contextualDocsEnabled}"
+        ng-click="toggleContextualDocs();"
+        ng-disabled="showAllWDQDocs">
+        Contextual Docs
+      </button>
+      <button type="button" class="btn btn-sm btn-default"
+        ng-class="{'btn-primary': showAllWDQDocs}"
+        ng-click="showAllWDQDocs = !showAllWDQDocs">
+        Show all docs
+      </button>
+    </div>
+
+    <div class="wdq-docs"
+      ng-show="showAllWDQDocs || (contextualDocsEnabled && activeToken != '')"
+      ng-class="{'contextual-only': !showAllWDQDocs && contextualDocsEnabled }">
+
+    </div>
+  </div>
+</div>

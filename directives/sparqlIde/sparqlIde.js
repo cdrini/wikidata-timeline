@@ -3,19 +3,27 @@ angular.module('wikidataTimeline')
 /**
  * Directive for displaying a WDQ editing 'IDE'
  */
-.directive('wdtWdqIde', ['$wdqSamples', function($wdqSamples) {
+.directive('wdtSparqlIde', ['$wdqSamples', function($wdqSamples) {
   return {
     restrict: 'E',
     transclude: true,
     scope: {
       model: '='
     },
-    templateUrl: 'directives/wdqIde/wdqIde.html',
+    templateUrl: 'directives/sparqlIde/sparqlIde.html',
     link: function($scope, $element, $attrs) {
       $scope.showAllWDQDocs = false;
       $scope.contextualDocsEnabled = true;
       $scope.activeToken = '';
       $scope.samples = $wdqSamples.getSamples();
+
+      var TEMPLATES = [
+        {
+          name: 'Basic',
+          code: 'SELECT ?item ?itemLabel ?start ?end WHERE {\n  \n  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }\n}'
+        }
+      ];
+      $scope.templates = TEMPLATES;
 
       $scope.toggleContextualDocs = function() {
         $scope.activeToken = '';
@@ -40,7 +48,7 @@ angular.module('wikidataTimeline')
 
       var editorWrapper = $element[0].getElementsByClassName('query-editor')[0];
       var editor = CodeMirror(editorWrapper, {
-        mode: 'wdq',
+        mode: 'sparql',
         viewportMargin: Infinity,
         lineWrapping: true,
         matchBrackets: true,

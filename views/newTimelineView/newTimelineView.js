@@ -19,6 +19,7 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   // URLParam setup
   var defaultValues = {
     wdq: '',
+    sparql: 'SELECT ?item ?itemLabel ?start ?end WHERE {\n  \n  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }\n}',
 
     languages: ['en', 'fr'],
     sitelink: 'wikidata',
@@ -40,6 +41,7 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   $scope.validSitelinks = $wikidata.sitelinks.concat('wikidata');
   $scope.sitelinkFallback = urlManager.get('sitelinkFallback');
   $scope.wdqQuery = urlManager.get('wdq');
+  $scope.sparqlQuery = urlManager.get('sparql');
 
   $scope.saveButtonStates = {
     Def: 1,
@@ -51,31 +53,39 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   $scope.wdqError = false;
 
   $scope.drawTimeline = function() {
-    var wdq = $scope.wdqQuery;
-    $scope.wdqError = false;
+    if ($scope.wdqQuery) {
+      var wdq = $scope.wdqQuery;
+      $scope.wdqError = false;
 
-    $scope.saveButtonState = $scope.saveButtonStates.ValidatingWDQ;
-    $wikidata.WDQ(wdq)
-    .then(
-      function success(qids) {
-        $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
-        $location.path('timeline').search({
-          title: $scope.title,
-          wdq: wdq,
-          languages: $scope.languages,
-          defaultEndTime: $scope.defaultEndTime,
-          sitelink: $scope.sitelink,
-          sitelinkFallback: $scope.sitelinkFallback
-        });
-      },
-      function error() {
-        $scope.wdqError = true;
-        $scope.saveButtonState = $scope.saveButtonStates.InvalidWDQ;
-        $timeout(function() {
-          $scope.saveButtonState = $scope.saveButtonStates.Def;
-        }, 1000);
-      }
-    );
+      $scope.saveButtonState = $scope.saveButtonStates.ValidatingWDQ;
+      $wikidata.WDQ(wdq)
+      .then(
+        function success(qids) {
+          $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
+          $location.path('timeline').search({
+            title: $scope.title,
+            wdq: wdq,
+            languages: $scope.languages,
+            defaultEndTime: $scope.defaultEndTime,
+            sitelink: $scope.sitelink,
+            sitelinkFallback: $scope.sitelinkFallback
+          });
+        },
+        function error() {
+          $scope.wdqError = true;
+          $scope.saveButtonState = $scope.saveButtonStates.InvalidWDQ;
+          $timeout(function() {
+            $scope.saveButtonState = $scope.saveButtonStates.Def;
+          }, 1000);
+        }
+      );
+    } else {
+      $scope.saveButtonState = $scope.saveButtonStates.PreparingToDraw;
+      $location.path('timeline').search({
+        title: $scope.title,
+        sparql: $scope.sparqlQuery
+      });
+    }
   };
 
   $('form.new-view').on('keyup', function(ev) {

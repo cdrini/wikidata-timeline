@@ -20,10 +20,6 @@ body.embedded {
   position: relative;
 }
 
-.alert {
-  margin: 10px;
-}
-
 .alert-info.dark {
   color: #B5B5B5;
   background-color: rgba(20, 20, 20, 0.95);
@@ -213,7 +209,7 @@ button[type="submit"] {
 
 form.new-view {
   width:100%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
 }
 

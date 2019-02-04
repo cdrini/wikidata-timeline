@@ -1,4 +1,4 @@
-CodeMirror.defineSimpleMode("simplemode", {
+CodeMirror.defineSimpleMode("wdq", {
   // The start state contains the rules that are intially used
   start: [
     {regex: /"(?:[^\\]|\\.)*?"/, token: "string"},
