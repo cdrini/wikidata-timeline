@@ -167,7 +167,6 @@ angular.module('wikidataTimeline')
         if (token.type == 'atom') {
           if (/([QP]\d+)$/.test(token.string)) {
             var id = token.string.match(/([QP]\d+)$/)[0];
-            console.log(id);
             if (id.startsWith('P')) {
               $scope.selectedWikidata = 'https://www.wikidata.org/wiki/Property%3A' + id + '#p-namespaces';
             } else {
