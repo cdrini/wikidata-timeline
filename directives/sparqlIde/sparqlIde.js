@@ -3,7 +3,7 @@ angular.module('wikidataTimeline')
 /**
  * Directive for displaying a WDQ editing 'IDE'
  */
-.directive('wdtSparqlIde', ['$wdqSamples', function($wdqSamples) {
+.directive('wdtSparqlIde', ['$timeout', '$wdqSamples', function($timeout, $wdqSamples) {
   return {
     restrict: 'E',
     transclude: true,
@@ -16,9 +16,11 @@ angular.module('wikidataTimeline')
       $scope.contextualDocsEnabled = true;
       $scope.activeToken = '';
       $scope.samples = $wdqSamples.getSamples();
-      $scope.docId = 'introduction';
+      $scope.sparqlDocId = 'introduction';
+      $scope.selectedWikidata = null;
+      $scope.showWikidata = false;
 
-      var sparql_docs_ids = {
+      var SPARQL_DOCS_IDS = {
         keyword: {
           base: 'relIRIs',
           prefix: 'prefNames',
@@ -154,11 +156,31 @@ angular.module('wikidataTimeline')
         var token = cm.getTokenAt(cm.getCursor());
 
         $scope.activeToken = token.string.toLowerCase();
-        if (token.type in sparql_docs_ids) {
-          $scope.docId = sparql_docs_ids[token.type][$scope.activeToken];
+        if (token.type in SPARQL_DOCS_IDS) {
+          $scope.sparqlDocId = SPARQL_DOCS_IDS[token.type][$scope.activeToken];
           $scope.$digest();
         } else {
           $scope.activeToken = '';
+          $scope.$digest();
+        }
+
+        if (token.type == 'atom') {
+          if (/([QP]\d+)$/.test(token.string)) {
+            var id = token.string.match(/([QP]\d+)$/)[0];
+            console.log(id);
+            if (id.startsWith('P')) {
+              $scope.selectedWikidata = 'https://www.wikidata.org/wiki/Property%3A' + id + '#p-namespaces';
+            } else {
+              $scope.selectedWikidata = 'https://www.wikidata.org/wiki/' + id + '#p-namespaces';
+            }
+            $scope.showWikidata = true;
+            $scope.$digest();
+          } else {
+            $scope.showWikidata = false;
+            $scope.$digest();
+          }
+        } else {
+          $scope.showWikidata = false;
           $scope.$digest();
         }
       };
@@ -173,7 +195,10 @@ angular.module('wikidataTimeline')
       });
 
       editor.on('change', getTokenUnderCursor);
-      editor.on('change', () => $scope.model = editor.getValue())
+      editor.on('change', () => {
+        $scope.model = editor.getValue();
+        $timeout();
+      });
       editor.on('cursorActivity', getTokenUnderCursor);
     }
   };

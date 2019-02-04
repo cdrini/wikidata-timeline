@@ -22,7 +22,8 @@ angular.module('wikidataTimeline', [
   $sceDelegateProvider.resourceUrlWhitelist([
     'self', // Allow same origin resource loads.
     'https://www.wikidata.org/w/api.php', // Allow JSONP calls that match this pattern
-    'https://www.w3.org/TR/sparql11-query/' // for sparql docs iframe
+    'https://www.w3.org/TR/sparql11-query/', // for sparql docs iframe
+    'https://www.wikidata.org/wiki/*' // for sparql docs iframe
   ]);
 }])
 

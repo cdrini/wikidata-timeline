@@ -310,3 +310,12 @@ wdt-sparql-ide .docs iframe {
   border: 0;
   margin: 0;
 }
+
+wdt-sparql-ide .docs.wikidata {
+  overflow: hidden;
+}
+wdt-sparql-ide .docs.wikidata iframe {
+  width: calc(100% + 160px);
+  margin-left: -160px;
+  height: 200px;
+}

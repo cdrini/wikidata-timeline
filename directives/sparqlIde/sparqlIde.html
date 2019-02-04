@@ -42,13 +42,17 @@ end time.</div>
       </button>
     </div>
 
-    <div class="docs"
+    <div class="docs wikidata"
+      ng-show="showAllWDQDocs || (contextualDocsEnabled && showWikidata)">
+      <iframe ng-src="{{selectedWikidata}}"></iframe>
+    </div>
+
+    <div class="docs sparql"
       ng-show="showAllWDQDocs || (contextualDocsEnabled && activeToken != '')"
       ng-class="{'contextual-only': !showAllWDQDocs && contextualDocsEnabled }">
-
       <iframe
         ng-src="https://www.w3.org/TR/sparql11-query/"
-        wdt-iframe-id="docId"
+        wdt-iframe-id="sparqlDocId"
       ></iframe>
     </div>
   </div>
