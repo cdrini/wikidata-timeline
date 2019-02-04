@@ -16,6 +16,122 @@ angular.module('wikidataTimeline')
       $scope.contextualDocsEnabled = true;
       $scope.activeToken = '';
       $scope.samples = $wdqSamples.getSamples();
+      $scope.docId = 'introduction';
+
+      var sparql_docs_ids = {
+        keyword: {
+          base: 'relIRIs',
+          prefix: 'prefNames',
+          select: 'select',
+          distinct: 'modDistinct',
+          reduced: 'modReduced',
+          construct: 'construct',
+          describe: 'describe',
+          ask: 'ask',
+          from: 'specifyingDataset',
+          named: 'specifyingDataset',
+          where: 'WritingSimpleQueries',
+          order: 'modOrderBy',
+          limit: 'modResultLimit',
+          offset: 'modOffset',
+          filter: 'termConstraint',
+          optional: 'optionals',
+          graph: 'queryDataset',
+          by: '', // ambiguous: Group By/Order By
+          asc: 'modOrderBy',
+          desc: 'modOrderBy',
+          as: 'assignment',
+          having: 'having',
+          undef: 'inline-data-syntax',
+          values: 'inline-data',
+          group: 'groupby',
+          minus: 'neg-minus',
+          in: 'func-in',
+          not: '', // ambiguous: NOT IN/NOT EXISTS
+          service: '',
+          silent: '',
+          using: '',
+          insert: '',
+          delete: '',
+          union: 'alternatives',
+          true: '',
+          false: '',
+          with: '',
+          data: '',
+          copy: '',
+          to: '',
+          move: '',
+          add: '',
+          create: '',
+          drop: '',
+          clear: '',
+          load: '',
+        },
+        builtin: {
+          str: 'func-str',
+          lang: 'func-lang',
+          langmatches: 'func-langMatches',
+          datatype: 'func-datatype',
+          bound: 'func-bound',
+          sameterm: 'func-sameTerm',
+          isiri: 'func-isIRI',
+          isuri: 'func-isIRI',
+          iri: 'func-iri',
+          uri: 'func-iri',
+          bnode: 'func-bnode',
+          count: 'defn_aggCount',
+          sum: 'defn_aggSum',
+          min: 'defn_aggMin',
+          max: 'defn_aggMax',
+          avg: 'defn_aggAvg',
+          sample: 'defn_aggSample',
+          group_concat: 'defn_aggGroupConcat',
+          rand: 'idp2130040',
+          abs: 'func-abs',
+          ceil: 'func-ceil',
+          floor: 'func-floor',
+          round: 'func-round',
+          concat: 'func-concat',
+          substr: 'func-substr',
+          strlen: 'func-strlen',
+          replace: 'func-replace',
+          ucase: 'func-ucase',
+          lcase: 'func-lcase',
+          encode_for_uri: 'func-encode',
+          contains: 'func-contains',
+          strstarts: 'func-strstarts',
+          strends: 'func-strends',
+          strbefore: 'func-strbefore',
+          strafter: 'func-strafter',
+          year: 'func-year',
+          month: 'func-month',
+          day: 'func-day',
+          hours: 'func-hours',
+          minutes: 'func-minutes',
+          seconds: 'func-seconds',
+          timezone: 'func-timezone',
+          tz: 'func-tz',
+          now: 'func-now',
+          uuid: 'func-uuid',
+          struuid: 'func-struuid',
+          md5: 'func-md5',
+          sha1: 'func-sha1',
+          sha256: 'func-sha256',
+          sha384: 'func-sha384',
+          sha512: 'func-sha512',
+          coalesce: 'func-coalesce',
+          if: 'func-if',
+          strlang: 'func-strlang',
+          strdt: 'func-strdt',
+          isnumeric: 'func-isNumeric',
+          regex: 'func-regex',
+          exists: 'neg-pattern',
+          isblank: 'func-isBlank',
+          isliteral: 'func-isLiteral',
+          a: '',
+          bind: 'bind',
+        }
+      };
 
       var TEMPLATES = [
         {
@@ -36,12 +152,13 @@ angular.module('wikidataTimeline')
        */
       function getTokenUnderCursor(cm) {
         var token = cm.getTokenAt(cm.getCursor());
-    
-        if (token.type == 'keyword') {
-          $scope.activeToken = token.string.toLowerCase();
+
+        $scope.activeToken = token.string.toLowerCase();
+        if (token.type in sparql_docs_ids) {
+          $scope.docId = sparql_docs_ids[token.type][$scope.activeToken];
           $scope.$digest();
-        } else if (token.type == 'operator') {
-          $scope.activeToken = 'operator';
+        } else {
+          $scope.activeToken = '';
           $scope.$digest();
         }
       };

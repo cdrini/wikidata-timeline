@@ -129,6 +129,7 @@ body.embedded {
 
 form {
   padding: 14px;
+  padding-bottom: 200px; /* Leave some room for the docs */
 }
 
 label {
@@ -295,4 +296,17 @@ wdt-help {
   font-size: 14px;
   line-height: 15px;
   border-radius: 20px;
+}
+
+
+
+
+
+
+
+wdt-sparql-ide .docs iframe {
+  width: 100%;
+  height: 270px;
+  border: 0;
+  margin: 0;
 }
