@@ -39,13 +39,8 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   $scope.sitelink = urlManager.get('sitelink');
   $scope.validSitelinks = $wikidata.sitelinks.concat('wikidata');
   $scope.sitelinkFallback = urlManager.get('sitelinkFallback');
-  $scope.activeToken = '';
-  $scope.showAllWDQDocs = false;
-  $scope.contextualDocsEnabled = true;
-  $scope.toggleContextualDocs = function() {
-    $scope.activeToken = '';
-    $scope.contextualDocsEnabled = !$scope.contextualDocsEnabled;
-  };
+  $scope.wdqQuery = urlManager.get('wdq');
+
   $scope.saveButtonStates = {
     Def: 1,
     ValidatingWDQ: 2,
@@ -56,7 +51,7 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
   $scope.wdqError = false;
 
   $scope.drawTimeline = function() {
-    var wdq = queryEditor.getValue();
+    var wdq = $scope.wdqQuery;
     $scope.wdqError = false;
 
     $scope.saveButtonState = $scope.saveButtonStates.ValidatingWDQ;
@@ -82,28 +77,6 @@ function($scope, $timeout, $location, $wikidata, $userSettings, $urlParamManager
       }
     );
   };
-
-  var queryEditor = CodeMirror($('.query-editor')[0], {
-    viewportMargin: Infinity,
-    lineWrapping: true,
-    matchBrackets: true,
-    value: urlManager.get('wdq')
-  });
-
-  var getTokenUnderCursor = function(cm) {
-    var token = cm.getTokenAt(cm.getCursor());
-
-    if (token.type == 'keyword') {
-      $scope.activeToken = token.string.toLowerCase();
-      $scope.$digest();
-    } else if (token.type == 'operator') {
-      $scope.activeToken = 'operator';
-      $scope.$digest();
-    }
-  };
-
-  queryEditor.on('change', getTokenUnderCursor);
-  queryEditor.on('cursorActivity', getTokenUnderCursor);
 
   $('form.new-view').on('keyup', function(ev) {
     // submit on ctrl enter
