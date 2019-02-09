@@ -3,7 +3,7 @@ angular.module('wikidataTimeline')
 /**
  * Directive for displaying a WDQ editing 'IDE'
  */
-.directive('wdtSparqlIde', ['$timeout', '$wdqSamples', function($timeout, $wdqSamples) {
+.directive('wdtSparqlIde', ['$timeout', '$sparqlSamples', function($timeout, $sparqlSamples) {
   return {
     restrict: 'E',
     transclude: true,
@@ -15,10 +15,11 @@ angular.module('wikidataTimeline')
       $scope.showAllWDQDocs = false;
       $scope.contextualDocsEnabled = true;
       $scope.activeToken = '';
-      $scope.samples = $wdqSamples.getSamples();
+      $scope.samples = $sparqlSamples.getSamples();
       $scope.sparqlDocId = 'introduction';
       $scope.selectedWikidata = null;
       $scope.showWikidata = false;
+      $scope.encodeURIComponent = encodeURIComponent;
 
       var SPARQL_DOCS_IDS = {
         keyword: {
@@ -188,7 +189,7 @@ angular.module('wikidataTimeline')
       var editor = CodeMirror(editorWrapper, {
         mode: 'sparql',
         viewportMargin: Infinity,
-        lineWrapping: true,
+        lineWrapping: false,
         matchBrackets: true,
         value: $scope.model
       });

@@ -31,12 +31,12 @@ angular.module('wikidataTimeline', [
   $locationProvider.hashPrefix('');
 }])
 
-.controller('AppController', ['$scope', '$urlParamManager', '$wdqSamples',
-function($scope, $urlParamManager, $wdqSamples) {
+.controller('AppController', ['$scope', '$urlParamManager', '$sparqlSamples',
+function($scope, $urlParamManager, $sparqlSamples) {
   var paramManager = $urlParamManager({
     embed: false
   });
 
   $scope.embedded = paramManager.get('embed');
-  $scope.samples = $wdqSamples.getSamples();
+  $scope.samples = $sparqlSamples.getSamples();
 }]);

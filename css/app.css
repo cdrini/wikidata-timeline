@@ -170,20 +170,14 @@ button[type="submit"] {
 
 .query-panel .query-editor {
   margin: 5px;
-  margin-bottom: -14px;
 }
 
-.query-panel .sample-queries {
+.query-panel .toolbar {
   text-align: right;
-}
-
-.query-panel .sample-queries .collapse-toggle {
-  font-size: 80%;
 }
 
 .query-panel .sample-queries .items {
   text-align: left;
-
   border-top: 1px solid #ddd;
 }
 

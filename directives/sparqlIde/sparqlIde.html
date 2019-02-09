@@ -4,21 +4,22 @@ end time.</div>
 <div class="panel panel-default query-panel">
   <div class="panel-body">
     <div class="query-editor"></div>
-    <div class="dropdown sample-queries">
+    <div class="toolbar">
       <a class="collapse-toggle"
-         data-toggle="collapse"
-         data-target=".sample-queries > .collapse"
-         href="javascript:;"
-         role="button"
-         aria-haspopup="true"
-         aria-expanded="false">
-        Samples <span class="caret"></span>
-      </a>
-      <div class="collapse items">
-        <a ng-repeat="s in samples" ng-href="#new?{{s.urlComponents}}">
-          {{s.title}}
-          <code>{{s.query}}</code>
-        </a>
+        data-toggle="collapse"
+        data-target=".sample-queries > .collapse"
+        href="javascript:;"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false">
+        Samples <span class="caret"></span></a> | 
+      <a ng-href="https://query.wikidata.org/#{{encodeURIComponent(model)}}" target="_blank">Open in WDQS</a>
+      <div class="dropdown sample-queries">
+        <div class="collapse items">
+          <a ng-repeat="s in samples" ng-href="#new?{{s.urlComponents}}">
+            {{s.title}}
+          </a>
+        </div>
       </div>
     </div>
   </div>
